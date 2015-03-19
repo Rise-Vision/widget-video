@@ -9,7 +9,9 @@ RiseVision.Video = (function (document, gadgets) {
   var _prefs = null,
     _additionalParams = {},
     _background = null,
-    _player = null;
+    _player = null,
+    _initialPlay = true,
+    _previouslyPlaying = true;
 
   /*
    *  Private Methods
@@ -34,17 +36,22 @@ RiseVision.Video = (function (document, gadgets) {
    *  Public Methods
    */
   function pause() {
+    _previouslyPlaying = _player.isVideoPlaying();
+
     _player.pause();
   }
 
   function play() {
-    if (_player.isInitialPlay()) {
+    if (_initialPlay) {
+      _initialPlay = false;
+
       // "autoplay" was selected in settings
       if (_additionalParams.video.autoplay) {
         _player.play();
       }
+
     } else {
-      if (!_player.userPaused()) {
+      if (_previouslyPlaying) {
         _player.play();
       }
     }
@@ -67,11 +74,12 @@ RiseVision.Video = (function (document, gadgets) {
 
   function stop() {
     // https://github.com/Rise-Vision/viewer/issues/30
-    // Have to call pause() due to Viewer issue
-    pause();
+    // Have to call pause() on the player due to Viewer issue
+    _player.pause();
   }
 
   function videoEnded() {
+    _previouslyPlaying = true;
     _done();
   }
 
