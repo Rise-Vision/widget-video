@@ -31,15 +31,17 @@
     }
   }
 
-  if (id && id !== "") {
-    gadgets.rpc.register("rscmd_play_" + id, play);
-    gadgets.rpc.register("rscmd_pause_" + id, pause);
-    gadgets.rpc.register("rscmd_stop_" + id, stop);
+  window.addEventListener("polymer-ready", function() {
+    if (id && id !== "") {
+      gadgets.rpc.register("rscmd_play_" + id, play);
+      gadgets.rpc.register("rscmd_pause_" + id, pause);
+      gadgets.rpc.register("rscmd_stop_" + id, stop);
 
-    gadgets.rpc.register("rsparam_set_" + id, additionalParams);
-    gadgets.rpc.call("", "rsparam_get", null, id, ["additionalParams"]);
+      gadgets.rpc.register("rsparam_set_" + id, additionalParams);
+      gadgets.rpc.call("", "rsparam_get", null, id, ["additionalParams"]);
 
-  }
+    }
+  });
 
 })(window, gadgets);
 
