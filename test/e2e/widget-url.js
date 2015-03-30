@@ -50,7 +50,7 @@
       expect(element(by.css(".middle-center")).isPresent()).to.eventually.be.true;
     });
 
-    it("Should load and display video", function () {
+    xit("Should load and display video", function () {
       // video controls should not be displayed
       expect(element(by.id("video")).getAttribute("controls")).to.eventually.not.be.null;
 

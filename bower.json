@@ -37,8 +37,8 @@
     "rv-angular-bootstrap-colorpicker": "https://github.com/Rise-Vision/angular-bootstrap-colorpicker.git#3.0.14",
     "ui-bootstrap": "~0.11.0",
     "webcomponentsjs": "~0.5.2",
-    "web-component-rise-storage": "https://github.com/Rise-Vision/web-component-rise-storage.git#0.1.7",
-    "widget-common": "https://github.com/Rise-Vision/widget-common.git#0.1.4",
+    "web-component-rise-storage": "https://github.com/Rise-Vision/web-component-rise-storage.git#1.0.3",
+    "widget-common": "https://github.com/Rise-Vision/widget-common.git#0.1.6",
     "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#0.1.11",
     "widget-settings-ui-core": "https://github.com/Rise-Vision/widget-settings-ui-core.git#0.1.11"
   },

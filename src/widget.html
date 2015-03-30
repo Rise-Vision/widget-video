@@ -21,8 +21,10 @@
 
   <div id="background"></div>
   <div id="videoContainer">
-    <video id="video"></video>
+    <video id="video" preload="none"></video>
   </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
   <!-- build:e2eMockData -->
   <!-- endbuild -->
@@ -41,6 +43,9 @@
   <script src="widget/player.js"></script>
   <script src="widget/main.js"></script>
   <script src="widget/analytics.js"></script>
+  <!-- endbuild -->
+
+  <!-- build:e2ePolymerReadyMock -->
   <!-- endbuild -->
 </body>
 </html>
