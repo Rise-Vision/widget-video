@@ -23,23 +23,16 @@
     RiseVision.Video.stop();
   }
 
-  function additionalParams(names, values) {
-    if (Array.isArray(names) && names.length > 0 && names[0] === "additionalParams") {
-      if (Array.isArray(values) && values.length > 0) {
-        RiseVision.Video.setAdditionalParams(JSON.parse(values[0]));
-      }
+  window.addEventListener("polymer-ready", function() {
+    if (id && id !== "") {
+      gadgets.rpc.register("rscmd_play_" + id, play);
+      gadgets.rpc.register("rscmd_pause_" + id, pause);
+      gadgets.rpc.register("rscmd_stop_" + id, stop);
+
+      gadgets.rpc.register("rsparam_set_" + id, RiseVision.Video.setAdditionalParams);
+      gadgets.rpc.call("", "rsparam_get", null, id, ["additionalParams"]);
     }
-  }
-
-  if (id && id !== "") {
-    gadgets.rpc.register("rscmd_play_" + id, play);
-    gadgets.rpc.register("rscmd_pause_" + id, pause);
-    gadgets.rpc.register("rscmd_stop_" + id, stop);
-
-    gadgets.rpc.register("rsparam_set_" + id, additionalParams);
-    gadgets.rpc.call("", "rsparam_get", null, id, ["additionalParams"]);
-
-  }
+  });
 
 })(window, gadgets);
 

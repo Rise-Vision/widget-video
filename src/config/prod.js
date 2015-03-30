@@ -2,7 +2,7 @@
 /* exported config */
 if (typeof config === "undefined") {
   var config = {
-    // variables go here
+    SKIN: "/rise-common/scripts/jw-player/skins/six.xml"
   };
 
   if (typeof angular !== "undefined") {

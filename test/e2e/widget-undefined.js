@@ -23,10 +23,8 @@
       return browser.ignoreSynchronization = true;
     });
 
-
-    it("Should apply .no-scale class due to missing scaleToFit setting", function () {
-      // no scale class should be applied
-      expect(element(by.css("video.no-scale")).isPresent()).to.eventually.be.true;
+    xit("Should not apply stretching due to missing scaleToFit setting", function () {
+      // TODO: figure out how to differentiate between uniform stretching and none in JW Player
 
     });
 
