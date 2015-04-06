@@ -131,7 +131,10 @@
     return gulp.src("./src/widget.html")
       .pipe(htmlreplace({
         e2egadgets: "../node_modules/widget-tester/mocks/gadget-mocks.js",
-        e2eMockData: "../test/data/url.js"
+        e2eStorageMock: "../node_modules/widget-tester/mocks/rise-storage-mock.js",
+        e2eMockData: "../test/data/url.js",
+        e2eJWPlayer: "../test/jw-player/jwplayer.js",
+        e2ePolymerReadyMock: "../test/e2e/polymer-ready-mock.js"
       }))
       .pipe(rename(function (path) {
         path.basename += "-url-e2e";
@@ -144,7 +147,9 @@
       .pipe(htmlreplace({
         e2egadgets: "../node_modules/widget-tester/mocks/gadget-mocks.js",
         e2eStorageMock: "../node_modules/widget-tester/mocks/rise-storage-mock.js",
-        e2eMockData: "../test/data/storage.js"
+        e2eMockData: "../test/data/storage.js",
+        e2eJWPlayer: "../test/jw-player/jwplayer.js",
+        e2ePolymerReadyMock: "../test/e2e/polymer-ready-mock.js"
       }))
       .pipe(rename(function (path) {
         path.basename += "-storage-e2e";
@@ -156,7 +161,10 @@
     return gulp.src("./src/widget.html")
       .pipe(htmlreplace({
         e2egadgets: "../node_modules/widget-tester/mocks/gadget-mocks.js",
-        e2eMockData: "../test/data/undefined.js"
+        e2eStorageMock: "../node_modules/widget-tester/mocks/rise-storage-mock.js",
+        e2eMockData: "../test/data/undefined.js",
+        e2eJWPlayer: "../test/jw-player/jwplayer.js",
+        e2ePolymerReadyMock: "../test/e2e/polymer-ready-mock.js"
       }))
       .pipe(rename(function (path) {
         path.basename += "-undefined-e2e";

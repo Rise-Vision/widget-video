@@ -7,9 +7,9 @@ RiseVision.Video = (function (document, gadgets) {
   "use strict";
 
   var _prefs = null,
-    _additionalParams = {},
     _background = null,
-    _player = null;
+    _initialPlay = true,
+    _player, _additionalParams;
 
   /*
    *  Private Methods
@@ -26,8 +26,8 @@ RiseVision.Video = (function (document, gadgets) {
 
   function _backgroundReady() {
     // create and initialize the Player instance
-    _player = new RiseVision.Video.Player(_additionalParams);
-    _player.init();
+    _player = RiseVision.Video.Player;
+    _player.init(_additionalParams);
   }
 
   /*
@@ -38,31 +38,42 @@ RiseVision.Video = (function (document, gadgets) {
   }
 
   function play() {
-    if (_player.isInitialPlay()) {
-      // "autoplay" was selected in settings
+    // "autoplay" was selected in settings
+    if (_initialPlay) {
+      _initialPlay = false;
+
       if (_additionalParams.video.autoplay) {
         _player.play();
+      } else {
+        _player.play(true);
       }
     } else {
-      if (!_player.userPaused()) {
-        _player.play();
-      }
+      _player.play();
     }
+
   }
 
   function playerReady() {
     _ready();
   }
 
-  function setAdditionalParams(params) {
-    _prefs = new gadgets.Prefs();
-    _additionalParams = params;
+  function setAdditionalParams(names, values) {
+    if (Array.isArray(names) && names.length > 0 && names[0] === "additionalParams") {
+      if (Array.isArray(values) && values.length > 0) {
+        _additionalParams = JSON.parse(values[0]);
+        _prefs = new gadgets.Prefs();
 
-    document.getElementById("videoContainer").style.height = _prefs.getInt("rsH") + "px";
+        document.getElementById("videoContainer").style.height = _prefs.getInt("rsH") + "px";
 
-    // create and initialize the Background instance
-    _background = new RiseVision.Common.Background(_additionalParams);
-    _background.init(_backgroundReady);
+        _additionalParams.width = _prefs.getInt("rsW");
+        _additionalParams.height = _prefs.getInt("rsH");
+
+        // create and initialize the Background instance
+        _background = new RiseVision.Common.Background(_additionalParams);
+        _background.init(_backgroundReady);
+      }
+    }
+
   }
 
   function stop() {

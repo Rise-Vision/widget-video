@@ -1,41 +1,37 @@
+/* global jwplayer, config */
 var RiseVision = RiseVision || {};
 RiseVision.Video = RiseVision.Video || {};
 
-RiseVision.Video.Player = function (data) {
+
+RiseVision.Video.Player = (function (document, jwplayer, cache, config) {
   "use strict";
 
-  var _video = document.getElementById("video"),
-    _videoContainer = document.getElementById("videoContainer"),
-    _storage = document.getElementById("videoStorage"),
-    _initialPlay = true,
-    _userPaused = false,
-    _viewerPaused = false,
-    _refreshDuration = 900000, // 15 minutes
-    _isStorageFile = false,
-    _refreshWaiting = false,
-    _notifiedReady = false,
-    _canPlay = false,
+  var _autoPlay, _volume, _scaleToFit, _url, _storageUrl;
+  var _width, _height;
+  var _isStorageFile;
+
+  var _isLoading = true,
+    _playerError = false,
     _separator = "",
-    _srcAttr, _fragment, _source;
+    _riseCacheRunning = false,
+    _refreshWaiting = false,
+    _refreshDuration = 900000; // 15 minutes
 
   /*
-   * Private Methods
+   *  Private Methods
    */
-  function _storageResponse(e) {
-    _storage.removeEventListener("rise-storage-response", _storageResponse);
+  function _getVideoFileType(url) {
+    var extensions = [".mp4", ".webm", ".ogg", ".ogv"],
+      urlLowercase = url.toLowerCase(),
+      type = null,
+      i;
 
-    if (Array.isArray(e.detail)) {
-      _srcAttr.value = e.detail[0];
-    } else {
-      _srcAttr.value = e.detail;
+    for (i = 0; i <= extensions.length; i += 1) {
+      if (urlLowercase.indexOf(extensions[i]) !== -1) {
+        type = extensions[i].substr(extensions[i].lastIndexOf(".") + 1);
+        break;
+      }
     }
-
-    _source.setAttributeNode(_srcAttr);
-    _video.appendChild(_fragment);
-  }
-
-  function _getVideoFileType() {
-    var type = data.url.substr(data.url.lastIndexOf(".") + 1);
 
     if (type === "ogv") {
       type = "ogg";
@@ -44,184 +40,243 @@ RiseVision.Video.Player = function (data) {
     return type;
   }
 
-  function _onLoadedData() {
-    // at least 1st frame of video has loaded
-    _videoContainer.style.visibility = "visible";
-    // remove this listener
-    _video.removeEventListener("loadeddata", _onLoadedData, false);
-  }
-
-  function _onCanPlay() {
-    // enough data has loaded to safely play without interruption
-    _canPlay = true;
-
-    // only call playerReady() once
-    if (!_notifiedReady) {
-      RiseVision.Video.playerReady();
-      _notifiedReady = true;
-    }
-
-    // remove this listener
-    _video.removeEventListener("canplay", _onCanPlay, false);
-
-    if (!_isStorageFile) {
-      // call the refresh timer function for a non-storage video
-      _refreshTimer(_refreshDuration);
-    }
-  }
-
-  function _onEnded() {
-    // a "pause" event is always fired before "ended" event, ensure _userPaused is false
-    _userPaused = false;
-
-    if (!_isStorageFile && _refreshWaiting) {
-      _refreshWaiting = false;
-      _refresh();
-    }
-
-    // video ended
-    RiseVision.Video.videoEnded();
-  }
-
-  function _onPause() {
-    // this handler also gets called via public "pause()" function, only set "_userPaused = true" if not the case
-    _userPaused = !_viewerPaused;
-  }
-
-  function _onPlay() {
-    _initialPlay = false;
-    _userPaused = false;
-  }
-
-  function _canPlayTimer() {
-    setTimeout(function waitToPlay() {
-
-      if (_canPlay) {
-        _video.play();
-      } else {
-        _canPlayTimer();
-      }
-
-    }, 200);
+  function _refreshTimer() {
+    setTimeout(function () {
+      // do not do any immediate action to avoid any unforeseen scenario
+      // wait until viewer has told widget to pause
+      _refreshWaiting = true;
+    }, _refreshDuration);
   }
 
   function _refresh() {
-    _video.addEventListener("canplay", _onCanPlay, false);
-    _video.addEventListener("loadeddata", _onLoadedData, false);
+    var fileType;
 
-    // hide the video while it gets a data refresh to avoid visual ugliness
-    _videoContainer.style.visibility = "hidden";
+    if (_isStorageFile) {
+      fileType = _getVideoFileType(_storageUrl);
 
-    // set new src value with a cachebuster
-    _source.setAttribute("src", data.url + _separator + "cb=" + new Date().getTime());
+      _refreshWaiting = false;
 
-    // flag associated with "canplay" event, ensures video won't be played until it has loaded enough
-    _canPlay = false;
+      console.debug("Refresh, JW Player load: ", [_storageUrl, fileType]);
 
-    _video.load();
+      // load a new "playlist"
+      jwplayer().load([{
+        file: _storageUrl,
+        type: fileType
+      }]);
+
+    } else {
+      fileType = _getVideoFileType(_url);
+
+      cache.ping(function (isRunning) {
+        _riseCacheRunning = isRunning;
+
+        _refreshWaiting = false;
+
+        console.debug("Refresh, JW Player load: ",
+          [_riseCacheRunning ? cache.getUrl() + encodeURIComponent(_url) : _url, fileType]);
+
+        // load a new "playlist"
+        jwplayer().load([{
+          file: _riseCacheRunning ? cache.getUrl() + encodeURIComponent(_url) : _url,
+          type: fileType
+        }]);
+
+        // start the refresh timer again for this non-storage video
+        _refreshTimer();
+      });
+    }
   }
 
-  function _refreshTimer(duration) {
-    setTimeout(function videoRefresh() {
+  function _onVideoComplete() {
+    console.debug("JW Player video complete");
+    RiseVision.Video.videoEnded();
+  }
 
-      if (_video.paused && _video.currentTime <= 0) {
-        // Only refreshing immediately when in a paused state and the video is at the beginning
-        _refresh();
+  function _onVideoPlay() {
+    // JW Player fires onPlay twice when video is being played from initial position
+    if (_isLoading) {
+      _isLoading = false;
+
+      if (!_isStorageFile) {
+        _refreshTimer();
+      }
+    }
+
+    _playerError = false;
+  }
+
+  function _onPlayerReady() {
+    jwplayer().setMute(false);
+    jwplayer().setVolume(_volume);
+
+    // now notify Viewer that player is ready
+    RiseVision.Video.playerReady();
+  }
+
+  function _onPlayerError(error) {
+    console.debug("JW Player Error - ", error);
+
+    _playerError = true;
+
+    if (_isLoading) {
+      _isLoading = false;
+
+      if (!_isStorageFile) {
+        _refreshTimer();
+      }
+    }
+
+    RiseVision.Video.videoEnded();
+  }
+
+  function _load() {
+    var file, fileType;
+
+    document.getElementById("videoJW").style.visibility = "hidden";
+
+    if (_isStorageFile) {
+      file = _storageUrl;
+      fileType = _getVideoFileType(_storageUrl);
+    } else {
+      file = _riseCacheRunning ? cache.getUrl() + encodeURIComponent(_url) : _url;
+      fileType = _getVideoFileType(_url);
+    }
+
+    console.debug("JW Player setup: ", [file, fileType]);
+
+    jwplayer("videoJW").setup({
+      file : file,
+      type: fileType,
+      width : _width,
+      height : _height,
+      controls: !_autoPlay,
+      mute: true,
+      stretching : _scaleToFit ? "uniform" : "none",
+      primary: "html5",
+      skin: config.SKIN,
+      events : {
+        onReady : function (event) {
+          _onPlayerReady(event);
+        },
+        onComplete : function (event) {
+          _onVideoComplete(event);
+        },
+        onError : function (error) {
+          _onPlayerError(error);
+        },
+        onPlay : function (event) {
+          _onVideoPlay(event);
+        }
+      }
+    });
+
+  }
+
+  function _onRiseStorageResponse(e) {
+    console.debug("Rise Storage response - ", e);
+    if (e.detail && e.detail.files && e.detail.files.length > 0) {
+      _storageUrl = e.detail.files[0].url;
+
+      if (_isLoading) {
+        _load();
       } else {
+        // do not do any immediate action to avoid any unforeseen scenario
+        // wait until viewer has told widget to pause
         _refreshWaiting = true;
       }
-
-    }, duration);
+    }
   }
 
   /*
    *  Public Methods
    */
-  function isInitialPlay() {
-    return _initialPlay;
-  }
-
-  function init() {
-    var typeAttr = document.createAttribute("type"),
+  function init(data) {
+    var video = document.getElementById("videoJW"),
+      storage = document.getElementById("videoStorage"),
       str;
 
-    _fragment = document.createDocumentFragment();
-    _source = _fragment.appendChild(document.createElement("source"));
-    _srcAttr = document.createAttribute("src");
-
-    // use default controls if not set to autoplay
-    if (!data.video.autoplay) {
-      _video.setAttribute("controls", "");
+    if (!video || !storage) {
+      return;
     }
 
-    // set appropriate sizing class based on scaleToFit value
-    _video.className = data.video.scaleToFit ? _video.className + " scale-to-fit"
-      : _video.className + " no-scale";
+    _autoPlay = data.video.autoplay;
+    _volume = data.video.volume;
+    _scaleToFit = data.video.scaleToFit;
+    _url = data.url;
 
-    // set initial volume on <video>
-    _video.volume = data.video.volume / 100;
-
-    // set the "type" attribute on <source>
-    typeAttr.value = "video/" + _getVideoFileType();
-    _source.setAttributeNode(typeAttr);
-
-    // video events
-    _video.addEventListener("loadeddata", _onLoadedData, false);
-    _video.addEventListener("canplay", _onCanPlay, false);
-    _video.addEventListener("ended", _onEnded, false);
-    _video.addEventListener("pause", _onPause, false);
-    _video.addEventListener("play", _onPlay, false);
+    _width = data.width;
+    _height = data.height;
 
     _isStorageFile = (Object.keys(data.videoStorage).length !== 0);
 
     if (!_isStorageFile) {
-      str = data.url.split("?");
-
+      str = _url.split("?");
       // store this for the refresh timer
       _separator = (str.length === 1) ? "?" : "&";
 
-      // Non storage URL
-      _srcAttr.value = data.url;
-      _source.setAttributeNode(_srcAttr);
-      _video.appendChild(_fragment);
+      cache.ping(function (isRunning) {
+        _riseCacheRunning = isRunning;
+        _load();
+      });
 
     } else {
       // Rise Storage
-      _storage.addEventListener("rise-storage-response", _storageResponse);
+      storage.addEventListener("rise-storage-response", _onRiseStorageResponse);
 
-      _storage.setAttribute("folder", data.videoStorage.folder);
-      _storage.setAttribute("fileName", data.videoStorage.fileName);
-      _storage.setAttribute("companyId", data.videoStorage.companyId);
-      _storage.go();
+      storage.setAttribute("folder", data.videoStorage.folder);
+      storage.setAttribute("fileName", data.videoStorage.fileName);
+      storage.setAttribute("companyId", data.videoStorage.companyId);
+      storage.go();
     }
   }
 
   function pause() {
-    _viewerPaused = true;
-    _video.pause();
-  }
+    var state = jwplayer().getState();
 
-  function play() {
-    _initialPlay = false;
-    _viewerPaused = false;
-
-    if (!_canPlay) {
-      _canPlayTimer();
-    } else {
-      _video.play();
+    if (state === "BUFFERING" || state === "PLAYING") {
+      jwplayer().pause(true);
     }
 
+    document.getElementById("videoJW").style.visibility = "hidden";
+
+    if (_refreshWaiting) {
+      _refresh();
+    }
   }
 
-  function userPaused() {
-    return _userPaused;
+  function play(showOnly) {
+    document.getElementById("videoJW").style.visibility = "visible";
+
+    if (!_playerError) {
+      if (!showOnly) {
+        if (jwplayer().getPosition() > 0) {
+          jwplayer().seek(0);
+          jwplayer().play(true);
+        } else {
+          jwplayer().play(true);
+        }
+      }
+
+    } else {
+      RiseVision.Video.videoEnded();
+    }
+  }
+
+  function remove() {
+    jwplayer().remove();
+  }
+
+  function stop() {
+    pause();
   }
 
   return {
-    "isInitialPlay": isInitialPlay,
     "init": init,
     "pause": pause,
     "play": play,
-    "userPaused": userPaused
+    "remove": remove,
+    "stop": stop
+
   };
-};
+
+})(document, jwplayer, RiseVision.Common.RiseCache, config);

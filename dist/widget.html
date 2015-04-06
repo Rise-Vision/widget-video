@@ -13,12 +13,12 @@
 </head>
 <body>
 
-  <rise-storage id="backgroundStorage"></rise-storage>
-  <rise-storage id="videoStorage"></rise-storage>
+  <rise-storage id="backgroundStorage" refresh="15"></rise-storage>
+  <rise-storage id="videoStorage" refresh="15"></rise-storage>
 
   <div id="background"></div>
   <div id="videoContainer">
-    <video id="video"></video>
+    <div id="videoJW"></div>
   </div>
 
   <!-- build:e2eMockData -->
@@ -31,6 +31,14 @@
   <script src="//rvashow2.appspot.com/gadgets/gadgets.min.js"></script>
   
 
+  <!-- build:e2eJWPlayer -->
+  <script src="//s3.amazonaws.com/rise-common/scripts/jw-player/jwplayer.js"></script>
+  
+  <script>jwplayer.key="xBXyUtAJ+brFzwc2kNhDg/Sqk8W7rmktAYliYHzVgxo=";</script>
+
   <script src="js/widget.min.js"></script>
+
+  <!-- build:e2ePolymerReadyMock -->
+  
 </body>
 </html>

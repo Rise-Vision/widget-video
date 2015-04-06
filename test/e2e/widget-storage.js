@@ -41,26 +41,33 @@
       expect(element(by.css(".bottom-right")).isPresent()).to.eventually.be.true;
     });
 
-    it("Should load and display video", function () {
-      // video controls should be displayed
-      expect(element(by.id("video")).getAttribute("controls")).to.eventually.be.null;
+    it("Should load and display JW Player and video", function () {
+      // jwplayer should have taken control of designated element
+      expect(element(by.css("#videoJW.jwplayer")).isPresent()).to.eventually.be.true;
 
-      // scale to fit class should be applied
-      expect(element(by.css("video.no-scale")).isPresent()).to.eventually.be.true;
+      browser.driver.wait(function() {
+        return element(by.id("videoJW_view")).isPresent().then(function(el){
+          return el === true;
+        });
+      }).
+        then(function(){
+          expect(element(by.id("videoJW_view")).isPresent()).to.eventually.be.true;
 
-      // source element should exist
-      expect(element(by.tagName("source")).isPresent()).to.eventually.be.true;
+          // correct storage file url is set
+          expect(element(by.css("#videoJW_view span.jwvideo video")).getAttribute("src")).
+           to.eventually.equal("https://storage.googleapis.com/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets%2Fa_food_show.webm");
 
-      // source element should apply "src" attribute with correct value
-      expect(element(by.css("source")).getAttribute("src")).
-        to.eventually.equal("https://storage.googleapis.com/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets%2Fa_food_show.webm");
+          // TODO: figure out how JWPlayer is enabling / disabling controls based on
 
-      // video container should be visible
-      expect(element(by.id("videoContainer")).isPresent()).to.eventually.be.true;
-      expect(element(by.id("videoContainer")).isDisplayed()).to.eventually.be.true;
+          // TODO: figure out how to differentiate between uniform stretching and none in JW Player
+
+        });
 
     });
 
+    xit("Should refresh the video", function () {
+      //TODO: figure out how to get sinon.fakeTimers to work
+    });
   });
 
 })();

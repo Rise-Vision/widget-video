@@ -44,29 +44,10 @@ body {
   background-color: transparent;
 }
 
-video {
-  height: auto;
-}
-
-#videoContainer {
-  position: relative;
-  visibility: hidden;
-}
-
-video::-webkit-media-controls-fullscreen-button {
-  display: none;
-}
-
-.scale-to-fit {
-  width: 100%;
-}
-
-.no-scale {
-  max-width: 100%;
-}
-
 #background {
     position: absolute;
+    top: 0;
+    left: 0;
     background-repeat: no-repeat;
     height: 100%;
     width: 100%;
