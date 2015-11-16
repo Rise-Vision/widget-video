@@ -35,10 +35,10 @@
     "angular-bootstrap": "~0.11.1",
     "angular-bootstrap-slider": "~0.0.6",
     "angular-route": "1.2.18",
-    "rv-common-style": "https://github.com/Rise-Vision/common-style.git#1.1.12",
+    "rv-common-style": "https://github.com/Rise-Vision/common-style.git#1.3.29",
     "rise-storage": "https://github.com/Rise-Vision/web-component-rise-storage.git#1.2.3",
     "widget-common": "https://github.com/Rise-Vision/widget-common.git#0.3.3",
-    "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#1.0.0",
+    "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#1.0.4",
     "widget-settings-ui-core": "https://github.com/Rise-Vision/widget-settings-ui-core.git#0.1.11"
   },
   "resolutions": {

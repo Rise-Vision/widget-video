@@ -22,64 +22,100 @@
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
 </head>
 <body ng-app="risevision.widget.video.settings" ng-controller="settingsController">
-  <div class="widget">
-    <div class="overlay"></div>
-    <div class="settings">
-      <div class="settings-center">
-        <div class="wrapper container modal-content" ng-controller="videoSettingsController" ng-cloak>
-          <div class="modal-header">
-            <h2 id="settings-title"> {{"video.settings" | translate }}
-              <button id="settings-close" type="button" class="close" ng-click="closeSettings()">
-                <i class="fa fa-times"></i>
-              </button>
-            </h2>
-            <div class="sticky-wrapper">
-              <widget-button-toolbar
-                save="saveSettings()" cancel="closeSettings()" disable-save="settingsForm.$invalid"
-                contribute="https://github.com/Rise-Vision/widget-video"></widget-button-toolbar>
-            </div>
-          </div>
-          <form role="form" name="settingsForm">
-            <!-- URL -->
-            <url-field id="videoUrl" name="videoUrl" url="settings.additionalParams.url"
-                       company-id="{{settings.params.companyId}}"
-                       storage-type="single-file"
-                       file-type="video"
-                       ng-model="videourlentry" valid></url-field>
-            <!-- Video -->
-            <div class="section">
-              <h5>{{"video.heading" | translate}}</h5>
-              <!-- Scale To Fit -->
-              <div class="checkbox">
-                <label>
-                  <input name="video-scale" type="checkbox" ng-model="settings.additionalParams.video.scaleToFit"> {{"widgets.scale-to-fit" | translate}}
-                </label>
-              </div>
-              <!-- Volume -->
-              <label>{{"video.volume.label" | translate}}</label>
-              <div>
-                <slider orientation="horizontal" handle="round" ng-model="settings.additionalParams.video.volume" min="0" step="1" max="100"></slider>
-              </div>
-              <!-- Use Controls -->
-              <div class="checkbox">
-                <label>
-                  <input type="checkbox" ng-model="settings.additionalParams.video.controls"> {{"widget-video-folder.controls" | translate}}
-                </label>
-              </div>
-              <div class="form-group" ng-show="settings.additionalParams.video.controls">
-                <!-- Autoplay -->
+  <div class="container-fluid">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content" ng-controller="videoSettingsController" ng-cloak>
+
+        <div class="modal-header">
+          <button type="button" class="close">
+            <i class="fa fa-times half-top"></i>
+          </button>
+          <h2 class="modal-title">
+            {{"video.settings" | translate }}
+            <a class="btn btn-link" href="https://github.com/Rise-Vision/widget-video" target="_blank">
+              <i class="fa fa-github fa-2x icon-gray"></i>
+            </a>
+          </h2>
+        </div> <!-- .modal-header -->
+
+        <form role="form" name="settingsForm">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="control-label remove-bottom add-top">
+                {{"video.url.label" | translate }}
+              </label>
+              <div class="row">
+                <div class="radio">
+
+                  <div class="col-md-12">
+                    <label class="radio-inline">
+                      <input type="radio" value="file" ng-model="settings.additionalParams.type">
+                      {{"video.url.file" | translate }}
+                    </label>
+                  </div>
+
+                  <div class="col-md-12">
+                    <label class="radio-inline add-top half-bottom">
+                      <input type="radio" value="custom" ng-model="settings.additionalParams.type">
+                      {{"video.url.custom" | translate }}
+                    </label>
+                  </div>
+
+                </div> <!-- .radio -->
+              </div> <!-- .row -->
+
+              <url-field id="videoUrl" name="videoUrl" url="settings.additionalParams.url"
+                 company-id="{{settings.params.companyId}}"
+                 storage-type="single-file"
+                 file-type="video"
+                 ng-model="videourlentry" valid></url-field>
+
+              <!-- Video -->
+              <div class="section">
+                <h5>{{"video.heading" | translate}}</h5>
+                <!-- Scale To Fit -->
                 <div class="checkbox">
                   <label>
-                    <input type="checkbox" ng-model="settings.additionalParams.video.autoplay"> {{"video.autoplay.label" | translate}}
+                    <input name="video-scale" type="checkbox" ng-model="settings.additionalParams.video.scaleToFit"> {{"widgets.scale-to-fit" | translate}}
                   </label>
                 </div>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+
+                <!-- Volume -->
+                <label>{{"video.volume.label" | translate}}</label>
+                <div>
+                  <slider orientation="horizontal" handle="round" ng-model="settings.additionalParams.video.volume" min="0" step="1" max="100"></slider>
+                </div>
+
+                <!-- Use Controls -->
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" ng-model="settings.additionalParams.video.controls"> {{"widget-video-folder.controls" | translate}}
+                  </label>
+                </div>
+
+                <!-- Autoplay -->
+                <div class="form-group" ng-show="settings.additionalParams.video.controls">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" ng-model="settings.additionalParams.video.autoplay"> {{"video.autoplay.label" | translate}}
+                    </label>
+                  </div>
+                </div>
+
+              </div> <!-- .section -->
+            </div> <!-- .form-group -->
+            <hr>
+          </div> <!-- .modal-body -->
+
+          <div class="modal-footer">
+              <widget-button-toolbar
+              save="saveSettings()" cancel="closeSettings()" disable-save="settingsForm.$invalid"></widget-button-toolbar>
+          </div>
+
+        </form>
+      </div> <!-- .modal-content -->
+    </div> <!-- .modal-dialog -->
+  </div> <!-- .container-fluid -->
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
