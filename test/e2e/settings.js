@@ -40,6 +40,9 @@
       // form should be invalid due to URL Field empty entry
       expect(element(by.css("form[name='settingsForm'].ng-invalid")).isPresent()).to.eventually.be.true;
 
+      // Single Video should be selected
+      expect(element(by.model("settings.additionalParams.type")).getAttribute("value")).to.eventually.equal("file");
+
       // Video URL input value should be empty
       expect(element(by.model("url")).getAttribute("value")).to.eventually.equal("");
 
@@ -93,6 +96,7 @@
       var settings = {
         params: {},
         additionalParams: {
+          "type": "file",
           "url": validVideoUrl,
           "storage": {},
           "video": {

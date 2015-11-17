@@ -16,6 +16,7 @@ angular.module("risevision.widget.video.settings")
   .value("defaultSettings", {
     params: {},
     additionalParams: {
+      type: "file",
       url: "",
       storage: {},
       video: {
