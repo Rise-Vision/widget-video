@@ -608,7 +608,7 @@ RiseVision.Video = (function (gadgets) {
 
       // Check if there is an issue with the format.
       if (error.message && (error.message === "Error loading media: File could not be played")) {
-        message = "There was a problem playing that video. It could be that we don't " +
+        message = "There was a problem playing that video. It could be that there isn't enough space for caching it, or we don't " +
         "support that format or it is not encoded correctly.";
       }
     }
