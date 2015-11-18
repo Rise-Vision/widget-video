@@ -73,7 +73,7 @@
         RiseVision.Video.playerError({ "message": "Error loading media: File could not be played" });
 
         assert.equal(document.querySelector(".message").innerHTML, "There was a problem playing " +
-          "that video. It could be that we don't support that format or it is not encoded correctly.", "message text");
+          "that video. It could be that there isn't enough space for caching it, or we don't support that format or it is not encoded correctly.", "message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
 
