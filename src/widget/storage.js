@@ -36,21 +36,21 @@ RiseVision.Video.Storage = function (data) {
     });
 
     storage.addEventListener("rise-storage-no-file", function() {
-      var params = { "event": "storage file not found" };
+      var params = { "event": "error", "event_details": "storage file not found" };
 
       RiseVision.Video.logEvent(params, true);
       RiseVision.Video.showError("The selected video does not exist or has been moved to Trash.");
     });
 
     storage.addEventListener("rise-storage-file-throttled", function(e) {
-      var params = { "event": "storage file throttled", "url": e.detail };
+      var params = { "event": "error", "event_details": "storage file throttled", "url": e.detail };
 
       RiseVision.Video.logEvent(params, true);
       RiseVision.Video.showError("The selected video is temporarily unavailable.");
     });
 
     storage.addEventListener("rise-storage-error", function() {
-      var params = { "event": "storage error" };
+      var params = { "event": "error", "event_details": "storage error" };
 
       RiseVision.Video.logEvent(params, true);
       RiseVision.Video.showError("Sorry, there was a problem playing the video from Storage.");

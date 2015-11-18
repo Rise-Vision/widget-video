@@ -46,7 +46,8 @@
     var playStub, spy, clock,
       table = "video_events",
       params = {
-        "event": "storage file not found",
+        "event": "error",
+        "event_details": "storage file not found",
         "file_url": null,
         "file_format": null,
         "company_id": '"companyId"',
@@ -112,6 +113,8 @@
         RiseVision.Video.onFileRefresh(window.gadget.settings.additionalParams.url);
 
         spy = sinon.spy(RiseVision.Common.Logger, "log");
+
+        delete params.event_details;
         params.event = "done";
         params.file_url = window.gadget.settings.additionalParams.url;
         params.file_format = "webm";
@@ -134,7 +137,8 @@
           "bubbles": true
         }));
 
-        params.event = "storage error";
+        params.event = "error";
+        params.event_details = "storage error";
         assert(spy.calledOnce);
         assert(spy.calledWith(table, params));
       });
@@ -166,6 +170,8 @@
         RiseVision.Video.onFileRefresh(window.gadget.settings.additionalParams.url);
 
         spy = sinon.spy(RiseVision.Common.Logger, "log");
+
+        delete params.event_details;
         params.event = "done";
         params.file_url = window.gadget.settings.additionalParams.url;
         params.file_format = "webm";
@@ -188,7 +194,8 @@
           "bubbles": true
         }));
 
-        params.event = "storage file throttled";
+        params.event = "error";
+        params.event_details = "storage file throttled";
 
         assert(spy.calledOnce);
         assert(spy.calledWith(table, params));
@@ -220,6 +227,8 @@
         RiseVision.Video.onFileRefresh(window.gadget.settings.additionalParams.url);
 
         spy = sinon.spy(RiseVision.Common.Logger, "log");
+
+        delete params.event_details;
         params.event = "done";
         params.file_url = window.gadget.settings.additionalParams.url;
         params.file_format = "webm";

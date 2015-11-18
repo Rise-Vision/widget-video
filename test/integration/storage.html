@@ -122,7 +122,7 @@
     });
 
     suite("Storage Errors", function() {
-      var params = { "event": ""},
+      var params = { "event": "error" },
         onShowErrorStub, onLogEventStub;
 
       setup(function() {
@@ -138,7 +138,7 @@
       });
 
       test("should handle when 'no file' error occurs", function() {
-        params.event = "storage file not found";
+        params.event_details = "storage file not found";
 
         storage.dispatchEvent(new CustomEvent("rise-storage-no-file", {
           "detail": null,
@@ -153,7 +153,7 @@
       });
 
       test("should handle when 'file throttled' error occurs", function() {
-        params.event = "storage file throttled";
+        params.event_details = "storage file throttled";
         params.url = window.gadget.settings.additionalParams.url;
 
         storage.dispatchEvent(new CustomEvent("rise-storage-file-throttled", {
@@ -169,7 +169,7 @@
       });
 
       test("should handle when a general error occurs", function() {
-        params.event = "storage error";
+        params.event_details = "storage error";
 
         storage.dispatchEvent(new CustomEvent("rise-storage-error", {
           "detail": null,

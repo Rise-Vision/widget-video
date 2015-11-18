@@ -30,7 +30,7 @@ RiseVision.Video.NonStorage = function (data) {
       } else {
         // error occurred
         RiseVision.Video.logEvent({
-          "event": "non-storage error",
+          "event": "error",
           "event_details": error.message,
           "url": response.url
         });
