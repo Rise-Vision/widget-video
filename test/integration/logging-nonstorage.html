@@ -93,12 +93,15 @@
         clock.restore();
       });
 
+      setup(function() {
+        params.event = "error";
+      });
+
       teardown(function() {
         RiseVision.Common.Logger.log.restore();
       });
 
       test("should log a player error", function() {
-        params.event = "player error";
         spy = sinon.spy(RiseVision.Common.Logger, "log");
 
         RiseVision.Video.playerError();
@@ -173,7 +176,7 @@
         // enforce a new scope for fake timer
         clock = sinon.useFakeTimers();
 
-        params.event = "player error";
+        params.event = "error";
         params.event_details = "setup - Error loading player: No media sources found";
 
         // Force "done" to fire by simulating a player error.

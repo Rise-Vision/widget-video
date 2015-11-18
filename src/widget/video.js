@@ -262,7 +262,7 @@ RiseVision.Video = (function (gadgets) {
       }
     }
 
-    params.event = "player error";
+    params.event = "error";
     params.event_details = details;
 
     logEvent(params, true);
