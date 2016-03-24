@@ -363,6 +363,14 @@ RiseVision.Common.Utilities = (function() {
     return errorMessage;
   }
 
+  function unescapeHTML(html) {
+    var div = document.createElement("div");
+
+    div.innerHTML = html;
+
+    return div.textContent;
+  }
+
   return {
     getQueryParameter: getQueryParameter,
     getFontCssStyle:  getFontCssStyle,
@@ -371,7 +379,8 @@ RiseVision.Common.Utilities = (function() {
     loadCustomFont:   loadCustomFont,
     loadGoogleFont:   loadGoogleFont,
     preloadImages:    preloadImages,
-    getRiseCacheErrorMessage: getRiseCacheErrorMessage
+    getRiseCacheErrorMessage: getRiseCacheErrorMessage,
+    unescapeHTML: unescapeHTML
   };
 })();
 
@@ -999,6 +1008,16 @@ RiseVision.Video.StorageFile = function (data) {
       RiseVision.Video.showError(errorMessage);
     });
 
+    storage.addEventListener("rise-cache-not-running", function(e) {
+
+      var params = {
+        "event": "rise cache not running",
+        "event_details": (e.detail && e.detail.error)? e.detail.error.message: ""
+      };
+
+      RiseVision.Video.logEvent(params, true);
+    });
+
 
     storage.setAttribute("folder", data.storage.folder);
     storage.setAttribute("fileName", data.storage.fileName);
@@ -1175,6 +1194,16 @@ RiseVision.Video.StorageFolder = function (data) {
 
       var errorMessage = RiseVision.Common.Utilities.getRiseCacheErrorMessage(statusCode);
       RiseVision.Video.showError(errorMessage);
+    });
+
+    storage.addEventListener("rise-cache-not-running", function(e) {
+
+      var params = {
+        "event": "rise cache not running",
+        "event_details": (e.detail && e.detail.error)? e.detail.error.message: ""
+      };
+
+      RiseVision.Video.logEvent(params, true);
     });
 
     storage.setAttribute("fileType", "video");

@@ -131,6 +131,12 @@
      */
 
     /**
+     * Fired when rise cache is not running.
+     *
+     * @event rise-cache-not-running
+     */
+
+    /**
      * Indicates whether or not the component is loading.
      *
      * @property _isLoading
@@ -977,6 +983,7 @@
     _handlePingResponse: function(e, resp) {
       if (resp.response === "") {
         this._isCacheRunning = false;
+        this.fire("rise-cache-not-running", resp);
       }
       else {
         this._isCacheRunning = true;
@@ -989,8 +996,9 @@
     /**
      * Fires when an error is received from the ping request.
      */
-    _handlePingError: function() {
+    _handlePingError: function(e, resp) {
       this._isCacheRunning = false;
+      this.fire("rise-cache-not-running", resp);
       this._pingReceived = true;
       this.go();
     },

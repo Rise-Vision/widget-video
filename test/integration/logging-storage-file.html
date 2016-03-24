@@ -218,6 +218,36 @@
         assert(spy.calledOnce);
         assert(spy.calledWith(table, params));
       });
+
+      test("should log a rise cache not running when ping response is empty", function() {
+        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
+
+        storage.dispatchEvent(new CustomEvent("rise-cache-not-running", null));
+
+        params.event = "rise cache not running";
+        params.event_details = "";
+
+        assert(spy.calledOnce);
+        assert(spy.calledWith(table, params));
+      });
+
+      test("should log a rise cache not running when ping response is 404", function() {
+        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
+
+        storage.dispatchEvent(new CustomEvent("rise-cache-not-running", {
+          "detail": {
+            "error": {
+              "message": "The request failed with status code: 404"
+            }},
+          "bubbles": true
+        }));
+
+        params.event = "rise cache not running";
+        params.event_details = "The request failed with status code: 404";
+
+        assert(spy.calledOnce);
+        assert(spy.calledWith(table, params));
+      });
     });
 
     suite("storage file throttled or no storage subscription", function () {
@@ -232,6 +262,7 @@
         }));
 
         params.event = "storage file throttled";
+        delete params.event_details;
 
         assert(spy.calledOnce);
         assert(spy.calledWith(table, params));
