@@ -163,6 +163,16 @@ RiseVision.Video.StorageFolder = function (data) {
       RiseVision.Video.showError(errorMessage);
     });
 
+    storage.addEventListener("rise-cache-not-running", function(e) {
+
+      var params = {
+        "event": "rise cache not running",
+        "event_details": (e.detail && e.detail.error)? e.detail.error.message: ""
+      };
+
+      RiseVision.Video.logEvent(params, true);
+    });
+
     storage.setAttribute("fileType", "video");
     storage.setAttribute("companyId", data.storage.companyId);
     storage.setAttribute("folder", data.storage.folder);
