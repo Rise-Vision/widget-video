@@ -236,12 +236,19 @@
     });
   });
 
+  gulp.task("bower-update", function (cb) {
+    return bower({ cmd: "update"}).on("error", function(err) {
+      console.log(err);
+      cb();
+    });
+  });
+
   gulp.task("test", function(cb) {
     runSequence("test:unit", "test:integration", "test:e2e", cb);
   });
 
   gulp.task("build", function (cb) {
-    runSequence(["clean", "config"], ["source", "fonts", "images", "i18n", "rise-storage", "skin"], ["unminify"], cb);
+    runSequence(["clean", "config", "bower-update"], ["source", "fonts", "images", "i18n", "rise-storage", "skin"], ["unminify"], cb);
   });
 
   gulp.task("default", [], function() {
