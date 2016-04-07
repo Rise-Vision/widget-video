@@ -451,9 +451,7 @@
 
           // File
           if (this._isFile) {
-            if (this._isLoading) {
-              this._setFileUrl(resp.response);
-            }
+            this._setFileUrl(resp.response);
 
             if (this._isThrottled(resp.response, 0)) {
               this._fileThrottled = true;
@@ -1052,7 +1050,7 @@
 
         this.debounce("refresh", function() {
           this._hasAttemptedSecondStorageRequest = false;
-          this._loadStorage();
+          this.$.ping.generateRequest();
         }, this.refresh * 60000);
       }
     },
