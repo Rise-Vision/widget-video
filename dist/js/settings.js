@@ -30175,7 +30175,7 @@ module.run(["$templateCache", function($templateCache) {
 
 if (typeof angular !== "undefined") {
   angular.module("risevision.widget.common.storage-selector.config", [])
-    .value("STORAGE_MODAL", "https://storage.risevision.com/files/");
+    .value("STORAGE_MODAL", "https://apps.risevision.com/storage-selector.html#/?cid=");
 }
 
 (function () {
@@ -30201,7 +30201,7 @@ if (typeof angular !== "undefined") {
 
           function updateStorageUrl() {
             if (typeof scope.type !== "undefined" && scope.type !== "") {
-              scope.storageUrl = STORAGE_MODAL + scope.companyId + "?selector-type=" + scope.type;
+              scope.storageUrl = STORAGE_MODAL + scope.companyId + "&selector-type=" + scope.type;
             } else {
               // If no "type" value then omit the selector-type param to allow In-App Storage to apply a default
               scope.storageUrl = STORAGE_MODAL + scope.companyId;
@@ -30227,6 +30227,8 @@ if (typeof angular !== "undefined") {
             scope.modalInstance.result.then(function (files) {
               // for unit test purposes
               scope.files = files;
+
+              $log.info("Picked: ", files);
 
               // emit an event with name "files", passing the array of files selected from storage and the selector type
               scope.$emit("picked", files, scope.type);

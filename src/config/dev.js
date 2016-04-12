@@ -5,7 +5,7 @@ if (typeof angular !== "undefined") {
     .constant("LOCALES_SUFIX", ".json");
 
   angular.module("risevision.widget.common.storage-selector.config")
-    .value("STORAGE_MODAL", "https://storage-stage-rva-test.risevision.com/files/");
+    .value("STORAGE_MODAL", "https://apps-stage-0.risevision.com/storage-selector.html#/?cid=");
 }
 
 var config = {
