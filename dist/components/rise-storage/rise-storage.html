@@ -300,7 +300,22 @@
      */
     offlinePlayerClientId: null,
 
-    /************************************** INITIALIZATION **************************************/
+    /**
+     * Keeps the name of the local storage key
+     * @property LOCAL_STORAGE_NAME
+     * @default subscriptionStatus
+     */
+    LOCAL_STORAGE_NAME: "subscriptionStatus",
+
+    /**
+     * Subscription status variable for when there is no local storage.
+     * @property isSubscribed
+     * @default false
+     */
+    _isSubscribed: false,
+
+
+  /************************************** INITIALIZATION **************************************/
 
     /**
      * Polymer has finished its initialization. This is the entry point.
@@ -334,38 +349,99 @@
 
     /***************************************** STORAGE ******************************************/
 
-    _getStorageSubscription: function() {
+    _supportsLocalStorage: function() {
+      try {
+        return "sessionStorage" in window && window.sessionStorage !== null;
+      } catch (e) {
+        return false;
+      }
+     },
 
+    _getCachedSubscriptionStatus: function() {
+        return JSON.parse(sessionStorage.getItem(this.LOCAL_STORAGE_NAME+"-"+this.companyid));
+    },
+
+    _setCachedSubscriptionStatus: function (data) {
+      try {
+        sessionStorage.setItem(this.LOCAL_STORAGE_NAME+"-"+this.companyid, JSON.stringify(data));
+      } catch(e) {
+        console.warn(e.message);
+      }
+    },
+
+    _setSubscriptionStatus: function(status) {
+      if (this._supportsLocalStorage()) {
+        var now = new Date();
+        this._setCachedSubscriptionStatus({status: status, timestamp: now.getTime()});
+      } else {
+        this._isSubscribed = status;
+      }
+    },
+
+    _hasPassedTwentyFourHours: function (timestamp) {
+        var twentyFourInMilliseconds = 24 * 60 * 60 * 1000;
+        var now = new Date();
+        return now.getTime() > (timestamp + twentyFourInMilliseconds);
+    },
+
+    _getStorageSubscription: function() {
+      if (this._supportsLocalStorage()) {
+        var subscriptionStatus = this._getCachedSubscriptionStatus();
+
+        if (!subscriptionStatus || this._hasPassedTwentyFourHours(subscriptionStatus.timestamp)) {
+          this._makeStorageSusbscriptionRequest();
+        } else {
+          if (subscriptionStatus.status) {
+            this._makeStorageRequest();
+          } else {
+            this._fireStorageSubscriptionError();
+          }
+        }
+      } else {
+        if (this._isLoading) {
+          this._makeStorageSusbscriptionRequest();
+        } else {
+          if (this._isSubscribed) {
+            this._makeStorageRequest();
+          }
+        }
+      }
+    },
+
+    _makeStorageSusbscriptionRequest: function() {
       if (this.companyid) {
-        var url = "https://store-dot-rvaserver2.appspot.com/v1/company/" + encodeURIComponent(this.companyid) + "/product/status?pc=b0cba08a4baa0c62b8cdc621b6f6a124f89a03db";
+        // Request to Store Authorization API passing company id and product code of the storage subscription
+        var url = "https://store-dot-rvaserver2.appspot.com/v1/widget/auth?cid=" + encodeURIComponent(this.companyid) + "&pc=b0cba08a4baa0c62b8cdc621b6f6a124f89a03db";
         this.$.storageSubscription.url = url;
         this.$.storageSubscription.generateRequest();
       }
     },
 
+    _makeStorageRequest: function() {
+      this._computeStorageUrl();
+      this._hasAttemptedSecondStorageRequest = false;
+      this._loadStorage();
+    },
+
+    _fireStorageSubscriptionError: function() {
+      this.fire("rise-storage-subscription-expired");
+    },
+
+
     _handleStorageSubscriptionResponse: function(e, resp) {
       if (resp && resp.response) {
-        if (this._isExpired(resp.response)) {
-          console.log("Storage Subscription Expired!");
-          this.fire("rise-storage-subscription-expired");
+        if (resp.response.authorized) {
+          this._setSubscriptionStatus(true);
+          this._makeStorageRequest();
         } else {
-          this._computeStorageUrl();
-          this._hasAttemptedSecondStorageRequest = false;
-          this._loadStorage();
+          this._setSubscriptionStatus(false);
+          this._fireStorageSubscriptionError();
         }
       }
     },
 
     _handleStorageSubscriptionError: function(e, resp) {
       this.fire("rise-storage-subscription-error", resp);
-    },
-
-    _isExpired: function(response) {
-      var expiredResponseType = ["Trial Expired", "Suspended", "Cancelled", "Not Subscribed", "Product Not Found", "Company Not Found", "Error"];
-
-      var statusIndex = expiredResponseType.indexOf(response[0].status);
-
-      return (statusIndex === -1) ? false : true;
     },
 
     /**

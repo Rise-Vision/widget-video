@@ -1,11 +1,6 @@
 machine:
-  pre:
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 10
-    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 10
-    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 20
-    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 20
   node:
-    version: 4.2.2
+    version: 4.3.0
   environment:
     awscli: $HOME/aws/bin/aws
 general:
@@ -15,20 +10,12 @@ dependencies:
   cache_directories:
     - /home/ubuntu/aws
   pre:
-    # latest stable chrome
-    - curl -L -o google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    - sudo dpkg -i google-chrome-stable.deb
-    # make chrome lxc-friendly
-    - sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
-    - rm google-chrome-stable.deb
     - if [ -z "$BUCKET_NAME" ]; then echo Bucket name must be specified as an environment variable; exit 1; fi
     - if [ -z $(grep version package.json |grep -o '[0-9.]*') ]; then echo Version must be specified in package.json; exit 1; fi
     - if [[ ! -d $HOME/aws ]]; then curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && unzip awscli-bundle.zip && sudo ./awscli-bundle/install -i $HOME/aws; fi
     - npm install -g gulp
   post:
     - bower install
-    - wget http://selenium-release.storage.googleapis.com/2.44/selenium-server-standalone-2.44.0.jar
-    - nohup bash -c "java -jar selenium-server-standalone-2.44.0.jar &"
 test:
   override:
     - NODE_ENV=dev npm run test
