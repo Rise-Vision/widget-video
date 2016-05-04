@@ -912,7 +912,14 @@
 
       if (resp && resp.xhr) {
         lastModified = resp.xhr.getResponseHeader("Last-Modified");
-        file.url = this._cacheUrl;
+        file.url = resp.xhr.responseURL;
+        // Fallback to browsers that does not support responseURL.
+        if(!file.url){
+          file.url = resp.xhr.getResponseHeader("Location");
+        }
+        if(!file.url){
+          file.url = this._cacheUrl;
+        }
 
         if (this._isLoading) {
           // Save Last Modified so it can be compared in subsequent requests.
