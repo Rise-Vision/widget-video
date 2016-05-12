@@ -49,10 +49,8 @@ describe("getPlaylist()", function() {
     expect(playlist).to.be.an("array");
     expect(playlist).to.have.length(3);
     expect(playlist[0]).to.deep.equal({
-      sources: [{
-        file: list[0],
-        type: "webm"
-      }]
+      file: list[0],
+      type: "webm"
     });
   });
 

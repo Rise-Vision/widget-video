@@ -9,8 +9,10 @@ function configure(urls) {
       width : width,
       height : height,
       controls: false,
-      stretching : stretching,
-      skin: skin
+      skin: {
+        name: "rise"
+      },
+      stretching : stretching
     });
 
     instance.onPlayerError = function (error) {
@@ -48,10 +50,8 @@ function getPlaylist (list) {
 
   for (var i = 0; i < list.length; i += 1) {
     playlist.push({
-      sources: [{
-        file: list[i],
-        type: getVideoFileType(list[i])
-      }]
+      file: list[i],
+      type: getVideoFileType(list[i])
     });
   }
 

@@ -1,5 +1,5 @@
 var controls, volume, autoPlay, stretching, pauseDuration;
-var width, height, skin;
+var width, height;
 
 var player = null;
 
@@ -36,14 +36,13 @@ function playlistItemEvent(index) {
   }, origin);
 }
 
-function init(params, urls, skinVal) {
+function init(params, urls) {
   window.oncontextmenu = function() {
     return false;
   };
 
   width = params.width;
   height = params.height;
-  skin = skinVal;
   controls = params.video.controls;
   volume = params.video.volume;
   stretching = (params.video.scaleToFit) ? "uniform" : "none";
@@ -90,7 +89,7 @@ function remove() {
 }
 
 function getVideoFileType (url) {
-  var extensions = [".mp4", ".webm", ".ogg", ".ogv"],
+  var extensions = [".mp4", ".webm"],
     urlLowercase = url.toLowerCase(),
     type = null,
     i;
@@ -100,10 +99,6 @@ function getVideoFileType (url) {
       type = extensions[i].substr(extensions[i].lastIndexOf(".") + 1);
       break;
     }
-  }
-
-  if (type === "ogv") {
-    type = "ogg";
   }
 
   return type;
@@ -166,45 +161,32 @@ var playerJW = function (setupObj) {
       onSetupError(error);
     });
 
-    jwplayer().onReady(function () {
-      var elements = document.getElementById("player").getElementsByTagName("*"),
-        total = elements.length,
-        i;
-
-      // Workaround for Chrome App Player <webview> not handling CSS3 transition
-      for (i = 0; i < total; i += 1) {
-        elements[i].className += " notransition";
-      }
-
-      document.getElementById("player").className += " notransition";
-
-      // Bugfix - issue #36 (JWPlayer context menu)
-      document.getElementById("player_menu").className += " disable-context-menu";
+    jwplayer().on("ready", function() {
 
       if (setupObj.hasOwnProperty("playlist")) {
         // folder, listen for playlist complete event
-        jwplayer().onPlaylistComplete(function () {
+        jwplayer().on("playlistComplete", function () {
           _onComplete();
         });
 
         // folder, listen for when a playlist item changes
-        jwplayer().onPlaylistItem(function (data) {
+        jwplayer().on("playlistItem", function(data) {
           _onPlaylistItem(data.index);
         });
       }
       else if (setupObj.hasOwnProperty("file")) {
         // file, listen for single file complete event
-        jwplayer().onComplete(function () {
+        jwplayer().on("complete", function () {
           _onComplete();
         });
       }
 
-      jwplayer().onError(function (error) {
+      jwplayer().on("error", function (error) {
         onPlayerError(error);
       });
 
       if (controls && pauseDuration > 1) {
-        jwplayer().onPause(function () {
+        jwplayer().on("pause", function () {
           _onPause();
         });
       }
@@ -297,7 +279,7 @@ window.addEventListener("message", function(event) {
   if (event.data && typeof event.data === "object" && event.data.event) {
     switch (event.data.event) {
       case "init" :
-        init(event.data.params, event.data.files, event.data.skin);
+        init(event.data.params, event.data.files);
         load();
 
         break;

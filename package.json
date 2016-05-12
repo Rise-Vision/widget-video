@@ -41,6 +41,6 @@
     "phantomjs": "^1.9.7-9",
     "run-sequence": "^0.3.2",
     "web-component-tester": "*",
-    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#1.0.0"
+    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#1.6.5"
   }
 }

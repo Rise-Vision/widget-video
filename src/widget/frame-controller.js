@@ -47,7 +47,7 @@ RiseVision.Video.FrameController = function () {
     frameContainer.appendChild(iframe);
   }
 
-  function createFramePlayer(index, params, files, skin, src, origin) {
+  function createFramePlayer(index, params, files, src, origin) {
     var frameContainer = getFrameContainer(index),
       frameObj = getFrameObject(index),
       iframe;
@@ -59,7 +59,7 @@ RiseVision.Video.FrameController = function () {
         iframe.onload = null;
 
         // initialize and load the player inside the iframe
-        frameObj.postMessage({event: "init", params: params, files: files, skin: skin}, origin);
+        frameObj.postMessage({event: "init", params: params, files: files}, origin);
       };
 
       iframe.setAttribute("src", src);

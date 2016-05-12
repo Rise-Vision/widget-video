@@ -9,6 +9,5 @@ if (typeof angular !== "undefined") {
 }
 
 var config = {
-  SKIN: "skin/RVSkin.xml",
   STORAGE_ENV: "test"
 };

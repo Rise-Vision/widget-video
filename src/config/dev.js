@@ -9,13 +9,5 @@ if (typeof angular !== "undefined") {
 }
 
 var config = {
-    /*
-     NOTE: Relative path to skin file does not work when viewing/testing locally using Preview app
-
-     When needing to work on custom skin file "RVSkin.xml", change SKIN value to point to full server location
-     CORS will be required. Handy CORS Chrome extension can be found here
-     https://chrome.google.com/webstore/detail/allow-control-allow-origi/nlfbmbojpeacfghkpbjhddihlkkiljbi?hl=en
-     */
-    SKIN: "",
     STORAGE_ENV: "test"
 };

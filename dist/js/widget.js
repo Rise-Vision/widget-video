@@ -528,11 +528,10 @@ if (typeof angular !== "undefined") {
 }
 
 var  config = {
-  SKIN: "skin/RVSkin.xml",
   STORAGE_ENV: "prod"
 };
 
-/* global gadgets, config, _ */
+/* global gadgets, _ */
 
 var RiseVision = RiseVision || {};
 RiseVision.Video = {};
@@ -705,7 +704,7 @@ RiseVision.Video = (function (window, gadgets) {
   function play() {
     var logParams = {},
       frameObj = _frameController.getFrameObject(_currentFrame),
-      skin, html;
+      html;
 
     if (_isLoading) {
       _isLoading = false;
@@ -732,22 +731,20 @@ RiseVision.Video = (function (window, gadgets) {
       if (_currentFiles && _currentFiles.length > 0) {
 
         RiseVision.Common.RiseCache.isRiseCacheRunning(function (isRunning) {
-          skin = (isRunning) ? "?url=" + encodeURIComponent(_windowController.getBucketPath()) + config.SKIN : config.SKIN;
-
           if (_mode === "file") {
             html = (isRunning) ? "//localhost:9494/?url=" +
             encodeURIComponent(_windowController.getBucketPath()) + "player-file-cache.html" : "player-file.html";
 
             // add frame and create the player
             _frameController.add(0);
-            _frameController.createFramePlayer(0, _additionalParams, _currentFiles[0], skin, html, _windowController.getFrameOrigin());
+            _frameController.createFramePlayer(0, _additionalParams, _currentFiles[0], html, _windowController.getFrameOrigin());
           }
           else if (_mode === "folder") {
             html = (isRunning) ? "//localhost:9494/?url=" +
             encodeURIComponent(_windowController.getBucketPath()) + "player-folder-cache.html" : "player-folder.html";
 
             _frameController.add(0);
-            _frameController.createFramePlayer(0, _additionalParams, _currentFiles, skin, html, _windowController.getFrameOrigin());
+            _frameController.createFramePlayer(0, _additionalParams, _currentFiles, html, _windowController.getFrameOrigin());
           }
         });
       }
@@ -1450,7 +1447,7 @@ RiseVision.Video.FrameController = function () {
     frameContainer.appendChild(iframe);
   }
 
-  function createFramePlayer(index, params, files, skin, src, origin) {
+  function createFramePlayer(index, params, files, src, origin) {
     var frameContainer = getFrameContainer(index),
       frameObj = getFrameObject(index),
       iframe;
@@ -1462,7 +1459,7 @@ RiseVision.Video.FrameController = function () {
         iframe.onload = null;
 
         // initialize and load the player inside the iframe
-        frameObj.postMessage({event: "init", params: params, files: files, skin: skin}, origin);
+        frameObj.postMessage({event: "init", params: params, files: files}, origin);
       };
 
       iframe.setAttribute("src", src);

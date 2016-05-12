@@ -108,11 +108,6 @@
       .pipe(gulp.dest("dist/img"));
   });
 
-  gulp.task("skin", function() {
-    gulp.src("src/widget/skin/RVSkin.xml")
-      .pipe(gulp.dest("dist/skin"));
-  });
-
   gulp.task("i18n", function(cb) {
     return gulp.src(["src/components/rv-common-i18n/dist/locales/**/*"])
       .pipe(gulp.dest("dist/locales"));
@@ -248,7 +243,7 @@
   });
 
   gulp.task("build", function (cb) {
-    runSequence(["clean", "config", "bower-update"], ["source", "fonts", "images", "i18n", "rise-storage", "skin"], ["unminify"], cb);
+    runSequence(["clean", "config", "bower-update"], ["source", "fonts", "images", "i18n", "rise-storage"], ["unminify"], cb);
   });
 
   gulp.task("default", [], function() {

@@ -59,8 +59,6 @@ describe("getVideoFileType()", function() {
 
     expect(getVideoFileType(baseUrl + ".webm")).to.equal("webm");
     expect(getVideoFileType(baseUrl + ".mp4")).to.equal("mp4");
-    expect(getVideoFileType(baseUrl + ".ogv")).to.equal("ogg");
-    expect(getVideoFileType(baseUrl + ".ogg")).to.equal("ogg");
   });
 
   it("should return null as the HTML5 video file type calling getVideoFileType()", function () {
@@ -71,6 +69,8 @@ describe("getVideoFileType()", function() {
     expect(getVideoFileType(baseUrl + ".avi")).to.be.null;
     expect(getVideoFileType(baseUrl + ".mpg")).to.be.null;
     expect(getVideoFileType(baseUrl + ".wmv")).to.be.null;
+    expect(getVideoFileType(baseUrl + ".ogg")).to.be.null;
+    expect(getVideoFileType(baseUrl + ".ogv")).to.be.null;
   });
 
 });
