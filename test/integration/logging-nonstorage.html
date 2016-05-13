@@ -28,6 +28,7 @@
 <script src="../../src/components/widget-common/dist/config.js"></script>
 <script src="../../src/components/widget-common/dist/common.js"></script>
 <script src="../../src/components/widget-common/dist/rise-cache.js"></script>
+<script src="../../src/config/version.js"></script>
 <script src="../../src/config/test.js"></script>
 <script src="../../src/widget/video.js"></script>
 <script src="../../src/widget/non-storage.js"></script>
@@ -41,13 +42,14 @@
 <script>
   suite("logging", function() {
     var spy, clock,
-      table = "video_events",
+      table = "video_events_v2",
       params = {
         "event": "play",
         "file_url": "http://s3.amazonaws.com/stu-testing/sample_videos/big-buck-bunny_trailer.webm",
         "file_format": "webm",
         "company_id": '"companyId"',
-        "display_id": '"displayId"'
+        "display_id": '"displayId"',
+        "version": "1.1.0"
       },
       paramsStub;
 
@@ -77,7 +79,8 @@
           "event_details": "custom",
           "file_url": null,
           "company_id": params.company_id,
-          "display_id": params.display_id
+          "display_id": params.display_id,
+          "version": params.version
         }));
 
       });

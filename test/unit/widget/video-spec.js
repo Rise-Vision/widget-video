@@ -2,7 +2,7 @@
 
 describe("getTableName", function() {
   it("should return the correct table name", function() {
-    expect(RiseVision.Video.getTableName(), "video_events");
+    expect(RiseVision.Video.getTableName(), "video_events_v2");
   });
 });
 
@@ -33,7 +33,7 @@ describe("logEvent", function() {
       "file_url": "http://www.test.com/file.webm"
     });
 
-    expect(logSpy).to.have.been.calledWith("video_events", params);
+    expect(logSpy).to.have.been.calledWith("video_events_v2", params);
   });
 
   it("should call spy with correct parameters when only the event parameter is set", function() {
@@ -46,6 +46,6 @@ describe("logEvent", function() {
 
     RiseVision.Video.logEvent({ "event": "test" });
 
-    expect(logSpy).to.have.been.calledWith("video_events", params);
+    expect(logSpy).to.have.been.calledWith("video_events_v2", params);
   });
 });

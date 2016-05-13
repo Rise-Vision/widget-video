@@ -11,6 +11,7 @@
   var gutil = require("gulp-util");
   var concat = require("gulp-concat");
   var bump = require("gulp-bump");
+  var file = require('gulp-file');
   var jshint = require("gulp-jshint");
   var minifyCSS = require("gulp-minify-css");
   var usemin = require("gulp-usemin");
@@ -125,6 +126,15 @@
       .pipe(gulp.dest("dist/"));
   });
 
+  gulp.task("version", function () {
+    var pkg = require("./package.json"),
+      str = '/* exported version */\n' + 
+        'var version = "' + pkg.version + '";';
+
+    return file('version.js', str, {src: true})
+      .pipe(gulp.dest('./src/config/'));
+  });
+
   gulp.task("webdriver_update", factory.webdriveUpdate());
 
   // ***** e2e Testing ***** //
@@ -204,6 +214,7 @@
       "node_modules/widget-tester/mocks/gadget-mocks.js",
       "node_modules/widget-tester/mocks/logger-mock.js",
       "src/components/widget-common/dist/config.js",
+      "src/config/version.js",
       "src/config/test.js",
       "src/widget/video.js",
       "test/unit/widget/video-spec.js"
@@ -239,11 +250,11 @@
   });
 
   gulp.task("test", function(cb) {
-    runSequence("test:unit", "test:integration", "test:e2e", cb);
+    runSequence("version", "test:unit", "test:integration", "test:e2e", cb);
   });
 
   gulp.task("build", function (cb) {
-    runSequence(["clean", "config", "bower-update"], ["source", "fonts", "images", "i18n", "rise-storage"], ["unminify"], cb);
+    runSequence(["clean", "config", "bower-update", "version"], ["source", "fonts", "images", "i18n", "rise-storage"], ["unminify"], cb);
   });
 
   gulp.task("default", [], function() {

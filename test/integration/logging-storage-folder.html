@@ -11,7 +11,6 @@
   <link rel="import" href="../../src/components/rise-storage/rise-storage.html">
 
   <link rel="stylesheet" type="text/css" href="../../src/widget/css/video.css">
-  <link rel="stylesheet" type="text/css" href="../../src/components/widget-common/dist/css/video-frame.css">
   <link rel="stylesheet" href="../../src/components/widget-common/dist/css/message.css">
 </head>
 <body>
@@ -32,6 +31,7 @@
 <script src="../../src/components/widget-common/dist/config.js"></script>
 <script src="../../src/components/widget-common/dist/common.js"></script>
 <script src="../../src/components/widget-common/dist/rise-cache.js"></script>
+<script src="../../src/config/version.js"></script>
 <script src="../../src/config/test.js"></script>
 <script src="../../src/widget/video.js"></script>
 <script src="../../src/widget/storage-folder.js"></script>
@@ -46,12 +46,13 @@
 
   suite("logging", function() {
     var playStub, spy, clock,
-      table = "video_events",
+      table = "video_events_v2",
       params = {
         "event": "storage folder empty",
         "file_url": null,
         "company_id": '"companyId"',
-        "display_id": '"displayId"'
+        "display_id": '"displayId"',
+        "version": "1.1.0"
       }, paramsStub;
 
     paramsStub = sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode) {
@@ -90,7 +91,8 @@
           "event_details": "storage folder",
           "file_url": params.file_url,
           "company_id": params.company_id,
-          "display_id": params.display_id
+          "display_id": params.display_id,
+          "version": params.version
         }));
 
       });
