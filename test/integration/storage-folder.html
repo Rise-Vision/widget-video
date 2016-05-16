@@ -241,6 +241,26 @@
       });
     });
 
+    suite("Storage Refresh - JW Player error", function () {
+
+      test("should refresh on a JW player error", function() {
+        var onRefreshStub = sinon.stub(RiseVision.Video, "onFileRefresh", function(){});
+
+        storage.dispatchEvent(new CustomEvent("rise-storage-response", {
+          "detail": {
+            "changed": false,
+            "name": "Widgets/videos/big_buck_bunny.webm",
+            "url": "https://www.googleapis.com/storage/v1/b/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/o/Widgets%2Fvideos%2Fbig_buck_bunny.webm?alt=media"
+          },
+          "bubbles": true
+        }));
+
+        assert(onRefreshStub.calledOnce);
+
+        RiseVision.Video.onFileRefresh.restore();
+      });
+    });
+
   });
 
 </script>
