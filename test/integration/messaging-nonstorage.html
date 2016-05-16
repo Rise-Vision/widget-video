@@ -88,8 +88,16 @@
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
 
+
+      test("should show appropriate error message when no media sources are found", function() {
+        RiseVision.Video.playerError({ "message": "Error loading player: No media sources found" });
+
+        assert.equal(document.querySelector(".message").innerHTML, "The format of that video is not supported", "message text");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
+      });
+
       test("should show appropriate error message when no playable sources are found", function() {
-        RiseVision.Video.playerError({ "message": "Error loading player: No playable sources found" });
+        RiseVision.Video.playerError({ "message": "Error loading playlist: No playable sources found" });
 
         assert.equal(document.querySelector(".message").innerHTML, "The format of that video is not supported", "message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");

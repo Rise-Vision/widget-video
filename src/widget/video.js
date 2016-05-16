@@ -316,7 +316,8 @@ RiseVision.Video = (function (window, gadgets) {
       message = "Sorry, there was a problem playing the video.",
       MEDIA_ERROR = "Error loading media: File could not be played",
       YOUTUBE_ERROR = "Error loading YouTube: Video could not be played",
-      PLAYER_ERROR = "Error loading player: No playable sources found",
+      PLAYER_ERROR = "Error loading player: No media sources found",
+      PLAYLIST_ERROR = "Error loading playlist: No playable sources found",
       ENCODING_MESSAGE = "There was a problem playing that video. It could be that we don't " +
         "support that format or it is not encoded correctly.",
       FORMAT_MESSAGE = "The format of that video is not supported";
@@ -337,7 +338,7 @@ RiseVision.Video = (function (window, gadgets) {
         if ((error.message === MEDIA_ERROR) || (error.message === YOUTUBE_ERROR)) {
           message = ENCODING_MESSAGE;
         }
-        else if (error.message === PLAYER_ERROR) {
+        else if (error.message === PLAYER_ERROR || error.message === PLAYLIST_ERROR) {
           message = FORMAT_MESSAGE;
         }
       }
