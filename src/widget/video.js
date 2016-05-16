@@ -220,7 +220,7 @@ RiseVision.Video = (function (window, gadgets) {
   }
 
   function getTableName() {
-    return "video_events_v2";
+    return "video_v2_events";
   }
 
   function playerEnded() {
