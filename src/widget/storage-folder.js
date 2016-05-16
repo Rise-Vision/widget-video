@@ -80,7 +80,7 @@ RiseVision.Video.StorageFolder = function (data) {
         }
         else {
           // in the event of a network failure and recovery, check if the Widget is in a state of storage error
-          if (!RiseVision.Video.hasStorageError()) {
+          if (!RiseVision.Video.hasStorageError() && !RiseVision.Video.hasPlayerError()) {
             // only proceed with refresh logic below if there's been a storage error, otherwise do nothing
             // this is so the Widget can eventually play video again from a network recovery
             return;
