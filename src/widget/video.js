@@ -32,7 +32,8 @@ RiseVision.Video = (function (window, gadgets) {
     _errorTimer = null,
     _errorFlag = false;
 
-  var _storageErrorFlag = false;
+  var _storageErrorFlag = false,
+    _playerErrorFlag = false;
 
   /*
    *  Private Methods
@@ -90,6 +91,10 @@ RiseVision.Video = (function (window, gadgets) {
     return _storageErrorFlag;
   }
 
+  function hasPlayerError() {
+    return _playerErrorFlag;
+  }
+
   function showError(message, isStorageError) {
     _errorFlag = true;
     _storageErrorFlag = typeof isStorageError !== "undefined";
@@ -144,6 +149,7 @@ RiseVision.Video = (function (window, gadgets) {
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
     _errorFlag = false;
+    _playerErrorFlag = false;
     _storageErrorFlag = false;
     _errorLog = null;
   }
@@ -339,6 +345,7 @@ RiseVision.Video = (function (window, gadgets) {
 
     params.event = "player error";
     params.event_details = details;
+    _playerErrorFlag = true;
 
     logEvent(params, true);
     showError(message);
@@ -350,6 +357,7 @@ RiseVision.Video = (function (window, gadgets) {
 
   return {
     "getTableName": getTableName,
+    "hasPlayerError": hasPlayerError,
     "hasStorageError": hasStorageError,
     "logEvent": logEvent,
     "onFileInit": onFileInit,

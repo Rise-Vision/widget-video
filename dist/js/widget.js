@@ -223,7 +223,6 @@ RiseVision.Common.Logger = (function(utils) {
     "log": log
   };
 })(RiseVision.Common.LoggerUtils);
-
 /* global WebFont */
 
 var RiseVision = RiseVision || {};
@@ -650,7 +649,8 @@ RiseVision.Video = (function (window, gadgets) {
     _errorTimer = null,
     _errorFlag = false;
 
-  var _storageErrorFlag = false;
+  var _storageErrorFlag = false,
+    _playerErrorFlag = false;
 
   /*
    *  Private Methods
@@ -708,6 +708,10 @@ RiseVision.Video = (function (window, gadgets) {
     return _storageErrorFlag;
   }
 
+  function hasPlayerError() {
+    return _playerErrorFlag;
+  }
+
   function showError(message, isStorageError) {
     _errorFlag = true;
     _storageErrorFlag = typeof isStorageError !== "undefined";
@@ -762,6 +766,7 @@ RiseVision.Video = (function (window, gadgets) {
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
     _errorFlag = false;
+    _playerErrorFlag = false;
     _storageErrorFlag = false;
     _errorLog = null;
   }
@@ -957,6 +962,7 @@ RiseVision.Video = (function (window, gadgets) {
 
     params.event = "player error";
     params.event_details = details;
+    _playerErrorFlag = true;
 
     logEvent(params, true);
     showError(message);
@@ -968,6 +974,7 @@ RiseVision.Video = (function (window, gadgets) {
 
   return {
     "getTableName": getTableName,
+    "hasPlayerError": hasPlayerError,
     "hasStorageError": hasStorageError,
     "logEvent": logEvent,
     "onFileInit": onFileInit,
@@ -1021,7 +1028,7 @@ RiseVision.Video.StorageFile = function (data) {
             }
             else {
               // in the event of a network failure and recovery, check if the Widget is in a state of storage error
-              if (RiseVision.Video.hasStorageError()) {
+              if (RiseVision.Video.hasStorageError() || RiseVision.Video.hasPlayerError()) {
                 // proceed with refresh logic so the Widget can eventually play video again from a network recovery
                 RiseVision.Video.onFileRefresh(e.detail.url);
               }
@@ -1195,7 +1202,7 @@ RiseVision.Video.StorageFolder = function (data) {
         }
         else {
           // in the event of a network failure and recovery, check if the Widget is in a state of storage error
-          if (!RiseVision.Video.hasStorageError()) {
+          if (!RiseVision.Video.hasStorageError() && !RiseVision.Video.hasPlayerError()) {
             // only proceed with refresh logic below if there's been a storage error, otherwise do nothing
             // this is so the Widget can eventually play video again from a network recovery
             return;

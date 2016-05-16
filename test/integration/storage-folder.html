@@ -209,6 +209,30 @@
 
     });
 
+    suite("Storage Refresh - JW Player error", function () {
+
+      test("should refresh on a JW player error", function() {
+        var onRefreshStub = sinon.stub(RiseVision.Video, "onFileRefresh", function(){});
+
+        RiseVision.Video.hasPlayerError = function() {
+          return true;
+        }
+
+        storage.dispatchEvent(new CustomEvent("rise-storage-response", {
+          "detail": {
+            "changed": false,
+            "name": "Widgets/videos/big_buck_bunny.webm",
+            "url": "https://www.googleapis.com/storage/v1/b/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/o/Widgets%2Fvideos%2Fbig_buck_bunny.webm?alt=media"
+          },
+          "bubbles": true
+        }));
+
+        assert(onRefreshStub.calledOnce);
+
+        RiseVision.Video.onFileRefresh.restore();
+      });
+    });
+
     suite("Network Recovery", function () {
 
       test("should call onFileRefresh() if in state of storage error and network recovered", function() {

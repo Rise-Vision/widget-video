@@ -145,6 +145,29 @@
 
     });
 
+    suite("Storage Refresh - JW Player error", function () {
+
+      test("should refresh on a JW player error", function() {
+        var onRefreshStub = sinon.stub(RiseVision.Video, "onFileRefresh", function(){});
+
+        RiseVision.Video.hasPlayerError = function() {
+          return true;
+        }
+
+        storage.dispatchEvent(new CustomEvent("rise-storage-response", {
+          "detail": {
+            "changed": false,
+            "url": "https://storage.googleapis.com/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets%2Fvideos%2Fbig_buck_bunny.webm"
+          },
+          "bubbles": true
+        }));
+
+        assert(onRefreshStub.calledOnce);
+
+        RiseVision.Video.onFileRefresh.restore();
+      });
+    });
+
     suite("Storage Errors", function() {
       var params = { "event": ""},
         onShowErrorStub, onLogEventStub;
