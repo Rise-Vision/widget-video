@@ -15,14 +15,11 @@ RiseVision.Video = (function (window, gadgets) {
     _storage = null,
     _nonStorage = null,
     _message = null,
-    _frameController = null,
-    _windowController = null;
+    _player = null;
 
   var _viewerPaused = true;
 
   var _resume = true;
-
-  var _currentFrame = 0;
 
   var _currentFiles = [];
 
@@ -74,8 +71,8 @@ RiseVision.Video = (function (window, gadgets) {
         return _currentFiles[0];
       }
       else if (_mode === "folder") {
-        // retrieve the currently played file
         if (_currentPlaylistIndex) {
+          // retrieve the currently played file
           return _currentFiles[_currentPlaylistIndex];
         }
       }
@@ -102,12 +99,16 @@ RiseVision.Video = (function (window, gadgets) {
     _message.show(message);
 
     _currentPlaylistIndex = null;
-    _frameController.remove(_currentFrame, _windowController.getFrameOrigin(), function () {
-      // if Widget is playing right now, run the timer
-      if (!_viewerPaused) {
-        _startErrorTimer();
-      }
-    });
+
+    if (_player) {
+      _player.clear();  
+    }
+
+    // if Widget is playing right now, run the timer
+    if (!_viewerPaused) {
+      _startErrorTimer();
+    }
+
   }
 
   function logEvent(params, isError) {
@@ -147,6 +148,10 @@ RiseVision.Video = (function (window, gadgets) {
       _currentFiles = urls;
     }
 
+    if (_player) {
+      _player.update(_currentFiles);  
+    }
+
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
     _errorFlag = false;
     _playerErrorFlag = false;
@@ -155,37 +160,36 @@ RiseVision.Video = (function (window, gadgets) {
   }
 
   function pause() {
-    var frameObj = _frameController.getFrameObject(_currentFrame);
 
     _viewerPaused = true;
 
     // in case error timer still running (no conditional check on errorFlag, it may have been reset in onFileRefresh)
     _clearErrorTimer();
 
-    if (frameObj) {
-      // Destroy player iframe.
+    if (_player) {
       if (!_resume) {
         _currentPlaylistIndex = null;
-        _frameController.remove(_currentFrame, _windowController.getFrameOrigin());
+        _player.pause();
+        _player.reset();
       }
       else {
-        frameObj.postMessage({event: "pause"}, _windowController.getFrameOrigin());
+        _player.pause();
       }
     }
+
   }
 
   function play() {
-    var logParams = {},
-      frameObj = _frameController.getFrameObject(_currentFrame),
-      html;
+    /*jshint validthis:true */
 
     if (_isLoading) {
       _isLoading = false;
 
       // Log configuration event.
-      logParams.event = "configuration";
-      logParams.event_details = _configDetails;
-      logEvent(logParams, false);
+      logEvent({
+        event: "configuration",
+        event_details: _configDetails
+      }, false);
     }
 
     _viewerPaused = false;
@@ -197,32 +201,19 @@ RiseVision.Video = (function (window, gadgets) {
       return;
     }
 
-    if (frameObj) {
-      frameObj.postMessage({event: "play"}, _windowController.getFrameOrigin());
-    } else {
+    if (_player) {
+      // Ensures possible error messaging gets hidden and video gets shown
+      _message.hide();
 
-      if (_currentFiles && _currentFiles.length > 0) {
-
-        RiseVision.Common.RiseCache.isRiseCacheRunning(function (isRunning) {
-          if (_mode === "file") {
-            html = (isRunning) ? "//localhost:9494/?url=" +
-            encodeURIComponent(_windowController.getBucketPath()) + "player-file-cache.html" : "player-file.html";
-
-            // add frame and create the player
-            _frameController.add(0);
-            _frameController.createFramePlayer(0, _additionalParams, _currentFiles[0], html, _windowController.getFrameOrigin());
-          }
-          else if (_mode === "folder") {
-            html = (isRunning) ? "//localhost:9494/?url=" +
-            encodeURIComponent(_windowController.getBucketPath()) + "player-folder-cache.html" : "player-folder.html";
-
-            _frameController.add(0);
-            _frameController.createFramePlayer(0, _additionalParams, _currentFiles, html, _windowController.getFrameOrigin());
-          }
-        });
-      }
-
+      _player.play();
     }
+    else {
+      if (_currentFiles && _currentFiles.length > 0) {
+        _player = new RiseVision.Video.Player(_additionalParams, _mode);
+        _player.init(_currentFiles);
+      }
+    }
+
   }
 
   function getTableName() {
@@ -231,23 +222,16 @@ RiseVision.Video = (function (window, gadgets) {
 
   function playerEnded() {
     _currentPlaylistIndex = null;
-    _frameController.remove(_currentFrame, _windowController.getFrameOrigin(), function () {
-      _done();
-    });
+
+    _done();
   }
 
   function playerReady() {
-    var frameObj;
-
-    // Ensures messaging is hidden for non-storage video file
+    // Ensures loading messaging is hidden and video gets shown
     _message.hide();
 
     if (!_viewerPaused) {
-      frameObj = _frameController.getFrameObject(_currentFrame);
-
-      if (frameObj) {
-        frameObj.postMessage({event: "play"}, _windowController.getFrameOrigin());
-      }
+      _player.play();
     }
   }
 
@@ -262,7 +246,8 @@ RiseVision.Video = (function (window, gadgets) {
     _mode = mode;
     _prefs = new gadgets.Prefs();
 
-    document.getElementById("videoContainer").style.height = _prefs.getInt("rsH") + "px";
+    document.getElementById("container").style.width = _prefs.getInt("rsW") + "px";
+    document.getElementById("container").style.height = _prefs.getInt("rsH") + "px";
 
     _additionalParams.width = _prefs.getInt("rsW");
     _additionalParams.height = _prefs.getInt("rsH");
@@ -271,16 +256,11 @@ RiseVision.Video = (function (window, gadgets) {
       _resume = _additionalParams.video.resume;
     }
 
-    _message = new RiseVision.Common.Message(document.getElementById("videoContainer"),
+    _message = new RiseVision.Common.Message(document.getElementById("container"),
       document.getElementById("messageContainer"));
 
     // show wait message while Storage initializes
     _message.show("Please wait while your video is downloaded.");
-
-    _windowController = new RiseVision.Video.WindowController();
-    _windowController.init();
-
-    _frameController = new RiseVision.Video.FrameController();
 
     if (_mode === "file") {
       isStorageFile = (Object.keys(_additionalParams.storage).length !== 0);

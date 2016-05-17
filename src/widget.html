@@ -8,9 +8,13 @@
   <script src="components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <link rel="import" href="components/rise-storage/rise-storage.html">
 
+  <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
+  <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
+
   <!-- build:css css/video.min.css -->
   <link rel="stylesheet" type="text/css" href="widget/css/video.css">
-  <link rel="stylesheet" href="components/widget-common/dist/css/message.css">
+  <link rel="stylesheet" type="text/css" href="components/widget-common/dist/css/message.css">
+  <link rel="stylesheet" type="text/css" href="skin/jwplayer-skin.css">
   <!-- endbuild -->
 
 </head>
@@ -18,8 +22,8 @@
 
   <rise-storage id="videoStorage" refresh="5"></rise-storage>
 
-  <div id="videoContainer">
-    <div id="if_0" class="frameContainer"></div>
+  <div id="container">
+    <div id="player">Loading player ...</div>
   </div>
 
   <div id="messageContainer"></div>
@@ -34,11 +38,11 @@
   <script src="config/version.js"></script>
   <script src="config/config.js"></script>
   <script src="widget/video.js"></script>
+  <script src="widget/player-utils.js"></script>
   <script src="widget/storage-file.js"></script>
   <script src="widget/storage-folder.js"></script>
   <script src="widget/non-storage.js"></script>
-  <script src="widget/window-controller.js"></script>
-  <script src="widget/frame-controller.js"></script>
+  <script src="widget/player.js"></script>
   <script src="components/widget-common/dist/message.js"></script>
   <script src="widget/main.js"></script>
   <script src="widget/analytics.js"></script>
