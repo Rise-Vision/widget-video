@@ -1,4 +1,4 @@
-/* global gadgets, config, _ */
+/* global gadgets, _ */
 
 var RiseVision = RiseVision || {};
 RiseVision.Video = {};
@@ -32,7 +32,8 @@ RiseVision.Video = (function (window, gadgets) {
     _errorTimer = null,
     _errorFlag = false;
 
-  var _storageErrorFlag = false;
+  var _storageErrorFlag = false,
+    _playerErrorFlag = false;
 
   /*
    *  Private Methods
@@ -90,6 +91,10 @@ RiseVision.Video = (function (window, gadgets) {
     return _storageErrorFlag;
   }
 
+  function hasPlayerError() {
+    return _playerErrorFlag;
+  }
+
   function showError(message, isStorageError) {
     _errorFlag = true;
     _storageErrorFlag = typeof isStorageError !== "undefined";
@@ -144,6 +149,7 @@ RiseVision.Video = (function (window, gadgets) {
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
     _errorFlag = false;
+    _playerErrorFlag = false;
     _storageErrorFlag = false;
     _errorLog = null;
   }
@@ -171,7 +177,7 @@ RiseVision.Video = (function (window, gadgets) {
   function play() {
     var logParams = {},
       frameObj = _frameController.getFrameObject(_currentFrame),
-      skin, html;
+      html;
 
     if (_isLoading) {
       _isLoading = false;
@@ -198,22 +204,20 @@ RiseVision.Video = (function (window, gadgets) {
       if (_currentFiles && _currentFiles.length > 0) {
 
         RiseVision.Common.RiseCache.isRiseCacheRunning(function (isRunning) {
-          skin = (isRunning) ? "?url=" + encodeURIComponent(_windowController.getBucketPath()) + config.SKIN : config.SKIN;
-
           if (_mode === "file") {
             html = (isRunning) ? "//localhost:9494/?url=" +
             encodeURIComponent(_windowController.getBucketPath()) + "player-file-cache.html" : "player-file.html";
 
             // add frame and create the player
             _frameController.add(0);
-            _frameController.createFramePlayer(0, _additionalParams, _currentFiles[0], skin, html, _windowController.getFrameOrigin());
+            _frameController.createFramePlayer(0, _additionalParams, _currentFiles[0], html, _windowController.getFrameOrigin());
           }
           else if (_mode === "folder") {
             html = (isRunning) ? "//localhost:9494/?url=" +
             encodeURIComponent(_windowController.getBucketPath()) + "player-folder-cache.html" : "player-folder.html";
 
             _frameController.add(0);
-            _frameController.createFramePlayer(0, _additionalParams, _currentFiles, skin, html, _windowController.getFrameOrigin());
+            _frameController.createFramePlayer(0, _additionalParams, _currentFiles, html, _windowController.getFrameOrigin());
           }
         });
       }
@@ -222,7 +226,7 @@ RiseVision.Video = (function (window, gadgets) {
   }
 
   function getTableName() {
-    return "video_events";
+    return "video_v2_events";
   }
 
   function playerEnded() {
@@ -341,6 +345,7 @@ RiseVision.Video = (function (window, gadgets) {
 
     params.event = "player error";
     params.event_details = details;
+    _playerErrorFlag = true;
 
     logEvent(params, true);
     showError(message);
@@ -352,6 +357,7 @@ RiseVision.Video = (function (window, gadgets) {
 
   return {
     "getTableName": getTableName,
+    "hasPlayerError": hasPlayerError,
     "hasStorageError": hasStorageError,
     "logEvent": logEvent,
     "onFileInit": onFileInit,

@@ -10,8 +10,10 @@ function configure(urls){
       width : width,
       height : height,
       controls: false,
-      stretching : stretching,
-      skin: skin
+      skin: {
+        name: "rise"
+      },
+      stretching : stretching
     });
   };
 

@@ -3,11 +3,12 @@
 <head>
   <meta http-equiv="content-type" content="text/html" charset="UTF-8">
   <title></title>
-  <script type="text/javascript" src="//localhost:9494/?url=http://s3.amazonaws.com/rise-common/scripts/jw-player/jwplayer.js"></script>
-  <script>jwplayer.key="KpI+Mo3vt94CJwrGRV6XX4qrevXb6BpRNMVnhhEzOuLfXOHY"</script>
+  <script type="text/javascript" src="//localhost:9494/?url=http://s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
+  <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
 
   <script>
     var scriptElement = document.createElement("script");
+    var linkElement = document.createElement("link");
 
     function getBucketPath() {
       var url = decodeURIComponent(window.location.search.substring(1)),
@@ -36,7 +37,12 @@
 
     scriptElement.src = "//localhost:9494/?url=" + encodeURIComponent(getBucketPath()) + "js/player-folder.min.js";
 
+    linkElement.rel = "stylesheet";
+    linkElement.type = "text/css";
+    linkElement.href = "//localhost:9494/?url=" + encodeURIComponent(getBucketPath()) + "skin/jwplayer-skin.min.css";
+
     document.getElementsByTagName("head")[0].appendChild(scriptElement);
+    document.getElementsByTagName("head")[0].appendChild(linkElement);
   </script>
   <style>
     body {
@@ -44,15 +50,6 @@
       background-color: transparent;
       -webkit-user-select: none;
       user-select: none;
-    }
-
-    .notransition {
-      -webkit-transition: none !important;
-      transition: none !important;
-    }
-
-    .disable-context-menu {
-      display: none !important;
     }
   </style>
 </head>

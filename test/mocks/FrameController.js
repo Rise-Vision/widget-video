@@ -9,7 +9,7 @@
 
         frameContainer.appendChild(iframe);
       },
-      createFramePlayer: function(index, params, files, skin, src, origin) {
+      createFramePlayer: function(index, params, files, src, origin) {
       },
       getFrameContainer: function(index) {
         return document.getElementById("if_" + index);
