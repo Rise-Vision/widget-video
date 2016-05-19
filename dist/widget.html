@@ -8,6 +8,9 @@
   <script src="components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <link rel="import" href="components/rise-storage/rise-storage.html">
 
+  <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
+  <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
+
   <link rel="stylesheet" href="css/video.min.css"/>
 
 </head>
@@ -15,8 +18,8 @@
 
   <rise-storage id="videoStorage" refresh="5"></rise-storage>
 
-  <div id="videoContainer">
-    <div id="if_0" class="frameContainer"></div>
+  <div id="container">
+    <div id="player">Loading player ...</div>
   </div>
 
   <div id="messageContainer"></div>
