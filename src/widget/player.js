@@ -69,7 +69,7 @@ RiseVision.Video.Player = function (params) {
     //var playFn = play;
 
     // handle a JWPlayer setup error
-    _playerInstance.onSetupError(function (error) {
+    _playerInstance.on("setupError", function (error) {
       _onSetupError(error);
     });
 
@@ -178,13 +178,13 @@ RiseVision.Video.Player = function (params) {
   }
 
   function reset() {
-    
+
     function onSeeked() {
       // pause the video at the start
       _playerInstance.pause();
       // remove handling the seeked event
       _playerInstance.off("seeked", onSeeked);
-      
+
       clear();
     }
 
