@@ -8,13 +8,17 @@
   <script src="../../src/components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../../src/components/web-component-tester/browser.js"></script>
 
+  <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
+  <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
+
   <link rel="stylesheet" type="text/css" href="../../src/widget/css/video.css">
   <link rel="stylesheet" href="../../src/components/widget-common/dist/css/message.css">
+  <link rel="stylesheet" type="text/css" href="../../src/skin/jwplayer-skin.css">
 </head>
 <body>
 
-<div id="videoContainer">
-  <div id="if_0" class="frameContainer"></div>
+<div id="container">
+  <div id="player">Loading player ...</div>
 </div>
 
 <div id="messageContainer"></div>
@@ -25,17 +29,15 @@
 <script src="../../node_modules/widget-tester/mocks/logger-mock.js"></script>
 
 <script src="../../src/components/widget-common/dist/config.js"></script>
+<script src="../../src/components/widget-common/dist/common.js"></script>
 <script src="../../src/components/widget-common/dist/rise-cache.js"></script>
 <script src="../../src/config/version.js"></script>
 <script src="../../src/config/test.js"></script>
 <script src="../../src/widget/video.js"></script>
+<script src="../../src/widget/player-utils.js"></script>
 <script src="../../src/widget/non-storage.js"></script>
-<script src="../../src/widget/window-controller.js"></script>
-<script src="../../src/widget/frame-controller.js"></script>
+<script src="../../src/widget/player.js"></script>
 <script src="../../src/components/widget-common/dist/message.js"></script>
-
-<script src="../mocks/FrameController.js"></script>
-
 <script src="../../src/widget/main.js"></script>
 
 <script>

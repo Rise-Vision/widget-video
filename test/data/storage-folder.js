@@ -20,7 +20,9 @@
         "scaleToFit": true,
         "volume": 50,
         "controls": true,
-        "autoplay": true
+        "autoplay": true,
+        "resume": true,
+        "pause": 5
       }
 
     }
