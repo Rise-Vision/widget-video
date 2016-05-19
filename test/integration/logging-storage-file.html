@@ -89,8 +89,6 @@
 
       test("should log the configuration event", function () {
 
-        console.log(spy.args);
-
         assert(spy.calledWith(table, {
           "event": "configuration",
           "event_details": "storage file",

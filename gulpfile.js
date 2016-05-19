@@ -175,31 +175,23 @@
       "test/unit/settings/**/*spec.js"]}
   ));
 
-  gulp.task("test:unit:player:base", factory.testUnitAngular(
+  gulp.task("test:unit:player-utils", factory.testUnitAngular(
     {testFiles: [
-      "src/widget/player-base.js",
-      "test/unit/widget/player-base-spec.js"
+      "src/widget/player-utils.js",
+      "test/unit/widget/player-utils-spec.js"
     ]}
   ));
 
-  gulp.task("test:unit:player:file", factory.testUnitAngular(
+  gulp.task("test:unit:player-main", factory.testUnitAngular(
     {testFiles: [
-      "src/widget/player-base.js",
-      "src/widget/player-file.js",
-      "test/unit/widget/player-file-spec.js"
-    ]}
-  ));
-
-  gulp.task("test:unit:player:folder", factory.testUnitAngular(
-    {testFiles: [
-      "src/widget/player-base.js",
-      "src/widget/player-folder.js",
-      "test/unit/widget/player-folder-spec.js"
+      "src/widget/player-utils.js",
+      "src/widget/player.js",
+      "test/unit/widget/player-spec.js"
     ]}
   ));
 
   gulp.task("test:unit:player", function(cb) {
-    runSequence("test:unit:player:base", "test:unit:player:file", "test:unit:player:folder", cb);
+    runSequence("test:unit:player-utils", "test:unit:player-main", cb);
   });
 
   gulp.task("test:unit:widget", factory.testUnitAngular(
@@ -243,7 +235,7 @@
   });
 
   gulp.task("test", function(cb) {
-    runSequence("version", /*"test:unit",*/ "test:integration", "test:e2e", cb);
+    runSequence("version", "test:unit", "test:integration", "test:e2e", cb);
   });
 
   gulp.task("build", function (cb) {
