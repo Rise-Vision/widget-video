@@ -135,6 +135,15 @@ RiseVision.Video.StorageFolder = function (data) {
       RiseVision.Video.showError("Rise Storage subscription is not active.");
     });
 
+    storage.addEventListener("rise-storage-subscription-error", function(e) {
+      var params = {
+        "event": "storage subscription error",
+        "event_details": "The request failed with status code: " + e.detail.error.currentTarget.status
+      };
+
+      RiseVision.Video.logEvent(params, true);
+    });
+
     storage.addEventListener("rise-storage-error", function(e) {
       var params = {
         "event": "rise storage error",

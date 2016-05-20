@@ -379,11 +379,36 @@
         assert(spy.calledWith(table, params));
       });
 
+      test("should log a storage subscription error", function () {
+        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
+
+        storage.dispatchEvent(new CustomEvent("rise-storage-subscription-error", {
+          "detail": {
+            "error": {
+              "currentTarget": {
+                "status": 0
+              }
+            }
+          },
+          "bubbles": true
+        }));
+
+        params.event = "storage subscription error";
+        params.event_details = "The request failed with status code: 0";
+
+        assert(spy.calledOnce);
+        assert(spy.calledWith(table, params));
+      });
+
       test("should log a storage subscription expired error when done is fired", function() {
         storage.dispatchEvent(new CustomEvent("rise-storage-subscription-expired"));
 
         spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
         clock.tick(5000);
+
+        delete params.event_details;
+        params.event = "storage subscription expired";
+
         assert(spy.calledTwice);  // storage subscription expired + done
         assert(spy.calledWith(table, params));
       });
