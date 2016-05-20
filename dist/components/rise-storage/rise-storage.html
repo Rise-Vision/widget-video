@@ -425,6 +425,7 @@
 
     _fireStorageSubscriptionError: function() {
       this.fire("rise-storage-subscription-expired");
+      this._startTimer();
     },
 
 
@@ -442,6 +443,7 @@
 
     _handleStorageSubscriptionError: function(e, resp) {
       this.fire("rise-storage-subscription-error", resp);
+      this._startTimer();
     },
 
     /**
