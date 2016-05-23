@@ -717,10 +717,6 @@ RiseVision.Video = (function (window, gadgets) {
 
     _currentPlaylistIndex = null;
 
-    if (_player) {
-      _player.clear();  
-    }
-
     // if Widget is playing right now, run the timer
     if (!_viewerPaused) {
       _startErrorTimer();
@@ -786,7 +782,6 @@ RiseVision.Video = (function (window, gadgets) {
     if (_player) {
       if (!_resume) {
         _currentPlaylistIndex = null;
-        _player.pause();
         _player.reset();
       }
       else {
@@ -797,8 +792,6 @@ RiseVision.Video = (function (window, gadgets) {
   }
 
   function play() {
-    /*jshint validthis:true */
-
     if (_isLoading) {
       _isLoading = false;
 
@@ -1097,6 +1090,15 @@ RiseVision.Video.StorageFile = function (data) {
       RiseVision.Video.showError("Rise Storage subscription is not active.");
     });
 
+    storage.addEventListener("rise-storage-subscription-error", function(e) {
+      var params = { 
+        "event": "storage subscription error",
+        "event_details": "The request failed with status code: " + e.detail.error.currentTarget.status
+      };
+
+      RiseVision.Video.logEvent(params, true);
+    });
+
     storage.addEventListener("rise-storage-error", function(e) {
       var params = {
         "event": "rise storage error",
@@ -1285,6 +1287,15 @@ RiseVision.Video.StorageFolder = function (data) {
       RiseVision.Video.showError("Rise Storage subscription is not active.");
     });
 
+    storage.addEventListener("rise-storage-subscription-error", function(e) {
+      var params = {
+        "event": "storage subscription error",
+        "event_details": "The request failed with status code: " + e.detail.error.currentTarget.status
+      };
+
+      RiseVision.Video.logEvent(params, true);
+    });
+
     storage.addEventListener("rise-storage-error", function(e) {
       var params = {
         "event": "rise storage error",
@@ -1443,16 +1454,12 @@ RiseVision.Video.Player = function (params) {
       clearTimeout(_pauseTimer);
 
       _pauseTimer = setTimeout(function () {
-        // continue playing the current video
-        _playerInstance.play();
-
+        if (_playerInstance.getState().toUpperCase() !== "PLAYING") {
+          // continue playing the current video
+          _playerInstance.play();
+        }
       }, _pauseDuration * 1000);
     }
-  }
-
-  function _onPlay() {
-    clearTimeout(_pauseTimer);
-    _pauseTimer = null;
   }
 
   function _onPlaylistItem(index) {
@@ -1506,10 +1513,6 @@ RiseVision.Video.Player = function (params) {
         _playerInstance.on("pause", function () {
           _onPause();
         });
-
-        _playerInstance.on("play", function () {
-          _onPlay();
-        });
       }
 
       // player is ready
@@ -1532,12 +1535,6 @@ RiseVision.Video.Player = function (params) {
   /*
    *  Public Methods
    */
-  function clear() {
-    _viewerPaused = false;
-    clearTimeout(_pauseTimer);
-    _pauseTimer = null;
-  }
-
   function init(files) {
     _playerInstance = jwplayer("player");
 
@@ -1582,34 +1579,56 @@ RiseVision.Video.Player = function (params) {
   }
 
   function pause() {
+    _viewerPaused = true;
+    clearTimeout(_pauseTimer);
+
     if (_playerInstance.getState().toUpperCase() === "PLAYING") {
-      _viewerPaused = true;
-      clearTimeout(_pauseTimer);
       _playerInstance.pause();
     }
   }
 
   function reset() {
 
-    function onSeeked() {
+    pause();
+
+    function onPlay() {
+      // remove handling the play event
+      _playerInstance.off("play", onPlay);
+
       // pause the video at the start
       _playerInstance.pause();
+    }
+
+    function onSeeked() {
       // remove handling the seeked event
       _playerInstance.off("seeked", onSeeked);
 
-      clear();
+      // pause the video at the start
+      _playerInstance.pause();
     }
 
-    if (_playerInstance.getPlaylistIndex() !== 0) {
-      // change to first video in list
-      _playerInstance.playlistItem(0);
+    // if status is COMPLETE, a future play call will start playlist over from beginning automatically
+    if (_playerInstance.getState().toUpperCase() !== "COMPLETE") {
+
+      // avoid jwplayer promise error in console with setTimeout - http://goo.gl/L4gkTm
+      setTimeout(function () {
+        if (_playerInstance.getPlaylistIndex() !== 0) {
+          _playerInstance.on("play", onPlay);
+
+          // change to first video in list
+          _playerInstance.playlistItem(0);
+        }
+        else {
+          // handle when video continues playing after seeking to position
+          _playerInstance.on("seeked", onSeeked);
+
+          // move position back to start of video
+          _playerInstance.seek(0);
+        }
+      },100);
+      
     }
 
-    // handle when video continues playing after seeking to position
-    _playerInstance.on("seeked", onSeeked);
-
-    // move position back to start of video
-    _playerInstance.seek(0);
   }
 
   function update(files) {
@@ -1618,7 +1637,6 @@ RiseVision.Video.Player = function (params) {
   }
 
   return {
-    "clear": clear,
     "init": init,
     "pause": pause,
     "play": play,

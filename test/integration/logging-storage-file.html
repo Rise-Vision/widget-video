@@ -321,31 +321,55 @@
         assert(spy.calledWith(table, params));
       });
 
+      test("should log a storage subscription error", function () {
+        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
+
+        storage.dispatchEvent(new CustomEvent("rise-storage-subscription-error", {
+          "detail": {
+            "error": {
+              "currentTarget": {
+                "status": 0
+              }
+            }
+          },
+          "bubbles": true
+        }));
+
+        params.event = "storage subscription error";
+        params.event_details = "The request failed with status code: 0";
+
+        assert(spy.calledOnce);
+        assert(spy.calledWith(table, params));
+      });
+
       test("should log a storage subscription expired error when done is fired", function () {
         storage.dispatchEvent(new CustomEvent("rise-storage-subscription-expired"));
 
         spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
         clock.tick(5000);
 
+        delete params.event_details;
+        params.event = "storage subscription expired";
+
         assert(spy.calledTwice); // storage subscription expired + done
         assert(spy.calledWith(table, params));
+      });
 
-        test("should not log a storage subscription expired error when done is fired if the error has resolved itself on a refresh", function () {
-          storage.dispatchEvent(new CustomEvent("rise-storage-subscription-expired"));
+      test("should not log a storage subscription expired error when done is fired if the error has resolved itself on a refresh", function () {
+        storage.dispatchEvent(new CustomEvent("rise-storage-subscription-expired"));
 
-          // Resolve the error.
-          RiseVision.Video.onFileRefresh(window.gadget.settings.additionalParams.selector.url);
+        // Resolve the error.
+        RiseVision.Video.onFileRefresh(window.gadget.settings.additionalParams.selector.url);
 
-          spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
-          params.event = "done";
-          params.file_url = window.gadget.settings.additionalParams.selector.url;
-          params.file_format = "webm";
+        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
+        params.event = "done";
+        params.file_url = window.gadget.settings.additionalParams.selector.url;
+        params.file_format = "webm";
 
-          clock.tick(5000);
+        clock.tick(5000);
 
-          assert(spy.calledOnce);
-          assert(spy.calledWith(table, params));
-        });
+        assert(spy.calledOnce);
+        assert(spy.calledWith(table, params));
       });
 
       suite("storage api error", function () {

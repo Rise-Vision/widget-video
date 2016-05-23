@@ -100,10 +100,6 @@ RiseVision.Video = (function (window, gadgets) {
 
     _currentPlaylistIndex = null;
 
-    if (_player) {
-      _player.clear();  
-    }
-
     // if Widget is playing right now, run the timer
     if (!_viewerPaused) {
       _startErrorTimer();
@@ -169,7 +165,6 @@ RiseVision.Video = (function (window, gadgets) {
     if (_player) {
       if (!_resume) {
         _currentPlaylistIndex = null;
-        _player.pause();
         _player.reset();
       }
       else {
@@ -180,8 +175,6 @@ RiseVision.Video = (function (window, gadgets) {
   }
 
   function play() {
-    /*jshint validthis:true */
-
     if (_isLoading) {
       _isLoading = false;
 
