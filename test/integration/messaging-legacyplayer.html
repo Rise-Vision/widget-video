@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>Video Widget</title>
+
+  <script src="../../src/components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <script src="../../src/components/web-component-tester/browser.js"></script>
+
+  <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
+  <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
+
+  <link rel="stylesheet" type="text/css" href="../../src/widget/css/video.css">
+  <link rel="stylesheet" href="../../src/components/widget-common/dist/css/message.css">
+  <link rel="stylesheet" type="text/css" href="../../src/skin/jwplayer-skin.css">
+</head>
+<body>
+
+<div id="container">
+  <div id="player">Loading player ...</div>
+</div>
+
+<div id="messageContainer"></div>
+
+<script src="../data/non-storage.js"></script>
+
+<script src="../../node_modules/widget-tester/mocks/gadget-mocks.js"></script>
+<script src="../../node_modules/widget-tester/mocks/logger-mock.js"></script>
+
+<script src="../../src/components/widget-common/dist/config.js"></script>
+<script src="../../src/components/widget-common/dist/common.js"></script>
+<script src="../../src/components/widget-common/dist/rise-cache.js"></script>
+<script src="../../src/config/version.js"></script>
+<script src="../../src/config/test.js"></script>
+<script src="../../src/widget/video.js"></script>
+<script src="../../src/widget/player-utils.js"></script>
+<script src="../../src/widget/non-storage.js"></script>
+<script src="../../src/widget/player.js"></script>
+<script src="../../src/components/widget-common/dist/message.js"></script>
+<script src="../../src/widget/main.js"></script>
+
+<script>
+
+  suite("messaging", function() {
+
+    suite("legacy player message", function() {
+
+      sinon.stub(RiseVision.Video, "onFileInit", function(){});
+      sinon.stub(RiseVision.Common.Utilities, "isLegacy").returns(true);
+
+      suiteTeardown(function() {
+        RiseVision.Video.onFileInit.restore();
+        RiseVision.Common.Utilities.isLegacy.restore();
+      });
+
+      test("should show legacy player message", function() {
+        assert.equal(document.querySelector(".message").innerHTML, "This version of Video Widget is not supported on this version of Rise Player. Please use the latest Rise Player version available at https://help.risevision.com/user/create-a-display", "message is correct");
+      });
+    });
+  });
+</script>
+</body>
+</html>
