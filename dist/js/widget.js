@@ -452,6 +452,26 @@ RiseVision.Common.Utilities = (function() {
     }
   }
 
+  /**
+   * Check if chrome version is under a certain version
+   */
+  function isLegacy() {
+    var legacyVersion = 25;
+
+    var match = navigator.userAgent.match(/Chrome\/(\S+)/);
+    var version = match ? match[1] : 0;
+
+    if (version) {
+      version = parseInt(version.substring(0,version.indexOf(".")));
+
+      if (version <= legacyVersion) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   return {
     getQueryParameter: getQueryParameter,
     getFontCssStyle:  getFontCssStyle,
@@ -462,7 +482,8 @@ RiseVision.Common.Utilities = (function() {
     preloadImages:    preloadImages,
     getRiseCacheErrorMessage: getRiseCacheErrorMessage,
     unescapeHTML: unescapeHTML,
-    hasInternetConnection: hasInternetConnection
+    hasInternetConnection: hasInternetConnection,
+    isLegacy: isLegacy
   };
 })();
 
@@ -869,8 +890,15 @@ RiseVision.Video = (function (window, gadgets) {
     _message = new RiseVision.Common.Message(document.getElementById("container"),
       document.getElementById("messageContainer"));
 
-    // show wait message while Storage initializes
-    _message.show("Please wait while your video is downloaded.");
+    if (RiseVision.Common.Utilities.isLegacy()) {
+      _message.show("This version of Video Widget is not supported on this version of Rise Player. " +
+        "Please use the latest Rise Player version available at https://help.risevision.com/user/create-a-display");
+    } else {
+      // show wait message while Storage initializes
+      _message.show("Please wait while your video is downloaded.");
+    }
+
+
 
     if (_mode === "file") {
       isStorageFile = (Object.keys(_additionalParams.storage).length !== 0);
