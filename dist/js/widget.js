@@ -891,37 +891,35 @@ RiseVision.Video = (function (window, gadgets) {
       document.getElementById("messageContainer"));
 
     if (RiseVision.Common.Utilities.isLegacy()) {
-      _message.show("This version of Video Widget is not supported on this version of Rise Player. " +
+      showError("This version of Video Widget is not supported on this version of Rise Player. " +
         "Please use the latest Rise Player version available at https://help.risevision.com/user/create-a-display");
     } else {
       // show wait message while Storage initializes
       _message.show("Please wait while your video is downloaded.");
-    }
 
+      if (_mode === "file") {
+        isStorageFile = (Object.keys(_additionalParams.storage).length !== 0);
 
+        if (!isStorageFile) {
+          _configDetails = "custom";
 
-    if (_mode === "file") {
-      isStorageFile = (Object.keys(_additionalParams.storage).length !== 0);
+          _nonStorage = new RiseVision.Video.NonStorage(_additionalParams);
+          _nonStorage.init();
+        } else {
+          _configDetails = "storage file";
 
-      if (!isStorageFile) {
-        _configDetails = "custom";
+          // create and initialize the Storage file instance
+          _storage = new RiseVision.Video.StorageFile(_additionalParams);
+          _storage.init();
+        }
+      }
+      else if (_mode === "folder") {
+        _configDetails = "storage folder";
 
-        _nonStorage = new RiseVision.Video.NonStorage(_additionalParams);
-        _nonStorage.init();
-      } else {
-        _configDetails = "storage file";
-
-        // create and initialize the Storage file instance
-        _storage = new RiseVision.Video.StorageFile(_additionalParams);
+        // create and initialize the Storage folder instance
+        _storage = new RiseVision.Video.StorageFolder(_additionalParams);
         _storage.init();
       }
-    }
-    else if (_mode === "folder") {
-      _configDetails = "storage folder";
-
-      // create and initialize the Storage folder instance
-      _storage = new RiseVision.Video.StorageFolder(_additionalParams);
-      _storage.init();
     }
 
     _ready();
