@@ -43,10 +43,9 @@
   });
 
   gulp.task("config", function() {
-    var configFile = (env === "dev" ? "dev.js" : "prod.js");
     gutil.log("Environment is", env);
 
-    return gulp.src(["./src/config/" + configFile])
+    return gulp.src(["./src/config/" + env + ".js"])
       .pipe(rename("config.js"))
       .pipe(gulp.dest("./src/config"));
   });
