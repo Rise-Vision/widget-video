@@ -30326,8 +30326,8 @@ module.run(["$templateCache", function($templateCache) {
   ;
 
   angular.module("risevision.widget.common.subscription-status.config", [])
-    .value("IN_RVA_PATH", "/product/productId/?up_id=iframeId&parent=parentUrl&inRVA=true&cid=companyId")
-    .value("ACCOUNT_PATH", "/account?cid=companyId")
+    .value("IN_RVA_PATH", "product/productId/?cid=companyId")
+    .value("ACCOUNT_PATH", "account?cid=companyId")
     .value("PATH_URL", "v1/company/companyId/product/status?pc=")
     .value("AUTH_PATH_URL", "v1/widget/auth?cid=companyId&pc=")
   ;
@@ -30346,50 +30346,6 @@ module.run(["$templateCache", function($templateCache) {
      "ngSanitize",
      "ui.bootstrap"]);
   }());
-
-(function () {
-  "use strict";
-
-  angular.module("risevision.widget.common.subscription-status")
-    .controller("StoreModalController", ["$scope", "$rootScope", "$timeout", 
-      "$modalInstance", "$location", "$sce", "gadgetsApi", 
-      "STORE_URL", "IN_RVA_PATH", "productId", "companyId",
-      function ($scope, $rootScope, $timeout, $modalInstance, $location, $sce,
-        gadgetsApi, STORE_URL, IN_RVA_PATH, productId, companyId) {
-
-        var getStoreUrl = function() {  
-          var url = STORE_URL + IN_RVA_PATH
-            .replace("productId", productId)
-            .replace("companyId", companyId)
-            .replace("iframeId", "store-modal-iframe")
-            .replace("parentUrl", encodeURIComponent($location.$$absUrl));
-                          
-          return $sce.trustAsResourceUrl(url);
-        };
-        $scope.url = getStoreUrl();
-        
-        var saveSettings = function() {
-          $modalInstance.close();
-        };
-
-        var closeSettings = function() {
-          $modalInstance.dismiss();
-        };
-
-        var registerRPC = function() {
-          if (gadgetsApi) {
-            $timeout(function() {
-              gadgetsApi.rpc.register("rscmd_saveSettings", saveSettings);
-              gadgetsApi.rpc.register("rscmd_closeSettings", closeSettings);
-
-              gadgetsApi.rpc.setupReceiver("store-modal-iframe");
-            });
-          }
-        };
-        registerRPC();
-    }]);
-}());
-  
 
 (function () {
   "use strict";
@@ -30480,10 +30436,10 @@ module.run(["$templateCache", function($templateCache) {
   "use strict";
 
   angular.module("risevision.widget.common.subscription-status")
-    .directive("subscriptionStatus", ["$templateCache", "$modal", "subscriptionStatusService",
-    "$document", "$compile", "$rootScope", "STORE_URL", "ACCOUNT_PATH",
-      function ($templateCache, $modal, subscriptionStatusService, $document, $compile, 
-        $rootScope, STORE_URL, ACCOUNT_PATH) {
+    .directive("subscriptionStatus", ["$rootScope", "$templateCache", 
+    "subscriptionStatusService", "STORE_URL", "ACCOUNT_PATH", "IN_RVA_PATH",
+      function ($rootScope, $templateCache, subscriptionStatusService, 
+        STORE_URL, ACCOUNT_PATH, IN_RVA_PATH) {
       return {
         restrict: "AE",
         require: "?ngModel",
@@ -30498,15 +30454,19 @@ module.run(["$templateCache", function($templateCache) {
         link: function($scope, elm, attrs, ctrl) {
           $scope.subscriptionStatus = {"status": "N/A", "statusCode": "na", "subscribed": false, "expiry": null};
 
-          var updateStoreAccountUrl = function() {
+          var updateUrls = function() {
             $scope.storeAccountUrl = STORE_URL + ACCOUNT_PATH
                               .replace("companyId", $scope.companyId);
-          };
 
+            $scope.storeUrl = STORE_URL + IN_RVA_PATH
+                .replace("productId", $scope.productId)
+                .replace("companyId", $scope.companyId);
+          };
+          
           $scope.$watch("companyId", function() {
             checkSubscriptionStatus();
             
-            updateStoreAccountUrl();
+            updateUrls();
           });
 
           $rootScope.$on("refreshSubscriptionStatus", function(event, data) {
@@ -30538,35 +30498,6 @@ module.run(["$templateCache", function($templateCache) {
               ctrl.$setViewValue(subscriptionStatus);
             });
           }
-
-          $scope.$watch("showStoreModal", function(show) {
-            if (show) {
-              var modalInstance = $modal.open({
-                templateUrl: "store-iframe-template.html",
-                controller: "StoreModalController",
-                size: "lg",
-                resolve: {
-                  productId: function () {
-                    return $scope.productId;
-                  },
-                  companyId: function() {
-                    return $scope.companyId;
-                  }
-                }
-              });
-
-              modalInstance.result.then(function () {
-                checkSubscriptionStatus();
-
-              }, function () {
-                checkSubscriptionStatus();
-
-              })
-              .finally(function() {
-                $scope.showStoreModal = false;
-              });
-            }
-          });
         }
       };
     }])
@@ -30761,17 +30692,6 @@ try { module = angular.module("risevision.widget.common.subscription-status"); }
 catch(err) { module = angular.module("risevision.widget.common.subscription-status", []); }
 module.run(["$templateCache", function($templateCache) {
   "use strict";
-  $templateCache.put("store-iframe-template.html",
-    "<iframe id=\"store-modal-iframe\" name=\"store-modal-iframe\" class=\"modal-dialog\" scrolling=\"no\" marginwidth=\"0\" src=\"{{ url }}\"></iframe>\n" +
-    "");
-}]);
-})();
-
-(function(module) {
-try { module = angular.module("risevision.widget.common.subscription-status"); }
-catch(err) { module = angular.module("risevision.widget.common.subscription-status", []); }
-module.run(["$templateCache", function($templateCache) {
-  "use strict";
   $templateCache.put("subscription-status-template.html",
     "<div ng-show=\"!expandedFormat\">\n" +
     "  <h3 ng-disable-right-click>\n" +
@@ -30784,9 +30704,9 @@ module.run(["$templateCache", function($templateCache) {
     "    </button>\n" +
     "  </span>\n" +
     "  <span ng-show=\"['on-trial', 'trial-expired', 'cancelled', 'not-subscribed'].indexOf(subscriptionStatus.statusCode) >= 0\">\n" +
-    "    <button class=\"btn btn-primary btn-xs\" ng-click=\"showStoreModal = true;\">\n" +
+    "    <a class=\"btn btn-primary btn-xs\" ng-href=\"{{storeUrl}}\" target=\"_blank\">\n" +
     "      <span translate=\"subscription-status.subscribe\"></span>\n" +
-    "    </button>\n" +
+    "    </a>\n" +
     "  </span>\n" +
     "  <span ng-show=\"['suspended'].indexOf(subscriptionStatus.statusCode) >= 0\">\n" +
     "    <a type=\"button\" class=\"btn btn-primary btn-xs\" ng-href=\"{{storeAccountUrl}}\" target=\"_blank\">\n" +
@@ -30798,21 +30718,21 @@ module.run(["$templateCache", function($templateCache) {
     "<div ng-show=\"expandedFormat\">\n" +
     "  <div class=\"subscription-status trial\" ng-show=\"subscriptionStatus.statusCode === 'on-trial'\">\n" +
     "    <span ng-bind-html=\"'subscription-status.expanded-' + subscriptionStatus.statusCode + subscriptionStatus.plural | translate:subscriptionStatus | to_trusted\"></span>\n" +
-    "    <button type=\"button\" class=\"btn btn-primary add-left\" ng-click=\"showStoreModal = true;\">\n" +
+    "    <a type=\"button\" class=\"btn btn-primary add-left\" ng-href=\"{{storeUrl}}\" target=\"_blank\">\n" +
     "      <span translate=\"subscription-status.subscribe-now\"></span>\n" +
-    "    </button>\n" +
+    "    </a>\n" +
     "  </div>\n" +
     "  <div class=\"subscription-status expired\" ng-show=\"subscriptionStatus.statusCode === 'trial-expired'\">\n" +
     "    <span translate=\"subscription-status.expanded-expired\"></span>\n" +
-    "    <button type=\"button\" class=\"btn btn-primary add-left\" ng-click=\"showStoreModal = true;\">\n" +
+    "    <a type=\"button\" class=\"btn btn-primary add-left\" ng-href=\"{{storeUrl}}\" target=\"_blank\">\n" +
     "      <span translate=\"subscription-status.subscribe-now\"></span>\n" +
-    "    </button>\n" +
+    "    </a>\n" +
     "  </div>\n" +
     "  <div class=\"subscription-status cancelled\" ng-show=\"subscriptionStatus.statusCode === 'cancelled'\">\n" +
     "   <span translate=\"subscription-status.expanded-cancelled\"></span>\n" +
-    "    <button type=\"button\" class=\"btn btn-primary add-left\" ng-click=\"showStoreModal = true;\">\n" +
+    "    <a type=\"button\" class=\"btn btn-primary add-left\" ng-href=\"{{storeUrl}}\" target=\"_blank\">\n" +
     "      <span translate=\"subscription-status.subscribe-now\"></span>\n" +
-    "    </button>\n" +
+    "    </a>\n" +
     "  </div>\n" +
     "  <div class=\"subscription-status suspended\" ng-show=\"subscriptionStatus.statusCode === 'suspended'\">\n" +
     "    <span translate=\"subscription-status.expanded-suspended\"></span>\n" +
