@@ -321,7 +321,7 @@
      * Polymer has finished its initialization. This is the entry point.
      */
     ready: function() {
-      this._images = ["image/jpeg", "image/png", "image/bmp", "image/svg+xml", "image/gif"];
+      this._images = ["image/jpeg", "image/png", "image/bmp", "image/svg+xml", "image/gif", "image/webp"];
       this._videos = ["video/mp4", "video/ogg", "video/webm"];
       this._contentTypes = this.contenttype.split(" ");
 
@@ -411,7 +411,10 @@
     _makeStorageSusbscriptionRequest: function() {
       if (this.companyid) {
         // Request to Store Authorization API passing company id and product code of the storage subscription
-        var url = "https://store-dot-rvaserver2.appspot.com/v1/widget/auth?cid=" + encodeURIComponent(this.companyid) + "&pc=b0cba08a4baa0c62b8cdc621b6f6a124f89a03db";
+        var productionUrl = "https://store-dot-rvaserver2.appspot.com",
+          testingUrl = "https://store-dot-rvacore-test.appspot.com",
+          serverUrl = (this.env !== "test" ? productionUrl : testingUrl),
+          url = serverUrl + "/v1/widget/auth?cid=" + encodeURIComponent(this.companyid) + "&pc=b0cba08a4baa0c62b8cdc621b6f6a124f89a03db";
         this.$.storageSubscription.url = url;
         this.$.storageSubscription.generateRequest();
       }
@@ -746,7 +749,7 @@
                 }
 
                 previousItem = _.find(self._files, function(obj) {
-                  return obj.name === item.name;
+                  return decodeURIComponent(obj.name) === item.name;
                 });
 
                 // New file
@@ -1092,14 +1095,14 @@
     _processRemovedFiles: function(latestFilesList) {
       function fileExists(file) {
         return latestFilesList.some(function(element) {
-          return file.name === element.name;
+          return decodeURIComponent(file.name) === element.name;
         });
       }
 
-      for(var i = this._files.length - 1; i >= 0; i--) {
+      for (var i = this._files.length - 1; i >= 0; i--) {
         var file = this._files[i];
 
-        if(!fileExists(file)) {
+        if (!fileExists(file)) {
           this._files.splice(i, 1);
           file.deleted = true;
 
@@ -1327,8 +1330,7 @@
         decodedUrl = url.substring(0, end !== -1 ? end : url.length);
       }
 
-      // Decode again to handle double slash encodings
-      return decodeURIComponent(decodedUrl);
+      return decodedUrl;
     },
 
     _loadStorage: function() {
