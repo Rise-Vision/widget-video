@@ -1,0 +1,1443 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<script src="../underscore/underscore.js"></script>
+
+<dom-module id="rise-storage">
+  <template>
+
+    <iron-ajax id="ping"
+               url="//localhost:9494"
+               handle-as="json"
+               on-response="_handlePingResponse"
+               on-error="_handlePingError"
+               verbose="true">
+    </iron-ajax>
+
+    <iron-ajax id="storage"
+      handle-as="json"
+      on-response="_handleStorageResponse"
+      on-error="_handleStorageError"
+      verbose="true">
+    </iron-ajax>
+
+    <iron-ajax id="storageSubscription"
+       handle-as="json"
+       on-response="_handleStorageSubscriptionResponse"
+       on-error="_handleStorageSubscriptionError"
+       verbose="true">
+    </iron-ajax>
+
+    <iron-ajax id="cache"
+      method="{{_cacheRequestMethod}}"
+      url="{{_cacheUrl}}"
+      handle-as="text"
+      on-response="_handleCacheResponse"
+      on-error="_handleCacheError"
+      verbose="true">
+    </iron-ajax>
+
+  </template>
+</dom-module>
+
+<script>
+  /* global Polymer, _ */
+  /*jshint newcap: false */
+  Polymer({
+    is: "rise-storage",
+
+    properties: {
+      /**
+       * The ID of the Company.
+       */
+      companyid: {
+        type: String,
+        value: ""
+      },
+      /**
+       * The folder name.
+       */
+      folder: {
+        type: String,
+        value: ""
+      },
+      /**
+       * The name of a file within the folder.
+       */
+      filename: {
+        type: String,
+        value: ""
+      },
+      /**
+       * The file type.
+       */
+      filetype: {
+        type: String,
+        value: ""
+      },
+      /**
+       * The content type.
+       */
+      contenttype: {
+        type: String,
+        value: ""
+      },
+      /**
+       * The field to sort on.
+       */
+      sort: {
+        type: String,
+        value: ""
+      },
+      /**
+       * The sort order.
+       */
+      sortdirection: {
+        type: String,
+        value: ""
+      },
+      /**
+       * The number of minutes before Storage will be checked for changes.
+       */
+      refresh: {
+        type: Number,
+        value: 0
+      },
+      /**
+       * The environment from which information should be retrieved.
+       *
+       * Possible values are "prod" or "test". In case the attribute is not provided, it defaults to "prod".
+       */
+      env: {
+        type: String,
+        value: "prod"
+      }
+    },
+
+    /**
+     * Fired when a response is received.
+     *
+     * @event rise-storage-response
+     */
+
+    /**
+     * Fired when an error is received from the storage.
+     *
+     * @event rise-storage-error
+     */
+
+    /**
+     * Fired when an error is received from cache.
+     *
+     * @event rise-cache-error
+     */
+
+    /**
+     * Fired when rise cache is not running.
+     *
+     * @event rise-cache-not-running
+     */
+
+    /**
+     * Indicates whether or not the component is loading.
+     *
+     * @property _isLoading
+     * @type boolean
+     * @default true
+     */
+    _isLoading: true,
+
+    /**
+     * Indicates whether or not the Storage request is for a file.
+     *
+     * @property _isFile
+     * @type boolean
+     * @default true
+     */
+    _isFile: true,
+
+    /**
+     * The URL target of the Cache request.
+     *
+     * @property _cacheUrl
+     * @type string
+     * @default ""
+     */
+    _cacheUrl: "",
+
+    /**
+     * The method for the Cache request.
+     *
+     * @property _cacheRequestMethod
+     * @type string
+     * @default "HEAD"
+     */
+    _cacheRequestMethod: "HEAD",
+
+    /**
+     * The flag for making a get request if it wasn't done yet.
+     *
+     * @property _hasAttemptedGetRequest
+     * @type boolean
+     * @default false
+     */
+    _hasAttemptedGetRequest: false,
+
+    /**
+     * The flag for making a second storage request if it wasn't done yet.
+     *
+     * @property _hasAttemptedSecondStorageRequest
+     * @type boolean
+     * @default false
+     */
+    _hasAttemptedSecondStorageRequest: false,
+
+    /**
+     * The URL target of the Cache request.
+     *
+     * @property _fileUrl
+     * @type string
+     * @default ""
+     */
+    _fileUrl: "",
+
+    /**
+     * Stores item details from the previous request.
+     *
+     * @property _files
+     * @type object
+     * @default []
+     */
+    _files: [],
+
+    /**
+     * The base URL for Rise Cache.
+     *
+     * @property _baseCacheUrl
+     * @type string
+     * @default "//localhost:9494/"
+     */
+    _baseCacheUrl: "//localhost:9494/",
+
+    /**
+     * Whether or not Rise Cache V2 is running.
+     *
+     * @property _isCacheRunning
+     * @type boolean
+     * @default false
+     */
+    _isCacheRunning: false,
+
+    /**
+     * Whether or not a response has been received from the ping request.
+     *
+     * @property _pingReceived
+     * @type boolean
+     * @default false
+     */
+    _pingReceived: false,
+
+    /**
+     * The number of files in a folder that have already been processed.
+     *
+     * @property _numFiles
+     * @type number
+     * @default 0
+     */
+    _numFiles: 0,
+
+    /**
+     * The total number of files in a folder.
+     *
+     * @property _totalFiles
+     * @type number
+     * @default 0
+     */
+    _totalFiles: 0,
+
+    /**
+     * The list of items in a folder to request from Rise Cache.
+     *
+     * @property _folderFilesToRequest
+     * @type object
+     * @default []
+     */
+    _folderFilesToRequest: [],
+
+    /**
+     * The number of items in a folder that have been successfully requested from Rise Cache.
+     *
+     * @property _folderFilesToRequest
+     * @type object
+     * @default []
+     */
+    _folderFilesRequested: 0,
+
+    /**
+     * Whether or not a file is throttled.
+     *
+     * @property _fileThrottled
+     * @type boolean
+     * @default false
+     */
+    _fileThrottled: false,
+
+    /**
+     * Handle to the parent Chrome App, in case the page is being ran in offline-player
+     * @property offlinePlayer
+     * @default null
+     */
+    offlinePlayer: null,
+
+    /**
+     * Origin of the parent Chrome App, in case the page is being ran in offline-player
+     * @property offlinePlayerOrigin
+     * @default null
+     */
+    offlinePlayerOrigin: null,
+
+    /**
+     * Id used to verify responses sent by offline-player belongs to this component (in case
+     * more than one exists on a given page)
+     */
+    offlinePlayerClientId: null,
+
+    /**
+     * Keeps the name of the local storage key
+     * @property LOCAL_STORAGE_NAME
+     * @default subscriptionStatus
+     */
+    LOCAL_STORAGE_NAME: "subscriptionStatus",
+
+    /**
+     * Subscription status variable for when there is no local storage.
+     * @property isSubscribed
+     * @default false
+     */
+    _isSubscribed: false,
+
+
+  /************************************** INITIALIZATION **************************************/
+
+    /**
+     * Polymer has finished its initialization. This is the entry point.
+     */
+    ready: function() {
+      this._images = ["image/jpeg", "image/png", "image/bmp", "image/svg+xml", "image/gif", "image/webp"];
+      this._videos = ["video/mp4", "video/ogg", "video/webm"];
+      this._contentTypes = this.contenttype.split(" ");
+
+      this._registerOfflinePlayerHandlers();
+    },
+
+    /**
+     * An instance of the element was inserted into the DOM.
+     */
+    attached: function() {
+      var self = this;
+
+      // The small timeout is required to detect if the presentation is part of offline-player (a postMessage will be sent)
+      setTimeout(function() {
+        if(!self._isOfflinePlayer()) {
+          self.$.ping.generateRequest();
+        }
+        else {
+          self._isCacheRunning = false;
+          self._pingReceived = true;
+          self.go();
+        }
+      }, 100);
+    },
+
+    /***************************************** STORAGE ******************************************/
+
+    _supportsLocalStorage: function() {
+      try {
+        return "sessionStorage" in window && window.sessionStorage !== null;
+      } catch (e) {
+        return false;
+      }
+     },
+
+    _getCachedSubscriptionStatus: function() {
+        return JSON.parse(sessionStorage.getItem(this.LOCAL_STORAGE_NAME+"-"+this.companyid));
+    },
+
+    _setCachedSubscriptionStatus: function (data) {
+      try {
+        sessionStorage.setItem(this.LOCAL_STORAGE_NAME+"-"+this.companyid, JSON.stringify(data));
+      } catch(e) {
+        console.warn(e.message);
+      }
+    },
+
+    _setSubscriptionStatus: function(status) {
+      if (this._supportsLocalStorage()) {
+        var now = new Date();
+        this._setCachedSubscriptionStatus({status: status, timestamp: now.getTime()});
+      } else {
+        this._isSubscribed = status;
+      }
+    },
+
+    _hasPassedTwentyFourHours: function (timestamp) {
+        var twentyFourInMilliseconds = 24 * 60 * 60 * 1000;
+        var now = new Date();
+        return now.getTime() > (timestamp + twentyFourInMilliseconds);
+    },
+
+    _getStorageSubscription: function() {
+      if (this._supportsLocalStorage()) {
+        var subscriptionStatus = this._getCachedSubscriptionStatus();
+
+        if (!subscriptionStatus || this._hasPassedTwentyFourHours(subscriptionStatus.timestamp)) {
+          this._makeStorageSusbscriptionRequest();
+        } else {
+          if (subscriptionStatus.status) {
+            this._makeStorageRequest();
+          } else {
+            this._fireStorageSubscriptionError();
+          }
+        }
+      } else {
+        if (this._isLoading) {
+          this._makeStorageSusbscriptionRequest();
+        } else {
+          if (this._isSubscribed) {
+            this._makeStorageRequest();
+          }
+        }
+      }
+    },
+
+    _makeStorageSusbscriptionRequest: function() {
+      if (this.companyid) {
+        // Request to Store Authorization API passing company id and product code of the storage subscription
+        var productionUrl = "https://store-dot-rvaserver2.appspot.com",
+          testingUrl = "https://store-dot-rvacore-test.appspot.com",
+          serverUrl = (this.env !== "test" ? productionUrl : testingUrl),
+          url = serverUrl + "/v1/widget/auth?cid=" + encodeURIComponent(this.companyid) + "&pc=b0cba08a4baa0c62b8cdc621b6f6a124f89a03db";
+        this.$.storageSubscription.url = url;
+        this.$.storageSubscription.generateRequest();
+      }
+    },
+
+    _makeStorageRequest: function() {
+      this._computeStorageUrl();
+      this._hasAttemptedSecondStorageRequest = false;
+      this._loadStorage();
+    },
+
+    _fireStorageSubscriptionError: function() {
+      this.fire("rise-storage-subscription-expired");
+      this._startTimer();
+    },
+
+
+    _handleStorageSubscriptionResponse: function(e, resp) {
+      if (resp && resp.response) {
+        if (resp.response.authorized) {
+          this._setSubscriptionStatus(true);
+          this._makeStorageRequest();
+        } else {
+          this._setSubscriptionStatus(false);
+          this._fireStorageSubscriptionError();
+        }
+      }
+    },
+
+    _handleStorageSubscriptionError: function(e, resp) {
+      this.fire("rise-storage-subscription-error", resp);
+      this._startTimer();
+    },
+
+    /**
+     * Sets the URL that is used for making requests to Storage.
+     */
+    _computeStorageUrl: function() {
+      var productionUrl = "https://storage-dot-rvaserver2.appspot.com",
+        testingUrl = "https://storage-dot-rvacore-test.appspot.com",
+        serverUrl = (this.env !== "test" ? productionUrl : testingUrl),
+        baseUrl = serverUrl + "/_ah/api/storage/v0.01/files?companyId=" + encodeURIComponent(this.companyid),
+        folder = encodeURIComponent(this.folder),
+        filename = encodeURIComponent(this.filename),
+        url = baseUrl;
+
+      if (this.companyid) {
+        if (this.folder) {
+          // Append a "/" at end of folder if necessary.
+          if (this.folder.slice(-1) !== "/") {
+            folder += "/";
+          }
+
+          // Get a specific file in a specific folder.
+          if (this.filename) {
+            url += "&file=" + folder + filename;
+          }
+          // Get all files in a specific folder.
+          else {
+            url += "&folder=" + folder;
+          }
+        }
+        // Get a specific file in a bucket.
+        else if (this.filename) {
+          url += "&file=" + filename;
+        }
+
+        this.$.storage.url = url;
+      }
+    },
+
+    /**
+     * Fires when a response is received from the Storage request.
+     */
+    _handleStorageResponse: function(e, resp) {
+      if(this._isOfflinePlayer()) {
+        this.offlinePlayer.postMessage({
+          type: "storage-component-response",
+          clientId: this.offlinePlayerClientId,
+          response: resp.response }, "*");
+      }
+      else {
+        this._processStorageResponse(e, resp);
+      }
+    },
+
+    /**
+     * Fires when an updated response is received. If the page is running as part of offline-player, urls will be updated accordingly.
+     * Otherwise, the response will be the same as retrieved from the Storage request.
+     */
+    _processStorageResponse: function(e, resp) {
+      if (resp && resp.response) {
+        if (this._isAPIError(resp.response)) {
+          var fireError = this._handleStorageErrorWithRetry();
+          if (fireError) {
+            this._startTimer();
+            this.fire("rise-storage-api-error", resp.response);
+          }
+        }
+        else if (this._isEmptyFolder(resp.response)) {
+          this.fire("rise-storage-empty-folder");
+        }
+        else if (this._noFolderExists(resp.response)) {
+          if (this.filename) {
+            this.fire("rise-storage-no-file", this.folder+"/"+this.filename);
+          }
+          else {
+            this.fire("rise-storage-no-folder", this.folder);
+          }
+        }
+        else {
+          if (this._isLoading) {
+            this._setIsFile(resp.response);
+          }
+
+          // File
+          if (this._isFile) {
+            this._setFileUrl(resp.response);
+
+            if (this._isThrottled(resp.response, 0)) {
+              this._fileThrottled = true;
+              this._startTimer();
+              this.fire("rise-storage-file-throttled", this._fileUrl);
+
+              return;
+            }
+            else {
+              this._fileThrottled = false;
+            }
+
+            if (this._isCacheRunning) {
+              this._getFileFromCache();
+            }
+            // Rise Cache is not running.
+            else {
+              this._handleStorageFile(resp.response);
+            }
+          }
+          // Folder
+          else {
+            if (this._isCacheRunning) {
+              this._getFilesFromCache(resp.response);
+            }
+            // Rise Cache is not running.
+            else {
+              this._handleStorageFolder(resp.response);
+            }
+          }
+        }
+      }
+      else {
+        this._startTimer();
+      }
+    },
+
+    /**
+     * Retry the storage request one more time if it fails and attempt to load file from cache
+     */
+    _handleStorageErrorWithRetry: function() {
+
+      var fireError = true;
+
+      if ( !this._hasAttemptedSecondStorageRequest ) {
+        this._hasAttemptedSecondStorageRequest = true;
+        this._loadStorage();
+        fireError = false;
+      }
+      else {
+        if (!this._isLoading && this._isCacheRunning && !this._fileThrottled) {
+          // storage request initiated from a refresh, Rise Cache is running, and no flag of previous file being throttled
+
+          if (this._isFile) {
+            fireError = false;
+
+            // proceed with getting file from Rise Cache
+            this._getFileFromCache();
+          }
+          else {
+            // folder files
+            if (this._folderFilesToRequest.length > 0) {
+              fireError = false;
+
+              // reset the request list/count
+              this._folderFilesRequested = 0;
+
+              // request the first folder file in the list to get cycle started
+              this._requestCacheFolderFile(this._folderFilesToRequest[0]);
+            }
+          }
+        }
+      }
+
+      return fireError;
+    },
+
+    /**
+     * Fires when an error is received from the Storage request.
+     */
+    _handleStorageError: function(e, resp) {
+
+      var fireError = this._handleStorageErrorWithRetry();
+
+      if (fireError) {
+        this._startTimer();
+        this.fire("rise-storage-error", resp);
+      }
+    },
+
+    /**
+     * Processes a Storage file.
+     */
+    _handleStorageFile: function(resp) {
+      var file = {},
+        etag = null;
+
+      // File in the root of the bucket.
+      if (resp.selfLink !== undefined) {
+        etag = resp.etag;
+      }
+      // File in a folder.
+      else if ((resp.files !== undefined) && (resp.files.length > 0)) {
+        etag = resp.files[0].etag;
+      }
+
+      file.url = this._fileUrl;
+
+      if (this._isLoading) {
+        this._files.push({
+          "name": this._getFileNameFromUrl(file.url),
+          "etag": etag
+        });
+
+        file.added = true;
+
+        this._isLoading = false;
+      }
+      else {
+        // File hasn't changed.
+        if (this._files[0].etag === etag) {
+          file.changed = false;
+        }
+        else {
+          this._files[0].etag = etag;
+          file.url += "&cb=" + new Date().getTime();
+          file.changed = true;
+        }
+      }
+
+      file.name = this._getFileNameFromUrl(file.url);
+
+      this.fire("rise-storage-response", file);
+      this._startTimer();
+    },
+
+    /**
+     * Processes multiple files in a Storage folder.
+     */
+    _handleStorageFolder: function(resp) {
+      var self = this,
+        file = {},
+        previousItem = null,
+        suffix = "?alt=media",
+        cb = "&cb=" + new Date().getTime(),
+        filesFiltered = 0,
+        totalFiles = 0;
+
+      if (resp.files) {
+        if (this.sort) {
+          resp.files.forEach(function(item) {
+            // Sorting
+            if (self.sort) {
+              if (self.sort === "name") {
+                item.sortBy = item.name;
+              }
+              else if (self.sort === "date") {
+                item.sortBy = new Date(item.updated).getTime();
+              }
+            }
+          });
+
+          resp.files = this._sortFiles(resp.files);
+          resp.files.forEach(function(item) {
+            if (self.sort) {
+              delete item.sortBy;
+            }
+          });
+        }
+
+        resp.files.forEach(function(item) {
+          file = {};
+
+          // Check that current item is not a folder.
+          if (item.name && (item.name.slice(-1) !== "/")) {
+            if (item.selfLink !== undefined) {
+              totalFiles += 1;
+
+              if (!self._filterFiles(item.contentType)) {
+                filesFiltered += 1;
+                return;
+              }
+
+              if (self._isLoading) {
+                // Construct URL.
+                if (self._isCacheRunning) {
+                  file.url = self._baseCacheUrl + "?url=" + encodeURIComponent(item.selfLink + suffix);
+                }
+                else if(!self._isOfflinePlayer()) {
+                  file.url = item.selfLink + suffix;
+                }
+                else {
+                  file.url = item.selfLink;
+                }
+
+                self._files.push({
+                  "name": self._getFileNameFromUrl(file.url),
+                  "etag": item.etag,
+                  "url": file.url
+                });
+
+                file.added = true;
+              }
+              else {
+                // Construct URL.
+                if (self._isCacheRunning) {
+                  file.url = self._baseCacheUrl + "cb=" + new Date().getTime() + "?url=" + encodeURIComponent(item.selfLink + suffix);
+                }
+                else if(!self._isOfflinePlayer()) {
+                  file.url = item.selfLink + suffix + cb;
+                }
+                else {
+                  file.url = item.selfLink;
+                }
+
+                previousItem = _.find(self._files, function(obj) {
+                  return decodeURIComponent(obj.name) === item.name;
+                });
+
+                // New file
+                if (previousItem === undefined) {
+                  self._files.push({
+                    "name": self._getFileNameFromUrl(file.url),
+                    "etag": item.etag,
+                    "url": file.url
+                  });
+
+                  file.added = true;
+                }
+                // Existing file
+                else {
+                  if (item.etag === previousItem.etag) {
+                    // Use the same URL as before in order to leverage browser caching.
+                    // For Rise Cache, use a new URL every time. Since Rise Cache checks in
+                    // with Storage every 15 minutes, a cache buster is needed to ensure that
+                    // as soon as Rise Cache does get the updated file, the browser will pick it up.
+                    if (!self._isCacheRunning) {
+                      file.url = previousItem.url;
+                    }
+
+                    file.changed = false;
+                  }
+                  // File has changed.
+                  else {
+                    previousItem.etag = item.etag;
+                    previousItem.url = file.url;
+
+                    file.changed = true;
+                  }
+                }
+              }
+
+              if (self.sort) {
+                delete file.sortBy;
+              }
+
+              file.name = self._getFileNameFromUrl(file.url);
+
+              self.fire("rise-storage-response", file);
+            }
+          }
+        });
+
+        this._processRemovedFiles(resp.files);
+        this._isLoading = false;
+
+        if (totalFiles === filesFiltered) {
+          // notify that no valid files are in folder, wrong formats
+          this.fire("rise-storage-folder-invalid");
+        }
+        else {
+          this._startTimer();
+        }
+
+      }
+    },
+
+    /*************************************** RISE CACHE *****************************************/
+
+    /**
+     * Makes a request to Rise Cache to retrieve a file.
+     */
+    _getFileFromCache: function() {
+
+      this._cacheRequestMethod = "HEAD";
+      this._hasAttemptedGetRequest = false;
+
+      if (this._isLoading) {
+        this._cacheUrl = this._baseCacheUrl + "?url=" + this._fileUrl;
+      }
+      else {
+        // Include a cache buster as this will be the URL that gets passed to the browser
+        // if the file has changed.
+        this._cacheUrl = this._baseCacheUrl + "cb=" + new Date().getTime() + "?url=" + this._fileUrl;
+      }
+
+      this.$.cache.generateRequest();
+    },
+
+    /**
+     * Configures items to request to Rise Cache for retrieving all files in a folder.
+     */
+    _getFilesFromCache: function(resp) {
+      // reset folder files to request list/count
+      this._folderFilesToRequest = [];
+      this._folderFilesRequested = 0;
+
+      var self = this;
+
+      if (resp.files) {
+        this._numFiles = 0;
+
+        // Only count actual files (ignore folders)
+        this._totalFiles = resp.files.filter(function(item) {
+          return item.name && (item.name.slice(-1) !== "/");
+        }).length;
+
+        // Remove no longer existing files
+        this._processRemovedFiles(resp.files);
+
+        resp.files.forEach(function(item) {
+          // Check that current item is not a folder.
+          if (item.name && (item.name.slice(-1) !== "/")) {
+            if (!self._filterFiles(item.contentType)) {
+              self._totalFiles--;
+              return;
+            }
+
+            // Add to list of folder files to request
+            self._folderFilesToRequest.push(item);
+          }
+        });
+
+        if (this._folderFilesToRequest.length > 0) {
+          // request the first folder file in the list
+          this._requestCacheFolderFile(this._folderFilesToRequest[0]);
+        }
+        else {
+          // notify that no valid files are in folder, wrong formats
+          this.fire("rise-storage-folder-invalid");
+        }
+      }
+    },
+
+    /**
+     * Makes a request to Rise Cache to retrieve a file from a folder.
+     */
+    _requestCacheFolderFile: function (item) {
+      this._cacheRequestMethod = "HEAD";
+      this._hasAttemptedGetRequest = false;
+
+      this._setFileUrl(item);
+      this._cacheUrl = this._baseCacheUrl + "cb=" + new Date().getTime() + "?url=" + this._fileUrl;
+      this.$.cache.generateRequest();
+    },
+
+    /**
+     * Fires when a response is received from the Rise Cache request.
+     */
+    _handleCacheResponse: function(e, resp) {
+      if (this._isFile) {
+        this._handleCacheFile(resp);
+      }
+      else {
+        this._folderFilesRequested += 1;
+
+        if (this._folderFilesToRequest.length > this._folderFilesRequested) {
+          // request the next folder file in the list
+          this._requestCacheFolderFile(this._folderFilesToRequest[this._folderFilesRequested]);
+        }
+
+        this._handleCacheFolder(resp);
+      }
+    },
+
+    /**
+     * Process Rise Cache response for a Storage file.
+     */
+    _handleCacheFile: function(resp) {
+      var file = {},
+        lastModified = "";
+
+      if (resp && resp.xhr) {
+        lastModified = resp.xhr.getResponseHeader("Last-Modified");
+        file.url = resp.xhr.responseURL;
+        // Fallback to browsers that does not support responseURL.
+        if(!file.url){
+          file.url = resp.xhr.getResponseHeader("Location");
+        }
+        if(!file.url){
+          file.url = this._cacheUrl;
+        }
+
+        if (this._isLoading) {
+          // Save Last Modified so it can be compared in subsequent requests.
+          this._files.push({
+            "name": this._getFileNameFromUrl(file.url),
+            "lastModified": lastModified
+          });
+
+          file.added = true;
+
+          if (lastModified === null) {
+            console.log("File does not have a Last-Modified header: " + file.url);
+          }
+
+          this._isLoading = false;
+        }
+        else {
+          // Rise Cache file hasn't changed.
+          if (this._files[0].lastModified === lastModified) {
+            file.changed = false;
+          }
+          else {
+            this._files[0].lastModified = lastModified;
+            file.changed = true;
+          }
+        }
+
+        file.name = this._getFileNameFromUrl(file.url);
+
+        this.fire("rise-storage-response", file);
+      }
+
+      this._startTimer();
+    },
+
+    /**
+     * Process Rise Cache response for a file in a Storage folder.
+     */
+    _handleCacheFolder: function(resp) {
+      var file = {},
+        index = -1,
+        url = "",
+        searchString = "?url=",
+        lastModified = "",
+        previousItem = null;
+
+      if (resp && resp.xhr) {
+        file.url = resp.xhr.responseURL;
+        // Fallback to browsers that does not support responseURL.
+        if(!file.url){
+          file.url = resp.xhr.getResponseHeader("Location");
+        }
+        lastModified = resp.xhr.getResponseHeader("Last-Modified");
+
+        // Extract the URL from the query string parameter.
+        if (file.url) {
+          index = file.url.indexOf(searchString);
+
+          if (index !== -1) {
+            url = file.url.substring(index + searchString.length);
+          }
+        }
+
+        if (this._isLoading) {
+          // Save file details so they can be compared in subsequent requests.
+          this._files.push({
+            "name": this._getFileNameFromUrl(file.url),
+            "lastModified": lastModified,
+            "fullUrl": file.url,
+            "url": url
+          });
+
+          file.added = true;
+
+          if (lastModified === null) {
+            console.log("File does not have a Last-Modified header: " + file.url);
+          }
+        }
+        else {
+          previousItem = _.find(this._files, function(obj) {
+            return obj.url === url;
+          });
+
+          // New file
+          if (previousItem === undefined) {
+            this._files.push({
+              "name": this._getFileNameFromUrl(file.url),
+              "lastModified": lastModified,
+              "fullUrl": file.url,
+              "url": url
+            });
+
+            file.added = true;
+          }
+          // Existing file
+          else {
+            if (lastModified === previousItem.lastModified) {
+              // Use the same URL as before in order to leverage browser caching.
+              file.url = previousItem.fullUrl;
+              file.changed = false;
+            }
+            // File has changed.
+            else {
+              previousItem.lastModified = lastModified;
+              previousItem.fullUrl = file.url;
+              file.changed = true;
+            }
+          }
+        }
+
+        file.name = this._getFileNameFromUrl(file.url);
+
+        this.fire("rise-storage-response", file);
+      }
+
+      this._numFiles++;
+
+      if (this._numFiles === this._totalFiles) {
+        this._startTimer();
+        this._isLoading = false;
+      }
+    },
+
+    /**
+     * Fires when an error is received from the Rise Cache request.
+     */
+    _handleCacheError: function(e, resp) {
+      if ( !this._hasAttemptedGetRequest ) {
+        this._cacheRequestMethod = "GET";
+        this.$.cache.generateRequest();
+        this._hasAttemptedGetRequest = true;
+      }
+      else {
+        this._startTimer();
+        this.fire("rise-cache-error", resp);
+      }
+    },
+
+    /**
+     * Fires when a response is received from the ping request.
+     */
+    _handlePingResponse: function(e, resp) {
+      this._isCacheRunning = resp.response && resp.response !== "";
+      this._pingReceived = true;
+
+      if (this._isCacheRunning) {
+        console.log("[rise-storage v2] Rise Cache V2 running", resp.response);
+      }
+      else {
+        this.fire("rise-cache-not-running", resp);
+        console.log("[rise-storage v2] Rise Cache V2 not running");
+      }
+
+      this.go();
+    },
+
+    /**
+     * Fires when an error is received from the ping request.
+     */
+    _handlePingError: function(e, resp) {
+      this._isCacheRunning = false;
+      this._pingReceived = true;
+
+      this.fire("rise-cache-not-running", resp);
+      this.go();
+
+      console.log("[rise-storage v2] Ping Error");
+    },
+
+    /**
+     * Removes no longer existing files from the local list and notifies clients about the deletion
+     */
+    _processRemovedFiles: function(latestFilesList) {
+      function fileExists(file) {
+        return latestFilesList.some(function(element) {
+          return decodeURIComponent(file.name) === element.name;
+        });
+      }
+
+      for (var i = this._files.length - 1; i >= 0; i--) {
+        var file = this._files[i];
+
+        if (!fileExists(file)) {
+          this._files.splice(i, 1);
+          file.deleted = true;
+
+          this.fire("rise-storage-response", file);
+        }
+      }
+    },
+
+    /****************************************** COMMON ******************************************/
+
+    /**
+     * Performs a request to the Storage API.
+     */
+    go: function() {
+      if (this._pingReceived) {
+       this._getStorageSubscription();
+      }
+    },
+
+    /**
+     * Handles a refresh.
+     */
+    _startTimer: function() {
+      // If the page is running as part of offline-player, do not refresh automatically
+      if(this._isOfflinePlayer()) {
+        return;
+      }
+
+      this.refresh = parseInt(this.refresh, 10);
+
+      if (!isNaN(this.refresh) && this.refresh !== 0) {
+        this.refresh = (this.refresh < 5) ? 5 : this.refresh;
+
+        this.debounce("refresh", function() {
+          this._hasAttemptedSecondStorageRequest = false;
+          this.$.ping.generateRequest();
+        }, this.refresh * 60000);
+      }
+    },
+
+    /**
+     * Checks if the request has responded with a storage api error.
+     */
+    _isAPIError: function (resp) {
+      return (resp.code !== 200 && !resp.result);
+    },
+
+    /**
+     * Checks if the request is for a folder that does not exist.
+     */
+    _noFolderExists: function(resp) {
+      return resp.files === undefined;
+    },
+
+    /**
+     * Checks if the request is for an empty folder.
+     */
+    _isEmptyFolder: function(resp) {
+      return (resp.files !== undefined) && (resp.files.length === 1) &&
+        (resp.files[0].name.slice(-1) === "/");
+    },
+
+    _isThrottled: function(resp, index) {
+      if (resp && resp.files && resp.files[index] && resp.files[index].isThrottled) {
+        return resp.files[index].isThrottled;
+      }
+      else {
+        return false;
+      }
+    },
+
+    /**
+     * Checks if the request is for a file.
+     */
+    _setIsFile: function(response) {
+      // File in the root of the bucket.
+      if (response.selfLink !== undefined) {
+        this._isFile = true;
+      }
+      // File in a folder.
+      else if ((response.files !== undefined) && (response.files.length > 0)) {
+        if (response.files.length === 1) {
+          this._isFile = true;
+        }
+        else {
+          this._isFile = false;
+        }
+      }
+    },
+
+    /**
+     * Sets the URL to the Storage file.
+     */
+    _setFileUrl: function(response) {
+      var url = "",
+        bucket = "",
+        filePath = "",
+        startIndex = -1,
+        endIndex = -1,
+        suffix = "?alt=media";
+
+      // File in the root of the bucket.
+      if (response.selfLink) {
+        url = response.selfLink;
+      }
+      // File in a folder.
+      else if (response.files) {
+        url = response.files[0].selfLink;
+      }
+
+      if (this._isCacheRunning) {
+        // URLs starting with www.googleapis.com do not return a Last Modified HTTP header.
+        // Use a storage.googleapis.com URL instead, which does return it.
+        startIndex = url.indexOf("risemedialibrary");
+        endIndex = url.indexOf("/o/");
+        bucket = url.substring(startIndex, endIndex);
+        filePath = url.substring(endIndex + ("/o/".length));
+        this._fileUrl = encodeURIComponent("https://storage.googleapis.com/" + bucket + "/" + filePath);
+      }
+      else {
+        this._fileUrl = url + suffix;
+      }
+    },
+
+    /**
+     * Performs any necessary filtering.
+     */
+    _filterFiles: function(contentType) {
+      if (this.filetype) {
+        return this._filterByFileType(contentType);
+      }
+      else if (this.contenttype) {
+        return this._filterByContentType(contentType);
+      }
+
+      return true;
+    },
+
+    /**
+     * Filters an item by content type.
+     */
+    _filterByContentType: function(contentType) {
+      for (var i = 0; i < this._contentTypes.length; i++) {
+        if (contentType === this._contentTypes[i]) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+
+    /**
+     * Filters an item by file type.
+     */
+    _filterByFileType: function(contentType) {
+      var i;
+
+      if (this.filetype === "image") {
+        for (i = 0; i < this._images.length; i++) {
+          if (contentType === this._images[i]) {
+            return true;
+          }
+        }
+      }
+      else if (this.filetype === "video") {
+        for (i = 0; i < this._videos.length; i++) {
+          if (contentType === this._videos[i]) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    },
+
+    /**
+     * Sorts all files.
+     */
+    _sortFiles: function(files) {
+      if (this.sort === "name" || this.sort === "date") {
+        files = _.sortBy(files, function(file) {
+          return file.sortBy;
+        });
+      }
+      else if (this.sort === "random") {
+        return _.shuffle(files);
+      }
+
+      // Direction
+      if (this.sortdirection) {
+        if (this.sortdirection === "asc") {
+          return files;
+        }
+        else if (this.sortdirection === "desc") {
+          return files.reverse();
+        }
+      }
+
+      return files;
+    },
+
+    /**
+     * Returns the path of a file in a given bucket, excluding bucket name and parameters
+     */
+    _getFileNameFromUrl: function(fileUrl) {
+      var decodedUrl = decodeURIComponent(fileUrl), url, end;
+      // Regex for https://www.googleapis.com/storage/v1/b/
+      var googleApisRegex = /storage\/v1\/b\/.*\/o\/(.*)/;
+      var googleApiMatch = decodedUrl.match(googleApisRegex);
+      // Regex for https://storage.googleapis.com/
+      var googleStorageRegex = /storage\.googleapis\.com\/.*?\/(.*)/;
+      var googleStorageMatch = decodedUrl.match(googleStorageRegex);
+
+      if(!fileUrl) {
+        return null;
+      }
+      else if (googleApiMatch) {
+        url = googleApiMatch[1];
+        end = url.lastIndexOf("?");
+        decodedUrl = url.substring(0, end !== -1 ? end : url.length);
+      }
+      else if(googleStorageMatch) {
+        url = googleStorageMatch[1];
+        end = url.lastIndexOf("?");
+        decodedUrl = url.substring(0, end !== -1 ? end : url.length);
+      }
+
+      return decodedUrl;
+    },
+
+    _loadStorage: function() {
+      if(!this._isOfflinePlayer()) {
+        this.$.storage.generateRequest();
+      }
+      else {
+        this.offlinePlayer.postMessage({
+          type: "storage-component-load",
+          clientId: this.offlinePlayerClientId,
+          url: this.$.storage.url }, "*");
+      }
+    },
+
+    /**
+     * Checks whether the page is running inside offline-player
+     */
+    _isOfflinePlayer: function() {
+      return this.offlinePlayer !== null;
+    },
+
+    _getFilePath: function() {
+      var path = "";
+
+      if(this.folder) {
+        path += this.folder + (this.folder.slice(-1) !== "/" ? "/" : "");
+      }
+
+      if(this.filename) {
+        path += this.filename;
+      }
+
+      return path;
+    },
+
+    /**
+     * Returns the path of the file/folder the component is listening to
+     */
+    _getStoragePath: function() {
+      return "risemedialibrary-" + this.companyid + "/" + this._getFilePath();
+    },
+
+    /**
+     * Listens for events sent by offline player
+     */
+    _registerOfflinePlayerHandlers: function() {
+      var self = this;
+
+      // Generates an id for the client
+      self.offlinePlayerClientId = Math.round(Math.random() * 10000000);
+
+      // Handle offline-player events
+      window.addEventListener("message", function(event) {
+        if(event.data === "register.chrome.app.window") {
+          self.offlinePlayer = event.source;
+          self.offlinePlayerOrigin = event.origin;
+          self.pingReceived = true;
+          self.isCacheRunning = false;
+        }
+        else if(event.data.type === "storage-target-changed") {
+          if(event.data.targets && event.data.targets.some(targetMatches)) {
+            self._hasAttemptedSecondStorageRequest = false;
+            self._loadStorage();
+          }
+        }
+        else if(event.data.type === "storage-component-loaded") {
+          if(event.data.clientId === self.offlinePlayerClientId) {
+            self._handleStorageResponse({}, event.data);
+          }
+        }
+        else if(event.data.type === "storage-component-response-updated") {
+          if(event.data.clientId === self.offlinePlayerClientId) {
+            self._processStorageResponse({}, event.data);
+          }
+        }
+      }, false);
+
+      function targetMatches(element) {
+        return element.startsWith(self._getStoragePath());
+      }
+    },
+
+    /**
+     * Initializes internal properties to their default state
+     */
+    _reset: function() {
+      this._isLoading = true;
+      this._isFile = true;
+      this._cacheUrl = "";
+      this._fileUrl = "";
+      this._files = [];
+      this._isCacheRunning = false;
+      this._pingReceived = false;
+      this._numFiles = 0;
+      this._totalFiles = 0;
+      this._cacheRequestMethod = "HEAD";
+      this._hasAttemptedGetRequest = false;
+      this._folderFilesToRequest = [];
+      this._folderFilesRequested = 0;
+      this._fileThrottled = false;
+    }
+  });
+</script>

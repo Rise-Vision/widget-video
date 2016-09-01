@@ -4,7 +4,6 @@ var WIDGET_COMMON_CONFIG = {
   LOGGER_CLIENT_ID: "1088527147109-6q1o2vtihn34292pjt4ckhmhck0rk0o7.apps.googleusercontent.com",
   LOGGER_CLIENT_SECRET: "nlZyrcPLg6oEwO9f9Wfn29Wh",
   LOGGER_REFRESH_TOKEN: "1/xzt4kwzE1H7W9VnKB8cAaCx6zb4Es4nKEoqaYHdTD15IgOrJDtdun6zK6XiATCKT",
-  STORAGE_ENV: "prod",
   STORE_URL: "https://store-dot-rvaserver2.appspot.com/"
 };
 /* global WIDGET_COMMON_CONFIG */
@@ -496,26 +495,41 @@ RiseVision.Common.RiseCache = (function () {
   var BASE_CACHE_URL = "//localhost:9494/";
 
   var _pingReceived = false,
-    _isCacheRunning = false;
+    _isCacheRunning = false,
+    _isV2Running = false;
 
   function ping(callback) {
-    var r = new XMLHttpRequest();
+    var r = new XMLHttpRequest(),
+      /* jshint validthis: true */
+      self = this;
 
     if (!callback || typeof callback !== "function") {
       return;
     }
 
-    r.open("GET", BASE_CACHE_URL + "ping?callback=_", true);
+    if (!_isV2Running) {
+      r.open("GET", BASE_CACHE_URL + "ping?callback=_", true);
+    }
+    else {
+      r.open("GET", BASE_CACHE_URL, true);
+    }
+
     r.onreadystatechange = function () {
       try {
         if (r.readyState === 4 ) {
           // save this result for use in getFile()
           _pingReceived = true;
 
-          if(r.status === 200){
+          if(r.status === 200) {
             _isCacheRunning = true;
 
             callback(true, r.responseText);
+          } else if (r.status === 404) {
+            // Rise Cache V2 is running
+            _isV2Running = true;
+
+            // call ping again so correct ping URL is used for Rise Cache V2
+            return self.ping(callback);
           } else {
             console.debug("Rise Cache is not running");
             _isCacheRunning = false;
@@ -615,9 +629,26 @@ RiseVision.Common.RiseCache = (function () {
     }
   }
 
+  function isV2Running(callback) {
+    if (!callback || typeof callback !== "function") {
+      return;
+    }
+
+    if (!_pingReceived) {
+      /* jshint validthis: true */
+      return this.ping(function () {
+        callback(_isV2Running);
+      });
+    }
+    else {
+      callback(_isV2Running);
+    }
+  }
+
   return {
     getFile: getFile,
     isRiseCacheRunning: isRiseCacheRunning,
+    isV2Running: isV2Running,
     ping: ping
   };
 
@@ -1825,6 +1856,33 @@ RiseVision.Common.Message = function (mainContainer, messageContainer) {
   }
 
   window.addEventListener("WebComponentsReady", polymerReady);
+
+  // check which version of Rise Cache is running and dynamically add rise-storage dependencies
+  RiseVision.Common.RiseCache.isV2Running(function (isV2) {
+    var fragment = document.createDocumentFragment(),
+      link = document.createElement("link"),
+      href = "components/" + ((isV2) ? "rise-storage-v2" : "rise-storage") + "/rise-storage.html",
+      storage = document.createElement("rise-storage");
+
+    link.setAttribute("rel", "import");
+    link.setAttribute("href", href);
+
+    // add the rise-storage <link> element to document head
+    document.getElementsByTagName("head")[0].appendChild(link);
+
+    storage.setAttribute("id", "videoStorage");
+    storage.setAttribute("refresh", 5);
+    fragment.appendChild(storage);
+
+    // add the <rise-storage> element to the body
+    document.body.appendChild(fragment);
+
+    var webcomponents = document.createElement("script");
+    webcomponents.src = "components/webcomponentsjs/webcomponents-lite.min.js";
+
+    // add the webcomponents polyfill source to the document head
+    document.getElementsByTagName("head")[0].appendChild(webcomponents);
+  });
 
 })(window, gadgets);
 

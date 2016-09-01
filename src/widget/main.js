@@ -83,6 +83,33 @@
 
   window.addEventListener("WebComponentsReady", polymerReady);
 
+  // check which version of Rise Cache is running and dynamically add rise-storage dependencies
+  RiseVision.Common.RiseCache.isV2Running(function (isV2) {
+    var fragment = document.createDocumentFragment(),
+      link = document.createElement("link"),
+      href = "components/" + ((isV2) ? "rise-storage-v2" : "rise-storage") + "/rise-storage.html",
+      storage = document.createElement("rise-storage");
+
+    link.setAttribute("rel", "import");
+    link.setAttribute("href", href);
+
+    // add the rise-storage <link> element to document head
+    document.getElementsByTagName("head")[0].appendChild(link);
+
+    storage.setAttribute("id", "videoStorage");
+    storage.setAttribute("refresh", 5);
+    fragment.appendChild(storage);
+
+    // add the <rise-storage> element to the body
+    document.body.appendChild(fragment);
+
+    var webcomponents = document.createElement("script");
+    webcomponents.src = "components/webcomponentsjs/webcomponents-lite.min.js";
+
+    // add the webcomponents polyfill source to the document head
+    document.getElementsByTagName("head")[0].appendChild(webcomponents);
+  });
+
 })(window, gadgets);
 
 

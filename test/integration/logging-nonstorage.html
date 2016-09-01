@@ -78,7 +78,8 @@
         assert(spy.calledWith(table, {
           "event": "configuration",
           "event_details": "custom",
-          "file_url": null,
+          "file_format": params.file_format,
+          "file_url": params.file_url,
           "company_id": params.company_id,
           "display_id": params.display_id,
           "version": params.version
