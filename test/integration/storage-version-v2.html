@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>Video Widget</title>
+
+  <script src="../../src/components/web-component-tester/browser.js"></script>
+
+  <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
+  <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
+
+  <link rel="stylesheet" type="text/css" href="../../src/widget/css/video.css">
+  <link rel="stylesheet" href="../../src/components/widget-common/dist/css/message.css">
+  <link rel="stylesheet" type="text/css" href="../../src/skin/jwplayer-skin.css">
+
+</head>
+<body>
+
+<div id="container">
+  <div id="player">Loading player ...</div>
+</div>
+
+<div id="messageContainer"></div>
+
+<script src="../../node_modules/widget-tester/mocks/gadget-mocks.js"></script>
+<script src="../../node_modules/widget-tester/mocks/logger-mock.js"></script>
+
+<script src="../../src/components/widget-common/dist/config.js"></script>
+<script src="../../src/components/widget-common/dist/common.js"></script>
+<script src="../../src/components/widget-common/dist/rise-cache.js"></script>
+<script src="../../src/config/version.js"></script>
+<script src="../../src/config/test.js"></script>
+<script src="../../src/widget/video.js"></script>
+
+<script>
+  suite("Original Rise Cache with original rise-storage", function() {
+
+    var additionalParamsStub, xhr, requests;
+
+    sinon.stub(RiseVision.Common.RiseCache, "isV2Running", function (callback) {
+      xhr = sinon.useFakeXMLHttpRequest();
+
+      xhr.onCreate = function (xhr) {
+        requests.push(xhr);
+      };
+
+      requests = [];
+
+      additionalParamsStub = sinon.stub(RiseVision.Video, "setAdditionalParams");
+
+      RiseVision.Common.RiseCache.isV2Running.restore();
+      RiseVision.Common.RiseCache.isV2Running(callback);
+    });
+
+    suiteSetup(function () {
+      // Rise Cache V2 running
+      requests[0].respond(404);
+      requests[1].respond(200);
+    });
+
+    suiteTeardown(function() {
+      xhr.restore();
+      RiseVision.Video.setAdditionalParams.restore();
+    });
+
+    test("rise-storage element should be added to body", function() {
+      assert.isNotNull(document.querySelector("rise-storage"));
+    });
+
+    test("polyfill added to document head", function () {
+      var head = document.getElementsByTagName("head")[0];
+      assert.isNotNull(head.querySelector("script[src='components/webcomponentsjs/webcomponents-lite.min.js'"));
+    });
+
+    test("link element added to document head using original rise-storage source", function () {
+      var head = document.getElementsByTagName("head")[0];
+      assert.isNotNull(head.querySelector("link[href='components/rise-storage-v2/rise-storage.html'"));
+    });
+
+  });
+</script>
+
+<script src="../../src/widget/main.js"></script>
+</body>
+</html>

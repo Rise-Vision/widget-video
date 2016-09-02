@@ -14,6 +14,15 @@
                verbose="true">
     </iron-ajax>
 
+    <iron-ajax id="cache"
+               method="{{_cacheRequestMethod}}"
+               url="{{_cacheUrl}}"
+               handle-as="json"
+               on-response="_handleCacheResponse"
+               on-error="_handleCacheError"
+               verbose="true">
+    </iron-ajax>
+
     <iron-ajax id="storage"
       handle-as="json"
       on-response="_handleStorageResponse"
@@ -26,15 +35,6 @@
        on-response="_handleStorageSubscriptionResponse"
        on-error="_handleStorageSubscriptionError"
        verbose="true">
-    </iron-ajax>
-
-    <iron-ajax id="cache"
-      method="{{_cacheRequestMethod}}"
-      url="{{_cacheUrl}}"
-      handle-as="text"
-      on-response="_handleCacheResponse"
-      on-error="_handleCacheError"
-      verbose="true">
     </iron-ajax>
 
   </template>
@@ -174,6 +174,15 @@
      */
     _cacheRequestMethod: "HEAD",
 
+      /**
+     * The total number of requests made to Rise Cache.
+     *
+     * @property _totalCacheRequests
+     * @type number
+     * @default 0
+     */
+    _totalCacheRequests: 0,
+
     /**
      * The flag for making a get request if it wasn't done yet.
      *
@@ -215,9 +224,9 @@
      *
      * @property _baseCacheUrl
      * @type string
-     * @default "//localhost:9494/"
+     * @default "//localhost:9494"
      */
-    _baseCacheUrl: "//localhost:9494/",
+    _baseCacheUrl: "//localhost:9494",
 
     /**
      * Whether or not Rise Cache V2 is running.
@@ -721,7 +730,7 @@
               if (self._isLoading) {
                 // Construct URL.
                 if (self._isCacheRunning) {
-                  file.url = self._baseCacheUrl + "?url=" + encodeURIComponent(item.selfLink + suffix);
+                  file.url = self._baseCacheUrl + "/files/?url=" + encodeURIComponent(item.selfLink + suffix);
                 }
                 else if(!self._isOfflinePlayer()) {
                   file.url = item.selfLink + suffix;
@@ -741,7 +750,7 @@
               else {
                 // Construct URL.
                 if (self._isCacheRunning) {
-                  file.url = self._baseCacheUrl + "cb=" + new Date().getTime() + "?url=" + encodeURIComponent(item.selfLink + suffix);
+                  file.url = self._baseCacheUrl + "/files/cb=" + new Date().getTime() + "?url=" + encodeURIComponent(item.selfLink + suffix);
                 }
                 else if(!self._isOfflinePlayer()) {
                   file.url = item.selfLink + suffix + cb;
@@ -823,12 +832,12 @@
       this._hasAttemptedGetRequest = false;
 
       if (this._isLoading) {
-        this._cacheUrl = this._baseCacheUrl + "?url=" + this._fileUrl;
+        this._cacheUrl = this._baseCacheUrl + "/files/?url=" + this._fileUrl;
       }
       else {
         // Include a cache buster as this will be the URL that gets passed to the browser
         // if the file has changed.
-        this._cacheUrl = this._baseCacheUrl + "cb=" + new Date().getTime() + "?url=" + this._fileUrl;
+        this._cacheUrl = this._baseCacheUrl + "/files/cb=" + new Date().getTime() + "?url=" + this._fileUrl;
       }
 
       this.$.cache.generateRequest();
@@ -887,7 +896,7 @@
       this._hasAttemptedGetRequest = false;
 
       this._setFileUrl(item);
-      this._cacheUrl = this._baseCacheUrl + "cb=" + new Date().getTime() + "?url=" + this._fileUrl;
+      this._cacheUrl = this._baseCacheUrl + "/files/cb=" + new Date().getTime() + "?url=" + this._fileUrl;
       this.$.cache.generateRequest();
     },
 
@@ -918,45 +927,58 @@
         lastModified = "";
 
       if (resp && resp.xhr) {
-        lastModified = resp.xhr.getResponseHeader("Last-Modified");
-        file.url = resp.xhr.responseURL;
-        // Fallback to browsers that does not support responseURL.
-        if(!file.url){
-          file.url = resp.xhr.getResponseHeader("Location");
-        }
-        if(!file.url){
-          file.url = this._cacheUrl;
-        }
+        if (resp.xhr.status === 202) {
+          this._totalCacheRequests++;
 
-        if (this._isLoading) {
-          // Save Last Modified so it can be compared in subsequent requests.
-          this._files.push({
-            "name": this._getFileNameFromUrl(file.url),
-            "lastModified": lastModified
-          });
+          // Retry cache request a maximum of 3 times.
+          if (this._totalCacheRequests < 3) {
+            this._retryCacheRequest();
+          } else {
+            this.fire("rise-cache-file-unavailable", resp);
+          }
+        } else {
+          lastModified = resp.xhr.getResponseHeader("Last-Modified");
+          file.url = resp.xhr.responseURL;
+          this._totalCacheRequests = 0;
 
-          file.added = true;
-
-          if (lastModified === null) {
-            console.log("File does not have a Last-Modified header: " + file.url);
+          // Fallback to browsers that does not support responseURL.
+          if(!file.url){
+            file.url = resp.xhr.getResponseHeader("Location");
+          }
+          if(!file.url){
+            file.url = this._cacheUrl;
           }
 
-          this._isLoading = false;
-        }
-        else {
-          // Rise Cache file hasn't changed.
-          if (this._files[0].lastModified === lastModified) {
-            file.changed = false;
+          if (this._isLoading) {
+            // Save Last Modified so it can be compared in subsequent requests.
+            this._files.push({
+              "name": this._getFileNameFromUrl(file.url),
+              "lastModified": lastModified
+            });
+
+            file.added = true;
+
+            if (lastModified === null) {
+              console.log("File does not have a Last-Modified header: " + file.url);
+            }
+
+            this._isLoading = false;
           }
           else {
-            this._files[0].lastModified = lastModified;
-            file.changed = true;
+            // Rise Cache file hasn't changed.
+            if (this._files[0].lastModified === lastModified) {
+              file.changed = false;
+            }
+            else {
+              this._files[0].lastModified = lastModified;
+              file.changed = true;
+            }
           }
+
+          file.name = this._getFileNameFromUrl(file.url);
+
+          this.fire("rise-storage-response", file);
         }
-
-        file.name = this._getFileNameFromUrl(file.url);
-
-        this.fire("rise-storage-response", file);
       }
 
       this._startTimer();
@@ -1148,6 +1170,15 @@
           this.$.ping.generateRequest();
         }, this.refresh * 60000);
       }
+    },
+
+    /**
+     * Retries a request to Rise Cache.
+     */
+    _retryCacheRequest: function() {
+      this.debounce("cache", function() {
+        this.$.cache.generateRequest();
+      }, 3000);
     },
 
     /**
@@ -1434,6 +1465,7 @@
       this._numFiles = 0;
       this._totalFiles = 0;
       this._cacheRequestMethod = "HEAD";
+      this._totalCacheRequests = 0;
       this._hasAttemptedGetRequest = false;
       this._folderFilesToRequest = [];
       this._folderFilesRequested = 0;
