@@ -231,6 +231,43 @@
         RiseVision.Video.play.restore();
       });
     });
+
+    suite("cache file unavailable", function () {
+
+      test("should show file unavailable message", function() {
+        storage.dispatchEvent(new CustomEvent("rise-cache-file-unavailable", {
+          "detail": {
+            "status": 202,
+            "message": "File is downloading"
+          },
+          "bubbles": true
+        }));
+
+        assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "message text");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
+      });
+
+      test("should call play function 5 seconds after a file unavailable", function() {
+        var clock = sinon.useFakeTimers(),
+          spy = sinon.spy(RiseVision.Video, "play");
+
+        storage.dispatchEvent(new CustomEvent("rise-cache-file-unavailable", {
+          "detail": {
+            "status": 202,
+            "message": "File is downloading"
+          },
+          "bubbles": true
+        }));
+
+        clock.tick(4500);
+        assert(spy.notCalled);
+        clock.tick(500);
+        assert(spy.calledOnce);
+
+        clock.restore();
+        RiseVision.Video.play.restore();
+      });
+    });
   });
 </script>
 </body>

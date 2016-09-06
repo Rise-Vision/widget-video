@@ -699,7 +699,8 @@ RiseVision.Video = (function (window, gadgets) {
     _errorFlag = false;
 
   var _storageErrorFlag = false,
-    _playerErrorFlag = false;
+    _playerErrorFlag = false,
+    _unavailableFlag = false;
 
   /*
    *  Private Methods
@@ -797,6 +798,8 @@ RiseVision.Video = (function (window, gadgets) {
       _currentFiles = urls;
     }
 
+    _unavailableFlag = false;
+
     _message.hide();
 
     if (!_viewerPaused) {
@@ -821,7 +824,21 @@ RiseVision.Video = (function (window, gadgets) {
     _errorFlag = false;
     _playerErrorFlag = false;
     _storageErrorFlag = false;
+    _unavailableFlag = false;
     _errorLog = null;
+  }
+
+  function onFileUnavailable(message) {
+    _unavailableFlag = true;
+
+    _message.show(message);
+
+    _currentPlaylistIndex = null;
+
+    // if Widget is playing right now, run the timer
+    if (!_viewerPaused) {
+      _startErrorTimer();
+    }
   }
 
   function pause() {
@@ -860,6 +877,14 @@ RiseVision.Video = (function (window, gadgets) {
 
     if (_errorFlag) {
       _startErrorTimer();
+      return;
+    }
+
+    if (_unavailableFlag) {
+      if (_mode === "file" && _storage) {
+        _storage.retry();
+      }
+
       return;
     }
 
@@ -1010,6 +1035,7 @@ RiseVision.Video = (function (window, gadgets) {
     "logEvent": logEvent,
     "onFileInit": onFileInit,
     "onFileRefresh": onFileRefresh,
+    "onFileUnavailable": onFileUnavailable,
     "pause": pause,
     "play": play,
     "setAdditionalParams": setAdditionalParams,
@@ -1194,6 +1220,9 @@ RiseVision.Video.StorageFile = function (data) {
       RiseVision.Video.logEvent(params, true);
     });
 
+    storage.addEventListener("rise-cache-file-unavailable", function (e) {
+      RiseVision.Video.onFileUnavailable(e.detail.message);
+    });
 
     storage.setAttribute("folder", data.storage.folder);
     storage.setAttribute("fileName", data.storage.fileName);
@@ -1202,8 +1231,19 @@ RiseVision.Video.StorageFile = function (data) {
     storage.go();
   }
 
+  function retry() {
+    var storage = document.getElementById("videoStorage");
+
+    if (!storage) {
+      return;
+    }
+
+    storage.go();
+  }
+
   return {
-    "init": init
+    "init": init,
+    "retry": retry
   };
 };
 

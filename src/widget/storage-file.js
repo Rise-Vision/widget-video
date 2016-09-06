@@ -122,6 +122,9 @@ RiseVision.Video.StorageFile = function (data) {
       RiseVision.Video.logEvent(params, true);
     });
 
+    storage.addEventListener("rise-cache-file-unavailable", function (e) {
+      RiseVision.Video.onFileUnavailable(e.detail.message);
+    });
 
     storage.setAttribute("folder", data.storage.folder);
     storage.setAttribute("fileName", data.storage.fileName);
@@ -130,7 +133,18 @@ RiseVision.Video.StorageFile = function (data) {
     storage.go();
   }
 
+  function retry() {
+    var storage = document.getElementById("videoStorage");
+
+    if (!storage) {
+      return;
+    }
+
+    storage.go();
+  }
+
   return {
-    "init": init
+    "init": init,
+    "retry": retry
   };
 };

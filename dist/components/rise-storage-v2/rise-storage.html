@@ -669,7 +669,6 @@
         }
         else {
           this._files[0].etag = etag;
-          file.url += "&cb=" + new Date().getTime();
           file.changed = true;
         }
       }
@@ -688,7 +687,6 @@
         file = {},
         previousItem = null,
         suffix = "?alt=media",
-        cb = "&cb=" + new Date().getTime(),
         filesFiltered = 0,
         totalFiles = 0;
 
@@ -750,10 +748,11 @@
               else {
                 // Construct URL.
                 if (self._isCacheRunning) {
-                  file.url = self._baseCacheUrl + "/files/cb=" + new Date().getTime() + "?url=" + encodeURIComponent(item.selfLink + suffix);
+                  file.url = self._baseCacheUrl + "/files" + "?url=" +
+                    encodeURIComponent(item.selfLink + suffix);
                 }
                 else if(!self._isOfflinePlayer()) {
-                  file.url = item.selfLink + suffix + cb;
+                  file.url = item.selfLink + suffix;
                 }
                 else {
                   file.url = item.selfLink;
@@ -837,7 +836,7 @@
       else {
         // Include a cache buster as this will be the URL that gets passed to the browser
         // if the file has changed.
-        this._cacheUrl = this._baseCacheUrl + "/files/cb=" + new Date().getTime() + "?url=" + this._fileUrl;
+        this._cacheUrl = this._baseCacheUrl + "/files" + "?url=" + this._fileUrl;
       }
 
       this.$.cache.generateRequest();
@@ -896,7 +895,7 @@
       this._hasAttemptedGetRequest = false;
 
       this._setFileUrl(item);
-      this._cacheUrl = this._baseCacheUrl + "/files/cb=" + new Date().getTime() + "?url=" + this._fileUrl;
+      this._cacheUrl = this._baseCacheUrl + "/files" + "?url=" + this._fileUrl;
       this.$.cache.generateRequest();
     },
 
