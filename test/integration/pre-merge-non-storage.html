@@ -105,7 +105,7 @@
         clock.tick(900000);
 
         assert(onRefreshSpy.called, "onFileRefresh called once");
-        assert.include(onRefreshSpy.args[0][0], "http://s3.amazonaws.com/stu-testing/sample_videos/big-buck-bunny_trailer.webm?cb=",
+        assert.include(onRefreshSpy.args[0][0], "http://s3.amazonaws.com/stu-testing/sample_videos/big-buck-bunny_trailer.webm",
           "onFileRefresh called with correct url");
       });
 
