@@ -1159,6 +1159,11 @@
         return;
       }
 
+      // If Rise Cache is not running do not refresh
+      if (!this._isCacheRunning) {
+        return;
+      }
+
       this.refresh = parseInt(this.refresh, 10);
 
       if (!isNaN(this.refresh) && this.refresh !== 0) {
