@@ -6,5 +6,6 @@ if (typeof angular !== "undefined") {
 }
 
 var  config = {
-  STORAGE_ENV: "prod"
+  STORAGE_ENV: "prod",
+  COMPONENTS_PATH: "components/"
 };

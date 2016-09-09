@@ -2213,7 +2213,8 @@ if (typeof angular !== "undefined") {
 }
 
 var  config = {
-  STORAGE_ENV: "prod"
+  STORAGE_ENV: "prod",
+  COMPONENTS_PATH: "components/"
 };
 
 /* global gadgets, _ */
@@ -3361,7 +3362,7 @@ RiseVision.Common.Message = function (mainContainer, messageContainer) {
   };
 };
 
-/* global gadgets, RiseVision */
+/* global gadgets, RiseVision, config */
 
 (function (window, gadgets) {
   "use strict";
@@ -3431,9 +3432,7 @@ RiseVision.Common.Message = function (mainContainer, messageContainer) {
     RiseVision.Video.stop();
   }
 
-  function polymerReady() {
-    window.removeEventListener("WebComponentsReady", polymerReady);
-
+  function init() {
     if (id && id !== "") {
       gadgets.rpc.register("rscmd_play_" + id, play);
       gadgets.rpc.register("rscmd_pause_" + id, pause);
@@ -3444,14 +3443,39 @@ RiseVision.Common.Message = function (mainContainer, messageContainer) {
     }
   }
 
-  window.addEventListener("WebComponentsReady", polymerReady);
-
   // check which version of Rise Cache is running and dynamically add rise-storage dependencies
   RiseVision.Common.RiseCache.isV2Running(function (isV2) {
     var fragment = document.createDocumentFragment(),
       link = document.createElement("link"),
-      href = "components/" + ((isV2) ? "rise-storage-v2" : "rise-storage") + "/rise-storage.html",
-      storage = document.createElement("rise-storage");
+      webcomponents = document.createElement("script"),
+      href = config.COMPONENTS_PATH + ((isV2) ? "rise-storage-v2" : "rise-storage") + "/rise-storage.html",
+      storage = document.createElement("rise-storage"),
+      storageReady = false,
+      polymerReady = false;
+
+    function onPolymerReady() {
+      window.removeEventListener("WebComponentsReady", onPolymerReady);
+      polymerReady = true;
+
+      if (storageReady && polymerReady) {
+        init();
+      }
+    }
+
+    function onStorageReady() {
+      storage.removeEventListener("rise-storage-ready", onStorageReady);
+      storageReady = true;
+
+      if (storageReady && polymerReady) {
+        init();
+      }
+    }
+
+    webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-lite.min.js";
+    window.addEventListener("WebComponentsReady", onPolymerReady);
+
+    // add the webcomponents polyfill source to the document head
+    document.getElementsByTagName("head")[0].appendChild(webcomponents);
 
     link.setAttribute("rel", "import");
     link.setAttribute("href", href);
@@ -3461,16 +3485,11 @@ RiseVision.Common.Message = function (mainContainer, messageContainer) {
 
     storage.setAttribute("id", "videoStorage");
     storage.setAttribute("refresh", 5);
+    storage.addEventListener("rise-storage-ready", onStorageReady);
     fragment.appendChild(storage);
 
     // add the <rise-storage> element to the body
     document.body.appendChild(fragment);
-
-    var webcomponents = document.createElement("script");
-    webcomponents.src = "components/webcomponentsjs/webcomponents-lite.min.js";
-
-    // add the webcomponents polyfill source to the document head
-    document.getElementsByTagName("head")[0].appendChild(webcomponents);
   });
 
 })(window, gadgets);

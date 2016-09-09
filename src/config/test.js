@@ -9,5 +9,6 @@ if (typeof angular !== "undefined") {
 }
 
 var config = {
-  STORAGE_ENV: "test"
+  STORAGE_ENV: "test",
+  COMPONENTS_PATH: "components/"
 };

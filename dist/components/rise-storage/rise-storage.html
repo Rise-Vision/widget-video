@@ -326,6 +326,8 @@
       this._contentTypes = this.contenttype.split(" ");
 
       this._registerOfflinePlayerHandlers();
+
+      this.fire("rise-storage-ready");
     },
 
     /**

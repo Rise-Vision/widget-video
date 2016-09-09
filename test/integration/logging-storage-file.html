@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>Video Widget</title>
 
-  <script src="../../src/components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../../src/components/web-component-tester/browser.js"></script>
-
-  <link rel="import" href="../../src/components/rise-storage/rise-storage.html">
 
   <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
   <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
@@ -18,8 +15,6 @@
   <link rel="stylesheet" type="text/css" href="../../src/skin/jwplayer-skin.css">
 </head>
 <body>
-
-<rise-storage id="videoStorage" refresh="5"></rise-storage>
 
 <div id="container">
   <div id="player">Loading player ...</div>
@@ -42,11 +37,14 @@
 <script src="../../src/widget/storage-file.js"></script>
 <script src="../../src/widget/player.js"></script>
 <script src="../../src/components/widget-common/dist/message.js"></script>
+
+<script type="text/javascript">
+  config.COMPONENTS_PATH = "../../src/components/";
+</script>
+
 <script src="../../src/widget/main.js"></script>
 
 <script>
-  var storage = document.querySelector("rise-storage");
-
   suite("logging", function() {
     var playStub, spy, clock,
       table = "video_v2_events",
@@ -56,9 +54,27 @@
         "company_id": '"companyId"',
         "display_id": '"displayId"',
         "version": "1.1.0"
-      }, paramsStub;
+      }, storage, paramsStub, ready = false;
+
+    var check = function(done) {
+      if (ready) {
+        playStub = sinon.stub(RiseVision.Video, "play");
+        clock = sinon.useFakeTimers();
+
+        done();
+      }
+      else {
+        setTimeout(function() {
+          check(done)
+        }, 1000);
+      }
+    };
 
     paramsStub = sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode) {
+      ready = true;
+
+      storage = document.querySelector("rise-storage");
+
       // spy on log call
       spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
       // restore the function
@@ -67,13 +83,8 @@
       RiseVision.Video.setAdditionalParams(params, mode);
     });
 
-    sinon.stub(storage.$.ping, "generateRequest", function () {
-      storage._handlePingError();
-    });
-
-    suiteSetup(function () {
-      playStub = sinon.stub(RiseVision.Video, "play");
-      clock = sinon.useFakeTimers();
+    suiteSetup(function (done) {
+      check(done);
     });
 
     suiteTeardown(function () {

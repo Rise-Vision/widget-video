@@ -33,6 +33,10 @@
 <script src="../../src/config/test.js"></script>
 <script src="../../src/widget/video.js"></script>
 
+<script type="text/javascript">
+  config.COMPONENTS_PATH = "../../src/components/";
+</script>
+
 <script>
   suite("Original Rise Cache with original rise-storage", function() {
 
@@ -69,12 +73,12 @@
 
     test("polyfill added to document head", function () {
       var head = document.getElementsByTagName("head")[0];
-      assert.isNotNull(head.querySelector("script[src='components/webcomponentsjs/webcomponents-lite.min.js'"));
+      assert.isNotNull(head.querySelector("script[src='" + config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-lite.min.js'"));
     });
 
     test("link element added to document head using original rise-storage source", function () {
       var head = document.getElementsByTagName("head")[0];
-      assert.isNotNull(head.querySelector("link[href='components/rise-storage/rise-storage.html'"));
+      assert.isNotNull(head.querySelector("link[href='" + config.COMPONENTS_PATH + "rise-storage/rise-storage.html'"));
     });
 
   });
