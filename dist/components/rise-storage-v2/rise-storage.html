@@ -495,6 +495,10 @@
           url += "&file=" + filename;
         }
 
+        if (this._isCacheRunning) {
+          url = this._baseCacheUrl + "/metadata/?url=" + encodeURIComponent(url);
+        }
+
         this.$.storage.url = url;
       }
     },

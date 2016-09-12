@@ -2104,9 +2104,13 @@ RiseVision.Common.RiseCache = (function () {
       var url, str, separator;
 
       if (_isCacheRunning) {
-        // configure url with cachebuster or not
-        url = (nocachebuster) ? BASE_CACHE_URL + "?url=" + encodeURIComponent(fileUrl) :
-        BASE_CACHE_URL + "cb=" + new Date().getTime() + "?url=" + encodeURIComponent(fileUrl);
+        if (_isV2Running) {
+          url = BASE_CACHE_URL + "files?url=" + encodeURIComponent(fileUrl);
+        } else {
+          // configure url with cachebuster or not
+          url = (nocachebuster) ? BASE_CACHE_URL + "?url=" + encodeURIComponent(fileUrl) :
+          BASE_CACHE_URL + "cb=" + new Date().getTime() + "?url=" + encodeURIComponent(fileUrl);
+        }
       } else {
         if (nocachebuster) {
           url = fileUrl;
