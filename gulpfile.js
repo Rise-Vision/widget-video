@@ -110,6 +110,7 @@
     return gulp.src([
       "src/components/webcomponentsjs/webcomponents*.js",
       "src/components/rise-storage/rise-storage.html",
+      "src/components/rise-storage-v2/rise-storage.html",
       "src/components/polymer/*.*{html,js}",
       "src/components/promise-polyfill/*.*{html,js}",
       "src/components/iron-ajax/*.*{html,js}",

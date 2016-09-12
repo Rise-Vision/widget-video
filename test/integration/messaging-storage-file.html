@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>Video Widget</title>
 
-  <script src="../../src/components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../../src/components/web-component-tester/browser.js"></script>
-
-  <link rel="import" href="../../src/components/rise-storage/rise-storage.html">
 
   <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
   <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
@@ -18,8 +15,6 @@
   <link rel="stylesheet" type="text/css" href="../../src/skin/jwplayer-skin.css">
 </head>
 <body>
-
-<rise-storage id="videoStorage" refresh="5"></rise-storage>
 
 <div id="container">
   <div id="player">Loading player ...</div>
@@ -42,15 +37,40 @@
 <script src="../../src/widget/storage-file.js"></script>
 <script src="../../src/widget/player.js"></script>
 <script src="../../src/components/widget-common/dist/message.js"></script>
+
+<script type="text/javascript">
+  config.COMPONENTS_PATH = "../../src/components/";
+</script>
+
 <script src="../../src/widget/main.js"></script>
 
 <script>
 
   suite("messaging", function() {
-    var storage = document.querySelector("rise-storage");
+    var check = function(done) {
+      if (ready) {
+        done();
+      }
+      else {
+        setTimeout(function() {
+          check(done)
+        }, 1000);
+      }
+    }, storage, paramsStub, ready = false;
 
-    sinon.stub(storage.$.ping, "generateRequest", function () {
-      storage._handlePingError();
+    paramsStub = sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode) {
+      ready = true;
+
+      storage = document.querySelector("rise-storage");
+
+      // restore the function
+      paramsStub.restore();
+      // call it again with the params
+      RiseVision.Video.setAdditionalParams(params, mode);
+    });
+
+    suiteSetup(function(done) {
+      check(done);
     });
 
     suite("waiting", function() {
@@ -219,6 +239,43 @@
             "error": {
               "message": "The request failed with status code: 500"
             }},
+          "bubbles": true
+        }));
+
+        clock.tick(4500);
+        assert(spy.notCalled);
+        clock.tick(500);
+        assert(spy.calledOnce);
+
+        clock.restore();
+        RiseVision.Video.play.restore();
+      });
+    });
+
+    suite("cache file unavailable", function () {
+
+      test("should show file unavailable message", function() {
+        storage.dispatchEvent(new CustomEvent("rise-cache-file-unavailable", {
+          "detail": {
+            "status": 202,
+            "message": "File is downloading"
+          },
+          "bubbles": true
+        }));
+
+        assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "message text");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
+      });
+
+      test("should call play function 5 seconds after a file unavailable", function() {
+        var clock = sinon.useFakeTimers(),
+          spy = sinon.spy(RiseVision.Video, "play");
+
+        storage.dispatchEvent(new CustomEvent("rise-cache-file-unavailable", {
+          "detail": {
+            "status": 202,
+            "message": "File is downloading"
+          },
           "bubbles": true
         }));
 

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <title>Video Widget</title>
 
-  <script src="../../src/components/webcomponentsjs/webcomponents-lite.min.js"></script>
   <script src="../../src/components/web-component-tester/browser.js"></script>
 
   <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
@@ -38,21 +37,32 @@
 <script src="../../src/widget/non-storage.js"></script>
 <script src="../../src/widget/player.js"></script>
 <script src="../../src/components/widget-common/dist/message.js"></script>
+
+<script type="text/javascript">
+  config.COMPONENTS_PATH = "../../src/components/";
+</script>
+
 <script src="../../src/widget/main.js"></script>
 
 <script>
 
   suite("non-storage", function() {
 
-    var clock, paramsStub, xhr, requests;
+    var clock, paramsStub, ready = false;
+
+    var check = function(done) {
+      if (ready) {
+        done();
+      }
+      else {
+        setTimeout(function() {
+          check(done)
+        }, 1000);
+      }
+    };
 
     paramsStub = sinon.stub(RiseVision.Video, "setAdditionalParams", function (names, values) {
-      requests = [];
-      xhr = sinon.useFakeXMLHttpRequest();
-
-      xhr.onCreate = function (xhr) {
-        requests.push(xhr);
-      };
+      ready = true;
 
       // need to set the fake timer clock before any of the code within setAdditionalParams is executed
       clock = sinon.useFakeTimers();
@@ -60,9 +70,10 @@
       paramsStub.restore();
       // call it again with the params
       RiseVision.Video.setAdditionalParams(names, values);
+    });
 
-      requests[0].respond(0); // Ping request
-      xhr.restore();
+    suiteSetup(function(done) {
+      check(done);
     });
 
     teardown(function () {
