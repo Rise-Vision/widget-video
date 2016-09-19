@@ -832,18 +832,9 @@
      * Makes a request to Rise Cache to retrieve a file.
      */
     _getFileFromCache: function() {
-
       this._cacheRequestMethod = "HEAD";
       this._hasAttemptedGetRequest = false;
-
-      if (this._isLoading) {
-        this._cacheUrl = this._baseCacheUrl + "/files/?url=" + this._fileUrl;
-      }
-      else {
-        // Include a cache buster as this will be the URL that gets passed to the browser
-        // if the file has changed.
-        this._cacheUrl = this._baseCacheUrl + "/files" + "?url=" + this._fileUrl;
-      }
+      this._cacheUrl = this._baseCacheUrl + "/files?url=" + this._fileUrl;
 
       this.$.cache.generateRequest();
     },
@@ -1152,7 +1143,29 @@
      */
     go: function() {
       if (this._pingReceived) {
-       this._getStorageSubscription();
+        if (!this._isCacheRunning) {
+          this._getStorageSubscription();
+        }
+        else {
+          // get file immediately from Rise Cache
+
+          if (this.companyid) {
+            if (this._isLoading) {
+              // determine if configured for a file
+              this._isFile = (this.filename !== "");
+            }
+
+            if (this._isFile) {
+              // configure the file path
+              this._fileUrl = encodeURIComponent("https://storage.googleapis.com/" + this._getStoragePath());
+
+              this._getFileFromCache();
+            }
+            else {
+              this._getStorageSubscription();
+            }
+          }
+        }
       }
     },
 
