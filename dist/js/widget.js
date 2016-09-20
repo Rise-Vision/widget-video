@@ -2371,7 +2371,7 @@ RiseVision.Video = (function (window, gadgets) {
     }
 
     if (_player) {
-      _player.update(_currentFiles);  
+      _player.update(_currentFiles);
     }
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
@@ -2576,6 +2576,10 @@ RiseVision.Video = (function (window, gadgets) {
 
     logEvent(params, true);
     showError(message);
+
+    if (_storage) {
+      _storage.getMetadata();
+    }
   }
 
   function stop() {
@@ -2785,6 +2789,14 @@ RiseVision.Video.StorageFile = function (data) {
     storage.go();
   }
 
+  function getMetadata() {
+    var storage = document.getElementById("videoStorage");
+
+    if (typeof storage.getMetadata === "function") {
+      storage.getMetadata();
+    }
+  }
+
   function retry() {
     var storage = document.getElementById("videoStorage");
 
@@ -2797,7 +2809,8 @@ RiseVision.Video.StorageFile = function (data) {
 
   return {
     "init": init,
-    "retry": retry
+    "retry": retry,
+    "getMetadata": getMetadata
   };
 };
 
