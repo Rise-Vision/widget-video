@@ -133,6 +133,14 @@ RiseVision.Video.StorageFile = function (data) {
     storage.go();
   }
 
+  function getMetadata() {
+    var storage = document.getElementById("videoStorage");
+
+    if (typeof storage.getMetadata === "function") {
+      storage.getMetadata();
+    }
+  }
+
   function retry() {
     var storage = document.getElementById("videoStorage");
 
@@ -145,6 +153,7 @@ RiseVision.Video.StorageFile = function (data) {
 
   return {
     "init": init,
-    "retry": retry
+    "retry": retry,
+    "getMetadata": getMetadata
   };
 };
