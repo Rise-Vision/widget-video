@@ -16,6 +16,9 @@ RiseVision.Video.NonStorage = function (data) {
 
   function _getFile(omitCacheBuster) {
     riseCache.getFile(_url, function (response, error) {
+      var statusCode = 0,
+        errorMessage;
+
       if (!error) {
 
         if (_isLoading) {
@@ -38,13 +41,19 @@ RiseVision.Video.NonStorage = function (data) {
           "file_url": response.url
         }, true);
 
-        var statusCode = 0;
-        // Show a different message if there is a 404 coming from rise cache
-        if(error.message){
-          statusCode = +error.message.substring(error.message.indexOf(":")+2);
+        if (riseCache.isV2Running()) {
+          errorMessage = riseCache.getErrorMessage(statusCode);
+        }
+        else {
+          // Show a different message if there is a 404 coming from rise cache
+          if(error.message){
+            statusCode = +error.message.substring(error.message.indexOf(":")+2);
+          }
+
+          errorMessage = utils.getRiseCacheErrorMessage(statusCode);
         }
 
-        var errorMessage = RiseVision.Common.Utilities.getRiseCacheErrorMessage(statusCode);
+        // show the error
         RiseVision.Video.showError(errorMessage);
       }
     }, omitCacheBuster);

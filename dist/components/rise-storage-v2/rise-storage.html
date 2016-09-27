@@ -567,7 +567,7 @@
             }
             // Rise Cache is not running.
             else {
-              this._handleStorageFile(resp.response);
+              this._handleStorageFile();
             }
           }
           // Folder
@@ -643,46 +643,19 @@
     /**
      * Processes a Storage file.
      */
-    _handleStorageFile: function(resp) {
-      var file = {},
-        etag = null;
+    _handleStorageFile: function() {
+      var file = {};
 
-      // File in the root of the bucket.
-      if (resp.selfLink !== undefined) {
-        etag = resp.etag;
-      }
-      // File in a folder.
-      else if ((resp.files !== undefined) && (resp.files.length > 0)) {
-        etag = resp.files[0].etag;
+      if (this._isLoading) {
+        file.added = true;
+      } else  {
+        file.changed = true;
       }
 
       file.url = this._fileUrl;
-
-      if (this._isLoading) {
-        this._files.push({
-          "name": this._getFileNameFromUrl(file.url),
-          "etag": etag
-        });
-
-        file.added = true;
-
-        this._isLoading = false;
-      }
-      else {
-        // File hasn't changed.
-        if (this._files[0].etag === etag) {
-          file.changed = false;
-        }
-        else {
-          this._files[0].etag = etag;
-          file.changed = true;
-        }
-      }
-
       file.name = this._getFileNameFromUrl(file.url);
 
       this.fire("rise-storage-response", file);
-      this._startTimer();
     },
 
     /**
@@ -1149,22 +1122,26 @@
      * Performs a request to the Storage API.
      */
     go: function() {
+      if (this._isLoading) {
+        // determine if configured for a file
+        this._isFile = (this.filename !== "");
+      }
+
       if (this._pingReceived) {
         if (!this._isCacheRunning) {
-          this._getStorageSubscription();
+          if (this._isFile) {
+            this._fileUrl = this._getSingleFileURL();
+            this._handleStorageFile();
+          } else {
+            this._getStorageSubscription();
+          }
         }
         else {
           // get file immediately from Rise Cache
-
           if (this.companyid) {
-            if (this._isLoading) {
-              // determine if configured for a file
-              this._isFile = (this.filename !== "");
-            }
-
             if (this._isFile) {
               // configure the file path
-              this._fileUrl = encodeURIComponent("https://storage.googleapis.com/" + this._getStoragePath());
+              this._fileUrl = this._getSingleFileURL();
 
               this._getFileFromCache();
             }
@@ -1174,6 +1151,10 @@
           }
         }
       }
+    },
+
+    _getSingleFileURL: function() {
+      return "https://storage.googleapis.com/" + encodeURIComponent(this._getStoragePath());
     },
 
     /**
