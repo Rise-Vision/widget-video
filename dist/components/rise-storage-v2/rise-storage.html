@@ -1112,14 +1112,18 @@
      * Fires when an error is received from the Rise Cache request.
      */
     _handleCacheError: function(e, resp) {
+      var isServerError = false;
+
       if ( !this._hasAttemptedGetRequest ) {
         this._cacheRequestMethod = "GET";
         this.$.cache.generateRequest();
         this._hasAttemptedGetRequest = true;
       }
       else {
-        // Get metadata for single file on a 502 response from Rise Cache.
-        if ((e.detail.request.xhr.response.status === 502) && this._isFile) {
+        isServerError = e.detail.request.xhr.response.status.toString()[0] === "5";
+
+        // Get metadata for single file on Rise Cache server error.
+        if (isServerError && this._isFile) {
           this.getMetadata();
         } else {
           this._startTimer();
