@@ -282,6 +282,16 @@
      */
     _folderFilesRequested: 0,
 
+
+    /**
+     * Whether there is a file from a folder still being downloaded by Cache.
+     *
+     * @property _isFolderFileDownloadingByCache
+     * @type boolean
+     * @default false
+     */
+    _isFolderFileDownloadingByCache: false,
+
     /**
      * Whether or not a file is throttled.
      *
@@ -901,7 +911,10 @@
 
           // Retry cache request a maximum of 3 times.
           if (this._totalCacheRequests < 3) {
-            this._retryCacheRequest();
+            var self = this;
+            this._retryCacheRequest(function() {
+              self.$.cache.generateRequest();
+            });
           } else {
             this.fire("rise-cache-file-unavailable", resp);
           }
@@ -965,44 +978,29 @@
         previousItem = null;
 
       if (resp && resp.xhr) {
-        file.url = resp.xhr.responseURL;
-        // Fallback to browsers that does not support responseURL.
-        if(!file.url){
-          file.url = resp.xhr.getResponseHeader("Location");
-        }
-        lastModified = resp.xhr.getResponseHeader("Last-Modified");
 
-        // Extract the URL from the query string parameter.
-        if (file.url) {
-          index = file.url.indexOf(searchString);
+        if (resp.xhr.status === 202) {
+          this._isFolderFileDownloadingByCache = true;
+        } else {
 
-          if (index !== -1) {
-            url = file.url.substring(index + searchString.length);
+          file.url = resp.xhr.responseURL;
+          // Fallback to browsers that does not support responseURL.
+          if (!file.url) {
+            file.url = resp.xhr.getResponseHeader("Location");
           }
-        }
+          lastModified = resp.xhr.getResponseHeader("Last-Modified");
 
-        if (this._isLoading) {
-          // Save file details so they can be compared in subsequent requests.
-          this._files.push({
-            "name": this._getFileNameFromUrl(file.url),
-            "lastModified": lastModified,
-            "fullUrl": file.url,
-            "url": url
-          });
+          // Extract the URL from the query string parameter.
+          if (file.url) {
+            index = file.url.indexOf(searchString);
 
-          file.added = true;
-
-          if (lastModified === null) {
-            console.log("File does not have a Last-Modified header: " + file.url);
+            if (index !== -1) {
+              url = file.url.substring(index + searchString.length);
+            }
           }
-        }
-        else {
-          previousItem = _.find(this._files, function(obj) {
-            return obj.url === url;
-          });
 
-          // New file
-          if (previousItem === undefined) {
+          if (this._isLoading) {
+            // Save file details so they can be compared in subsequent requests.
             this._files.push({
               "name": this._getFileNameFromUrl(file.url),
               "lastModified": lastModified,
@@ -1011,34 +1009,103 @@
             });
 
             file.added = true;
+
+            if (lastModified === null) {
+              console.log("File does not have a Last-Modified header: " + file.url);
+            }
           }
-          // Existing file
           else {
-            if (lastModified === previousItem.lastModified) {
-              // Use the same URL as before in order to leverage browser caching.
-              file.url = previousItem.fullUrl;
-              file.changed = false;
+            previousItem = _.find(this._files, function (obj) {
+              return obj.url === url;
+            });
+
+            // New file
+            if (previousItem === undefined) {
+              this._files.push({
+                "name": this._getFileNameFromUrl(file.url),
+                "lastModified": lastModified,
+                "fullUrl": file.url,
+                "url": url
+              });
+
+              file.added = true;
             }
-            // File has changed.
+            // Existing file
             else {
-              previousItem.lastModified = lastModified;
-              previousItem.fullUrl = file.url;
-              file.changed = true;
+              if (lastModified === previousItem.lastModified) {
+                // Use the same URL as before in order to leverage browser caching.
+                file.url = previousItem.fullUrl;
+                file.changed = false;
+              }
+              // File has changed.
+              else {
+                previousItem.lastModified = lastModified;
+                previousItem.fullUrl = file.url;
+                file.changed = true;
+              }
             }
           }
+
+          file.name = this._getFileNameFromUrl(file.url);
+
+          this.fire("rise-storage-response", file);
+
+          this._removeHandledFile(file.name);
         }
-
-        file.name = this._getFileNameFromUrl(file.url);
-
-        this.fire("rise-storage-response", file);
       }
 
       this._numFiles++;
 
       if (this._numFiles === this._totalFiles) {
-        this._startTimer();
-        this._isLoading = false;
+        if (this._isFolderFileDownloadingByCache) {
+          this._totalCacheRequests++;
+          // Retry cache request a maximum of 3 times.
+          if (this._totalCacheRequests < 3) {
+            this._retryCacheRequest(this._retryCacheRequestForFolder);
+          } else {
+            this.fire("rise-cache-folder-unavailable", this._folderFilesToRequest);
+          }
+        } else {
+          this._startTimer();
+          this._isLoading = false;
+        }
       }
+    },
+
+    /**
+     * Remove file item from the _folderFilesToRequest list
+     */
+    _removeHandledFile: function (name) {
+
+      var item = _.find(this._folderFilesToRequest, function (obj) {
+        var url = "";
+        if (obj.selfLink) {
+          url = obj.selfLink;
+        }
+        // File in a folder.
+        else if (obj.files) {
+          url = obj.files[0].selfLink;
+        }
+
+        return url.indexOf(name) !== -1;
+      });
+
+      var index = this._folderFilesToRequest.indexOf(item);
+      if (index > -1) {
+        this._folderFilesToRequest.splice(index, 1);
+        this._folderFilesRequested -= 1;
+      }
+    },
+
+    /**
+     * Retry the request for files in a folder
+     */
+    _retryCacheRequestForFolder: function() {
+
+      this._isFolderFileDownloadingByCache = false;
+      this._numFiles = 0;
+      this._folderFilesRequested = 0;
+      this._requestCacheFolderFile(this._folderFilesToRequest[0]);
     },
 
     /**
@@ -1051,8 +1118,13 @@
         this._hasAttemptedGetRequest = true;
       }
       else {
-        this._startTimer();
-        this.fire("rise-cache-error", resp);
+        // Get metadata for single file on a 502 response from Rise Cache.
+        if ((e.detail.request.xhr.response.status === 502) && this._isFile) {
+          this.getMetadata();
+        } else {
+          this._startTimer();
+          this.fire("rise-cache-error", resp);
+        }
       }
     },
 
@@ -1186,10 +1258,8 @@
     /**
      * Retries a request to Rise Cache.
      */
-    _retryCacheRequest: function() {
-      this.debounce("cache", function() {
-        this.$.cache.generateRequest();
-      }, 3000);
+    _retryCacheRequest: function(request) {
+      this.debounce("cache", request, 3000);
     },
 
     /**
