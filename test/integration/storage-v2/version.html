@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>Video Widget</title>
+
+  <script src="../../../src/components/web-component-tester/browser.js"></script>
+
+  <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
+  <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
+
+  <link rel="stylesheet" type="text/css" href="../../../src/widget/css/video.css">
+  <link rel="stylesheet" href="../../../src/components/widget-common/dist/css/message.css">
+  <link rel="stylesheet" type="text/css" href="../../../src/skin/jwplayer-skin.css">
+
+</head>
+<body>
+
+<div id="container">
+  <div id="player">Loading player ...</div>
+</div>
+
+<div id="messageContainer"></div>
+
+<script src="../../../node_modules/widget-tester/mocks/gadget-mocks.js"></script>
+<script src="../../../node_modules/widget-tester/mocks/logger-mock.js"></script>
+
+<script src="../../../src/components/widget-common/dist/config.js"></script>
+<script src="../../../src/components/widget-common/dist/common.js"></script>
+<script src="../../../src/components/widget-common/dist/message.js"></script>
+<script src="../../../src/components/widget-common/dist/rise-cache.js"></script>
+<script src="../../../src/config/version.js"></script>
+<script src="../../../src/config/test.js"></script>
+<script src="../../../src/widget/video.js"></script>
+<script src="../../../src/widget/player-utils.js"></script>
+<script src="../../../src/widget/storage-file.js"></script>
+<script src="../../../src/widget/player.js"></script>
+
+<script type="text/javascript">
+  config.COMPONENTS_PATH = "../../../src/components/";
+</script>
+
+<script src="../../data/storage-file.js"></script>
+<script src="../js/version.js"></script>
+<script>
+  isV2Running = true;
+
+  test("link element added to document head using new rise-storage v2 source", function () {
+    var head = document.getElementsByTagName("head")[0];
+    assert.isNotNull(head.querySelector("link[href='" + config.COMPONENTS_PATH + "rise-storage-v2/rise-storage.html'"));
+  });
+</script>
+
+<script src="../../../src/widget/main.js"></script>
+
+</body>
+</html>
