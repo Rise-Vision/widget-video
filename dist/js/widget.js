@@ -2178,6 +2178,28 @@ RiseVision.Common.RiseCache = (function () {
 
   }
 
+  function getErrorMessage(statusCode) {
+    var errorMessage = "";
+    switch (statusCode) {
+      case 502:
+        errorMessage = "There was a problem retrieving the file.";
+        break;
+      case 504:
+        errorMessage = "Unable to download the file. The server is not responding.";
+        break;
+      case 507:
+        errorMessage = "There is not enough disk space to save the file on Rise Cache.";
+        break;
+      case 534:
+        errorMessage = "The file does not exist or cannot be accessed.";
+        break;
+      default:
+        errorMessage = "";
+    }
+
+    return errorMessage;
+  }
+
   function isRiseCacheRunning(callback) {
     if (!callback || typeof callback !== "function") {
       return;
@@ -2210,6 +2232,7 @@ RiseVision.Common.RiseCache = (function () {
   }
 
   return {
+    getErrorMessage: getErrorMessage,
     getFile: getFile,
     isRiseCacheRunning: isRiseCacheRunning,
     isV2Running: isV2Running,
@@ -2669,6 +2692,9 @@ RiseVision.Video = RiseVision.Video || {};
 RiseVision.Video.StorageFile = function (data) {
   "use strict";
 
+  var utils = RiseVision.Common.Utilities,
+    riseCache = RiseVision.Common.RiseCache;
+
   var _initialLoad = true;
 
   /*
@@ -2761,17 +2787,26 @@ RiseVision.Video.StorageFile = function (data) {
       var params = {
         "event": "rise cache error",
         "event_details": e.detail.error.message
-      };
+      },
+        statusCode = 0,
+        errorMessage;
 
+      // log the error
       RiseVision.Video.logEvent(params, true);
 
-      var statusCode = 0;
-      // Show a different message if there is a 404 coming from rise cache
-      if(e.detail.error.message){
-        statusCode = +e.detail.error.message.substring(e.detail.error.message.indexOf(":")+2);
+      if (riseCache.isV2Running()) {
+        errorMessage = riseCache.getErrorMessage(statusCode);
+      }
+      else {
+        // Show a different message if there is a 404 coming from rise cache
+        if(e.detail.error.message){
+          statusCode = +e.detail.error.message.substring(e.detail.error.message.indexOf(":")+2);
+        }
+
+        errorMessage = utils.getRiseCacheErrorMessage(statusCode);
       }
 
-      var errorMessage = RiseVision.Common.Utilities.getRiseCacheErrorMessage(statusCode);
+      // show the error
       RiseVision.Video.showError(errorMessage);
     });
 
@@ -2819,6 +2854,9 @@ RiseVision.Video = RiseVision.Video || {};
 
 RiseVision.Video.StorageFolder = function (data) {
   "use strict";
+
+  var utils = RiseVision.Common.Utilities,
+    riseCache = RiseVision.Common.RiseCache;
 
   var _initialLoad = true;
 
@@ -2972,17 +3010,24 @@ RiseVision.Video.StorageFolder = function (data) {
       var params = {
         "event": "rise cache error",
         "event_details": e.detail.error.message
-      };
+      },
+        statusCode = 0,
+        errorMessage;
 
       RiseVision.Video.logEvent(params, true);
 
-      var statusCode = 0;
-      // Show a different message if there is a 404 coming from rise cache
-      if(e.detail.error.message){
-        statusCode = +e.detail.error.message.substring(e.detail.error.message.indexOf(":")+2);
+      if (riseCache.isV2Running()) {
+        errorMessage = riseCache.getErrorMessage(statusCode);
+      }
+      else {
+        // Show a different message if there is a 404 coming from rise cache
+        if(e.detail.error.message){
+          statusCode = +e.detail.error.message.substring(e.detail.error.message.indexOf(":")+2);
+        }
+
+        errorMessage = utils.getRiseCacheErrorMessage(statusCode);
       }
 
-      var errorMessage = RiseVision.Common.Utilities.getRiseCacheErrorMessage(statusCode);
       RiseVision.Video.showError(errorMessage);
     });
 
@@ -3027,6 +3072,9 @@ RiseVision.Video.NonStorage = function (data) {
 
   function _getFile(omitCacheBuster) {
     riseCache.getFile(_url, function (response, error) {
+      var statusCode = 0,
+        errorMessage;
+
       if (!error) {
 
         if (_isLoading) {
@@ -3049,13 +3097,19 @@ RiseVision.Video.NonStorage = function (data) {
           "file_url": response.url
         }, true);
 
-        var statusCode = 0;
-        // Show a different message if there is a 404 coming from rise cache
-        if(error.message){
-          statusCode = +error.message.substring(error.message.indexOf(":")+2);
+        if (riseCache.isV2Running()) {
+          errorMessage = riseCache.getErrorMessage(statusCode);
+        }
+        else {
+          // Show a different message if there is a 404 coming from rise cache
+          if(error.message){
+            statusCode = +error.message.substring(error.message.indexOf(":")+2);
+          }
+
+          errorMessage = utils.getRiseCacheErrorMessage(statusCode);
         }
 
-        var errorMessage = RiseVision.Common.Utilities.getRiseCacheErrorMessage(statusCode);
+        // show the error
         RiseVision.Video.showError(errorMessage);
       }
     }, omitCacheBuster);
