@@ -69,6 +69,32 @@
     RiseVision.Video.setAdditionalParams.restore();
     RiseVision.Video.setAdditionalParams(params, mode);
   });
+
+  suite("error loading video", function() {
+
+    test("should get metadata from Storage", function(done) {
+      var spy = sinon.spy(storage, "getMetadata");
+
+      storage.dispatchEvent(new CustomEvent("rise-storage-response", {
+        "detail": {
+          "changed": true,
+          "name": "bad-video.webm",
+          "url": "https://storage.googleapis.com/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/bad-video.webm"
+        },
+        "bubbles": true
+      }));
+
+      RiseVision.Video.play();
+
+      // Allow time for video to load.
+      setTimeout(function() {
+        assert.equal(spy.callCount, 1);
+        spy.restore();
+        done();
+      }, 500);
+    });
+
+  });
 </script>
 
 <script src="../../../src/widget/main.js"></script>
