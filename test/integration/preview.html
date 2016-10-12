@@ -41,20 +41,52 @@
   config.COMPONENTS_PATH = "../../../src/components/";
 </script>
 
-<script src="../../data/storage-file.js"></script>
-<script src="../js/version.js"></script>
+<!-- TEST FILES -->
+<script src="../data/storage-file.js"></script>
 <script>
-  isV2Running = true;
+  var ready = false;
 
-  test("link element added to document head using new rise-storage v2 source", function () {
-    var head = document.getElementsByTagName("head")[0];
-    assert.isNotNull(head.querySelector("link[href='" + config.COMPONENTS_PATH + "rise-storage-v2/rise-storage.html'"));
+  var check = function(done) {
+    if (ready) {
+      done();
+    }
+    else {
+      setTimeout(function() {
+        check(done)
+      }, 1000);
+    }
+  };
+
+  sinon.stub(gadgets.rpc, "call", function(targetId, service, callback, id, args) {
+    gadgets.rpc.call.restore();
+    gadgets.rpc.call(targetId, service, callback, id, args, true);  // Preview mode
   });
 
-  test("should refresh data when not previewing", function () {
-    var storage = document.querySelector("rise-storage");
+  sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode) {
+    ready = true;
 
-    assert.equal(storage.getAttribute("refresh"), "5");
+    RiseVision.Video.setAdditionalParams.restore();
+    RiseVision.Video.setAdditionalParams(params, mode);
+  });
+
+  suiteSetup(function(done) {
+    check(done);
+  });
+
+  suite("Preview", function() {
+
+    test("should use rise-storage-v2 by default", function () {
+      var head = document.getElementsByTagName("head")[0];
+
+      assert.isNotNull(head.querySelector("link[href='" + config.COMPONENTS_PATH + "rise-storage-v2/rise-storage.html'"));
+    });
+
+    test("should not refresh data when previewing", function () {
+      var storage = document.querySelector("rise-storage");
+
+      assert.equal(storage.getAttribute("refresh"), "0");
+    });
+
   });
 </script>
 

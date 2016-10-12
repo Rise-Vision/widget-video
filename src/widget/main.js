@@ -4,7 +4,12 @@
   "use strict";
 
   var prefs = new gadgets.Prefs(),
-    id = prefs.getString("id");
+    id = prefs.getString("id"),
+    defaultDisplayId = "preview",
+    storageReady = false,
+    polymerReady = false,
+    additionalParams = null,
+    mode;
 
   // Disable context menu (right click menu)
   window.oncontextmenu = function () {
@@ -12,9 +17,7 @@
   };
 
   function configure(names, values) {
-    var additionalParams = null,
-      mode = "",
-      companyId = "",
+    var companyId = "",
       displayId = "";
 
     if (Array.isArray(names) && names.length > 0 && Array.isArray(values) && values.length > 0) {
@@ -27,9 +30,13 @@
           displayId = values[1];
         }
         else {
-          displayId = "preview";
+          displayId = defaultDisplayId;
         }
       }
+
+      RiseVision.Common.RiseCache.isV2Running(function(isV2) {
+        addRiseStorage(isV2, displayId);
+      });
 
       RiseVision.Common.LoggerUtils.setIds(companyId, displayId);
       RiseVision.Common.LoggerUtils.setVersion(version);
@@ -50,8 +57,6 @@
           // non-storage file was selected
           mode = "file";
         }
-
-        RiseVision.Video.setAdditionalParams(additionalParams, mode);
       }
     }
   }
@@ -69,6 +74,8 @@
   }
 
   function init() {
+    addPolyfill();
+
     if (id && id !== "") {
       gadgets.rpc.register("rscmd_play_" + id, play);
       gadgets.rpc.register("rscmd_pause_" + id, pause);
@@ -79,39 +86,48 @@
     }
   }
 
-  // check which version of Rise Cache is running and dynamically add rise-storage dependencies
-  RiseVision.Common.RiseCache.isV2Running(function (isV2) {
-    var fragment = document.createDocumentFragment(),
-      link = document.createElement("link"),
-      webcomponents = document.createElement("script"),
-      href = config.COMPONENTS_PATH + ((isV2) ? "rise-storage-v2" : "rise-storage") + "/rise-storage.html",
-      storage = document.createElement("rise-storage"),
-      storageReady = false,
-      polymerReady = false;
+  function onPolymerReady() {
+    window.removeEventListener("WebComponentsReady", onPolymerReady);
+    polymerReady = true;
 
-    function onPolymerReady() {
-      window.removeEventListener("WebComponentsReady", onPolymerReady);
-      polymerReady = true;
-
-      if (storageReady && polymerReady) {
-        init();
-      }
+    if (storageReady && polymerReady) {
+      RiseVision.Video.setAdditionalParams(additionalParams, mode);
     }
+  }
 
-    function onStorageReady() {
-      storage.removeEventListener("rise-storage-ready", onStorageReady);
-      storageReady = true;
+  function onStorageReady() {
+    var storage = document.createElement("rise-storage");
 
-      if (storageReady && polymerReady) {
-        init();
-      }
+    storage.removeEventListener("rise-storage-ready", onStorageReady);
+    storageReady = true;
+
+    if (storageReady && polymerReady) {
+      RiseVision.Video.setAdditionalParams(additionalParams, mode);
     }
+  }
+
+  function addPolyfill() {
+    var webcomponents = document.createElement("script");
 
     webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-lite.min.js";
-    window.addEventListener("WebComponentsReady", onPolymerReady);
 
-    // add the webcomponents polyfill source to the document head
+    window.addEventListener("WebComponentsReady", onPolymerReady);
     document.getElementsByTagName("head")[0].appendChild(webcomponents);
+  }
+
+  function addRiseStorage(isV2, displayId) {
+    var fragment = document.createDocumentFragment(),
+      link = document.createElement("link"),
+      storage = document.createElement("rise-storage"),
+      refresh = (displayId === defaultDisplayId) ? 0 : 5,
+      storagePath = "rise-storage",
+      href;
+
+    if (isV2 || (displayId === defaultDisplayId)) {
+      storagePath += "-v2";
+    }
+
+    href = config.COMPONENTS_PATH + storagePath + "/rise-storage.html";
 
     link.setAttribute("rel", "import");
     link.setAttribute("href", href);
@@ -120,13 +136,15 @@
     document.getElementsByTagName("head")[0].appendChild(link);
 
     storage.setAttribute("id", "videoStorage");
-    storage.setAttribute("refresh", 5);
+    storage.setAttribute("refresh", refresh);
     storage.addEventListener("rise-storage-ready", onStorageReady);
     fragment.appendChild(storage);
 
     // add the <rise-storage> element to the body
     document.body.appendChild(fragment);
-  });
+  }
+
+  init();
 
 })(window, gadgets);
 
