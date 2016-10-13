@@ -13,6 +13,7 @@
   <link rel="stylesheet" type="text/css" href="../../../src/widget/css/video.css">
   <link rel="stylesheet" href="../../../src/components/widget-common/dist/css/message.css">
   <link rel="stylesheet" type="text/css" href="../../../src/skin/jwplayer-skin.css">
+
 </head>
 <body>
 
@@ -40,58 +41,50 @@
   config.COMPONENTS_PATH = "../../../src/components/";
 </script>
 
-<script src="../../data/storage-file.js"></script>
-<script src="../js/file.js"></script>
+<!-- TEST FILES -->
+<script src="../data/storage-file.js"></script>
 <script>
-  isV2Running = true;
+  var ready = false;
 
-  sinon.stub(RiseVision.Common.RiseCache, "isV2Running", function (callback) {
-    requests = [];
-    xhr = sinon.useFakeXMLHttpRequest();
+  var check = function(done) {
+    if (ready) {
+      done();
+    }
+    else {
+      setTimeout(function() {
+        check(done)
+      }, 1000);
+    }
+  };
 
-    xhr.onCreate = function (xhr) {
-      requests.push(xhr);
-    };
-
-    RiseVision.Common.RiseCache.isV2Running.restore();
-    RiseVision.Common.RiseCache.isV2Running(callback);
+  sinon.stub(gadgets.rpc, "call", function(targetId, service, callback, id, args) {
+    gadgets.rpc.call.restore();
+    gadgets.rpc.call(targetId, service, callback, id, args, true);  // Preview mode
   });
 
   sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode) {
-    storage = document.querySelector("rise-storage");
     ready = true;
-
-    sinon.stub(storage, "_getStorageSubscription", function () {
-      storage._computeStorageUrl();
-      storage._loadStorage();
-    });
 
     RiseVision.Video.setAdditionalParams.restore();
     RiseVision.Video.setAdditionalParams(params, mode);
   });
 
-  suite("error loading video", function() {
+  suiteSetup(function(done) {
+    check(done);
+  });
 
-    test("should get metadata from Storage", function(done) {
-      var spy = sinon.spy(storage, "getMetadata");
+  suite("Preview", function() {
 
-      storage.dispatchEvent(new CustomEvent("rise-storage-response", {
-        "detail": {
-          "changed": true,
-          "name": "bad-video.webm",
-          "url": "https://storage.googleapis.com/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/bad-video.webm"
-        },
-        "bubbles": true
-      }));
+    test("should use rise-storage-v2 by default", function () {
+      var head = document.getElementsByTagName("head")[0];
 
-      RiseVision.Video.play();
+      assert.isNotNull(head.querySelector("link[href='" + config.COMPONENTS_PATH + "rise-storage-v2/rise-storage.html'"));
+    });
 
-      // Allow time for video to load.
-      setTimeout(function() {
-        assert.equal(spy.callCount, 1);
-        spy.restore();
-        done();
-      }, 500);
+    test("should not refresh data when previewing", function () {
+      var storage = document.querySelector("rise-storage");
+
+      assert.equal(storage.getAttribute("refresh"), "0");
     });
 
   });

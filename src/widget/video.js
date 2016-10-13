@@ -148,7 +148,7 @@ RiseVision.Video = (function (window, gadgets) {
     }
 
     if (_player) {
-      _player.update(_currentFiles);  
+      _player.update(_currentFiles);
     }
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
@@ -353,6 +353,10 @@ RiseVision.Video = (function (window, gadgets) {
 
     logEvent(params, true);
     showError(message);
+
+    if (_storage && (_mode === "file")) {
+      _storage.getMetadata();
+    }
   }
 
   function stop() {

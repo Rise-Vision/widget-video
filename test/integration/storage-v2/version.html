@@ -50,6 +50,12 @@
     var head = document.getElementsByTagName("head")[0];
     assert.isNotNull(head.querySelector("link[href='" + config.COMPONENTS_PATH + "rise-storage-v2/rise-storage.html'"));
   });
+
+  test("should refresh data when not previewing", function () {
+    var storage = document.querySelector("rise-storage");
+
+    assert.equal(storage.getAttribute("refresh"), "5");
+  });
 </script>
 
 <script src="../../../src/widget/main.js"></script>
