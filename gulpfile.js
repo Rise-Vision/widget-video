@@ -236,6 +236,10 @@
     });
   });
 
+  gulp.task("build-dev", function (cb) {
+    runSequence(["clean", "config", "version"], ["source", "fonts", "images", "i18n", "rise-storage"], ["unminify"], cb);
+  });
+
   gulp.task("test", function(cb) {
     runSequence("version", "test:unit", "test:integration", "test:e2e", cb);
   });
