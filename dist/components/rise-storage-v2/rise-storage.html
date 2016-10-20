@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../rise-logger/rise-logger.html">
 
 <script src="../underscore/underscore.js"></script>
 
@@ -39,6 +40,8 @@ To specify a direction, the `sortDirection` attribute should be used. `sortDirec
 <dom-module id="rise-storage">
   <template>
 
+    <rise-logger id="logger"></rise-logger>
+
     <iron-ajax id="ping"
                url="//localhost:9494"
                handle-as="json"
@@ -73,12 +76,18 @@ To specify a direction, the `sortDirection` attribute should be used. `sortDirec
   </template>
 </dom-module>
 
+<!-- build:version -->
+<script>var sheetVersion = "1.2.0";</script>
+<!-- endbuild -->
+
 <script>
   (function() {
     /* global Polymer, _ */
     /* jshint newcap: false */
 
     "use strict";
+
+    var BQ_TABLE_NAME = "component_storage_events";
 
     Polymer({
       is: "rise-storage",
@@ -143,6 +152,13 @@ To specify a direction, the `sortDirection` attribute should be used. `sortDirec
         refresh: {
           type: Number,
           value: 0
+        },
+        /**
+         * The optional usage type for Rise Vision logging purposes. Options are "standalone" or "widget"
+         */
+        usage: {
+          type: String,
+          value: ""
         },
         /**
          * The environment from which information should be retrieved.
@@ -405,9 +421,23 @@ To specify a direction, the `sortDirection` attribute should be used. `sortDirec
        * Polymer has finished its initialization. This is the entry point.
        */
       ready: function() {
+        var params = {
+          event: "ready"
+        };
+
         this._images = ["image/jpeg", "image/png", "image/bmp", "image/svg+xml", "image/gif", "image/webp"];
         this._videos = ["video/mp4", "video/ogg", "video/webm"];
         this._contentTypes = this.contenttype.split(" ");
+
+        // only include usage_type if it's a valid usage value
+        if (this._isValidUsage(this.usage)) {
+          params.usage_type = this.usage;
+        }
+
+        params.version = sheetVersion;
+
+        // log usage
+        this.$.logger.log(BQ_TABLE_NAME, params);
 
         this.fire("rise-storage-ready");
       },
@@ -420,6 +450,10 @@ To specify a direction, the `sortDirection` attribute should be used. `sortDirec
       },
 
       /***************************************** STORAGE ******************************************/
+
+      _isValidUsage: function(usage) {
+        return usage === "standalone" || usage === "widget";
+      },
 
       _supportsLocalStorage: function() {
         try {

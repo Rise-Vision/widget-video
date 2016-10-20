@@ -50,6 +50,12 @@
     var head = document.getElementsByTagName("head")[0];
     assert.isNotNull(head.querySelector("link[href='" + config.COMPONENTS_PATH + "rise-storage-v2/rise-storage.html'"));
   });
+
+
+  test("usage attribute added to instance", function () {
+    assert.equal(document.querySelector("rise-storage").getAttribute("usage"), "widget");
+  });
+
 </script>
 
 <script src="../../../src/widget/main.js"></script>
