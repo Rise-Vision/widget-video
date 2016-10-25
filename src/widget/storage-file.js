@@ -3,7 +3,7 @@
 var RiseVision = RiseVision || {};
 RiseVision.Video = RiseVision.Video || {};
 
-RiseVision.Video.StorageFile = function ( data ) {
+RiseVision.Video.StorageFile = function( data ) {
   "use strict";
 
   var _initialLoad = true,
@@ -23,13 +23,13 @@ RiseVision.Video.StorageFile = function ( data ) {
     storage.addEventListener( "rise-storage-response", function( e ) {
       if ( e.detail && e.detail.url ) {
 
-        if( _initialLoad ) {
+        if ( _initialLoad ) {
           _initialLoad = false;
 
           RiseVision.Video.onFileInit( e.detail.url );
         } else {
           // check for "changed" property
-          if( e.detail.hasOwnProperty( "changed" ) ) {
+          if ( e.detail.hasOwnProperty( "changed" ) ) {
             if ( e.detail.changed ) {
               RiseVision.Video.onFileRefresh( e.detail.url );
             } else {
@@ -96,9 +96,9 @@ RiseVision.Video.StorageFile = function ( data ) {
 
     storage.addEventListener( "rise-cache-error", function( e ) {
       var params = {
-        "event": "rise cache error",
-        "event_details": e.detail.error.message
-      },
+          "event": "rise cache error",
+          "event_details": e.detail.error.message
+        },
         statusCode = 0,
         errorMessage;
 
@@ -124,7 +124,7 @@ RiseVision.Video.StorageFile = function ( data ) {
 
       var params = {
         "event": "rise cache not running",
-        "event_details": ( e.detail && e.detail.error ) ? e.detail.error.message: ""
+        "event_details": ( e.detail && e.detail.error ) ? e.detail.error.message : ""
       };
 
       RiseVision.Video.logEvent( params, true );
