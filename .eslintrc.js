@@ -4,6 +4,9 @@ module.exports = {
     "es6": true
   },
   "extends": "idiomatic",
+  "globals": {
+    "angular": 1
+  },
   "rules": {
     "quotes": [
       "error",
