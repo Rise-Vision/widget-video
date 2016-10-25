@@ -1,4 +1,4 @@
-(function(window) {
+( function( window ) {
   "use strict";
 
   window.gadget = window.gadget || {};
@@ -16,4 +16,4 @@
 
     }
   };
-})(window);
+} )( window );

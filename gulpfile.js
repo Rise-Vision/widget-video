@@ -23,14 +23,10 @@
   var wct = require("web-component-tester").gulp.init(gulp);
   var env = process.env.NODE_ENV || "prod";
 
-  var appJSFiles = [
-    "src/**/*.js",
-    "!./src/components/**/*"
-  ],
-    htmlFiles = [
-      "./src/settings.html",
-      "./src/widget.html"
-    ];
+  const htmlFiles = [
+    "./src/settings.html",
+    "./src/widget.html"
+  ];
 
   gulp.task("clean-bower", function(cb){
     del(["./src/components/**"], cb);
@@ -54,12 +50,12 @@
       .pipe(gulp.dest("./"));
   });
 
-  gulp.task("lint", function() {
-    return gulp.src(appJSFiles)
-      .pipe(eslint())
-      .pipe(eslint.format())
-      .pipe(eslint.failAfterError());
-  });
+  gulp.task( "lint", function() {
+    return gulp.src( [ "src/**/*.js", "test/**/*.js" ] )
+      .pipe( eslint() )
+      .pipe( eslint.format() )
+      .pipe( eslint.failAfterError() );
+  } );
 
   gulp.task("source", ["lint"], function () {
     var isProd = (env === "prod");
