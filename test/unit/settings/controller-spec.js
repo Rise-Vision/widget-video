@@ -1,22 +1,23 @@
-/*jshint expr:true */
+/* global describe, beforeEach, it, expect, module, inject */
 "use strict";
 
-describe("Unit Tests - Settings Controller", function () {
+describe( "Unit Tests - Settings Controller", function() {
 
-  var defaultSettings, scope, ctrl;
+  var defaultSettings,
+    scope;
 
-  beforeEach(module("risevision.widget.video.settings"));
+  beforeEach( module( "risevision.widget.video.settings" ) );
 
-  beforeEach(inject(function($injector, $rootScope, $controller, _commonSettings_) {
-    defaultSettings = $injector.get("defaultSettings");
+  beforeEach( inject( function( $injector, $rootScope, $controller, _commonSettings_ ) {
+    defaultSettings = $injector.get( "defaultSettings" );
     scope = $rootScope.$new();
-    ctrl = $controller("videoSettingsController", {
+    $controller( "videoSettingsController", {
       $scope: scope,
       commonSettings: _commonSettings_
-    });
+    } );
 
     scope.settingsForm = {
-      $setValidity: function () {
+      $setValidity: function() {
         return;
       },
       videoUrl: {
@@ -28,28 +29,28 @@ describe("Unit Tests - Settings Controller", function () {
       additionalParams: defaultSettings.additionalParams
     };
 
-  }));
+  } ) );
 
-  it("should define defaultSettings", function (){
-    expect(defaultSettings).to.be.truely;
-    expect(defaultSettings).to.be.an("object");
-  });
+  it( "should define defaultSettings", function() {
+    expect( defaultSettings ).to.be.truely;
+    expect( defaultSettings ).to.be.an( "object" );
+  } );
 
-  it("should define additionalParams.storage with valid storage url", function() {
+  it( "should define additionalParams.storage with valid storage url", function() {
     var url = "https://storage.googleapis.com/risemedialibrary-abc123/Widgets%2Ftest.webm";
 
     // make a valid storage folder url entry
     scope.settings.additionalParams.selector.url = url;
     scope.$digest();
 
-    expect(scope.settings.additionalParams.storage).to.deep.equal({
+    expect( scope.settings.additionalParams.storage ).to.deep.equal( {
       "companyId": "abc123",
       "folder": "Widgets/",
       "fileName": "test.webm"
-    });
-  });
+    } );
+  } );
 
-  it("should reset additionalParams.storage with invalid storage folder url", function() {
+  it( "should reset additionalParams.storage with invalid storage folder url", function() {
     var url = "http:/ww";
 
     // make an invalid storage folder url entry
@@ -57,10 +58,10 @@ describe("Unit Tests - Settings Controller", function () {
     scope.settingsForm.videoUrl.$valid = false;
     scope.$digest();
 
-    expect(scope.settings.additionalParams.storage).to.deep.equal({});
-  });
+    expect( scope.settings.additionalParams.storage ).to.deep.equal( {} );
+  } );
 
-  it("should reset additionalParams.storage with invalid url", function() {
+  it( "should reset additionalParams.storage with invalid url", function() {
     var url = "https://storage.googleapis.com/risemedialibrary-abc123/Widgets%2Ftest.webm";
 
     // make an initial correct entry
@@ -72,53 +73,52 @@ describe("Unit Tests - Settings Controller", function () {
     scope.settingsForm.videoUrl.$valid = false;
     scope.$digest();
 
-    expect(scope.settings.additionalParams.storage).to.deep.equal({});
-  });
+    expect( scope.settings.additionalParams.storage ).to.deep.equal( {} );
+  } );
 
-  it("should handle pre merge 'url' property for a storage file", function() {
+  it( "should handle pre merge 'url' property for a storage file", function() {
     var url = "https://storage.googleapis.com/risemedialibrary-abc123/Widgets%2Ftest.webm";
 
     // force a 'url' value to simulate a previously saved Settings
     scope.settings.additionalParams.url = url;
     scope.$digest();
 
-    expect(scope.settings.additionalParams.selector).to.deep.equal({
+    expect( scope.settings.additionalParams.selector ).to.deep.equal( {
       "selection": "single-file",
       "storageName": "Widgets/test.webm",
       "url": url
-    });
+    } );
 
-    expect(scope.settings.additionalParams.storage).to.deep.equal({
+    expect( scope.settings.additionalParams.storage ).to.deep.equal( {
       "companyId": "abc123",
       "folder": "Widgets/",
       "fileName": "test.webm"
-    });
+    } );
 
-  });
+  } );
 
-  it("should handle pre merge 'url' property for a non-storage file", function() {
+  it( "should handle pre merge 'url' property for a non-storage file", function() {
     var url = "http://s3.amazonaws.com/stu-testing/sample_videos/big-buck-bunny_trailer.webm";
 
     // force a 'url' value to simulate a previously saved Settings
     scope.settings.additionalParams.url = url;
     scope.$digest();
 
-    expect(scope.settings.additionalParams.selector).to.deep.equal({
+    expect( scope.settings.additionalParams.selector ).to.deep.equal( {
       "selection": "custom",
       "storageName": "",
       "url": url
-    });
+    } );
 
-    expect(scope.settings.additionalParams.storage).to.deep.equal({});
+    expect( scope.settings.additionalParams.storage ).to.deep.equal( {} );
 
-  });
+  } );
 
-  it("should check resume by default if it has not been set", function() {
+  it( "should check resume by default if it has not been set", function() {
     scope.settings.additionalParams.video.resume = undefined;
     scope.$digest();
 
-    expect(scope.settings.additionalParams.video.resume).to.be.true;
-  });
+    expect( scope.settings.additionalParams.video.resume ).to.be.true;
+  } );
 
-
-});
+} );
