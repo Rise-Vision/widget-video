@@ -31234,25 +31234,25 @@ module.run(["$templateCache", function($templateCache) {
 })();
 
 /* exported config */
-if (typeof angular !== "undefined") {
-  angular.module("risevision.common.i18n.config", [])
-    .constant("LOCALES_PREFIX", "locales/translation_")
-    .constant("LOCALES_SUFIX", ".json");
+if ( typeof angular !== "undefined" ) {
+  angular.module( "risevision.common.i18n.config", [] )
+    .constant( "LOCALES_PREFIX", "locales/translation_" )
+    .constant( "LOCALES_SUFIX", ".json" );
 }
 
-var  config = {
+const config = {
   STORAGE_ENV: "prod",
   COMPONENTS_PATH: "components/"
 };
 
-angular.module("risevision.widget.video.settings", [
+angular.module( "risevision.widget.video.settings", [
   "risevision.common.i18n",
   "risevision.widget.common",
   "risevision.widget.common.widget-button-toolbar",
   "risevision.widget.common.tooltip",
   "risevision.widget.common.file-selector",
   "ui.bootstrap-slider"
-]);
+] );
 
 
 angular.module("risevision.widget.common", []);
@@ -31721,27 +31721,26 @@ angular.module("risevision.widget.common")
 
 })(angular);
 
-angular.module("risevision.widget.video.settings")
-  .controller("videoSettingsController", ["$scope", "$log", "commonSettings",
-    function ($scope, $log, commonSettings) {
+angular.module( "risevision.widget.video.settings" )
+  .controller( "videoSettingsController", [ "$scope", "$log", "commonSettings",
+    function( $scope, $log, commonSettings ) {
 
       // handle pre-merge use of "url" from previous Settings
-      $scope.$watch("settings.additionalParams.url", function (url) {
+      $scope.$watch( "settings.additionalParams.url", function( url ) {
         var storage = {};
 
-        if (typeof url !== "undefined" && url !== "") {
+        if ( typeof url !== "undefined" && url !== "" ) {
 
-          storage = commonSettings.getStorageUrlData(url);
+          storage = commonSettings.getStorageUrlData( url );
 
-          if (Object.keys(storage).length !== 0) {
+          if ( Object.keys( storage ).length !== 0 ) {
             // is a storage single file
             $scope.settings.additionalParams.selector = {
               "selection": "single-file",
               "storageName": storage.folder + storage.fileName,
               "url": url
             };
-          }
-          else {
+          } else {
             // is a custom 3rd party server file
             $scope.settings.additionalParams.selector = {
               "selection": "custom",
@@ -31753,25 +31752,26 @@ angular.module("risevision.widget.video.settings")
           // ensure this value is empty so it no longer gets used
           $scope.settings.additionalParams.url = "";
         }
-      });
+      } );
 
-      $scope.$watch("settings.additionalParams.selector.url", function (url) {
-        if (typeof url !== "undefined" && url !== "") {
-          $scope.settings.additionalParams.storage = commonSettings.getStorageUrlData(url);
+      $scope.$watch( "settings.additionalParams.selector.url", function( url ) {
+        if ( typeof url !== "undefined" && url !== "" ) {
+          $scope.settings.additionalParams.storage = commonSettings.getStorageUrlData( url );
         }
-      });
+      } );
 
-      $scope.$watch("settings.additionalParams.video", function (video) {
-        if ((typeof video !== "undefined") && (typeof video.resume === "undefined")) {
+      $scope.$watch( "settings.additionalParams.video", function( video ) {
+        if ( ( typeof video !== "undefined" ) && ( typeof video.resume === "undefined" ) ) {
           $scope.settings.additionalParams.video.resume = true;
         }
-      });
+      } );
 
-    }])
-  .value("defaultSettings", {
+    } ] )
+  .value( "defaultSettings", {
     params: {},
     additionalParams: {
-      url: "", // pre-merge
+      // pre-merge
+      url: "",
       selector: {},
       storage: {},
       video: {
@@ -31780,7 +31780,8 @@ angular.module("risevision.widget.video.settings")
         controls: true,
         autoplay: true,
         resume: true,
-        pause: 5 // merged from folder
+        // merged from folder
+        pause: 5
       }
     }
-  });
+  } );
