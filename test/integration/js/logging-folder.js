@@ -10,8 +10,10 @@ var playStub,
   params = {
     "event": "storage folder empty",
     "file_url": null,
-    "company_id": "'companyId'",
-    "display_id": "'displayId'",
+    /* eslint-disable quotes */
+    "company_id": '"companyId"',
+    "display_id": '"displayId"',
+    /* eslint-enable quotes */
     "version": "1.1.0"
   },
   check = function( done ) {
@@ -305,8 +307,8 @@ suite( "storage folder format(s) invalid", function() {
   } );
 
   test( "should log a storage folder format(s) invalid error when done is fired", function() {
-
     var filePath = window.gadget.settings.additionalParams.storage.folder;
+
     storage.dispatchEvent( new CustomEvent( "rise-storage-folder-invalid", {
       "detail": filePath,
       "bubbles": true
