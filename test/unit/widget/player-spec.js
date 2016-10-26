@@ -1,18 +1,23 @@
 /* global describe, beforeEach, afterEach, it, expect, sinon, RiseVision */
+/* exported jwplayer */
 "use strict";
 
-var jwplayerObj = {
-  getState: function() {},
-  load: function() {},
-  pause: function() {},
-  play: function() {},
-  playlistItem: function() {},
-  off: function() {},
-  on: function() {},
-  seek: function() {},
-  setup: function() {},
-  setVolume: function() {}
-};
+var jwplayerObj =
+  {
+    getState: function() {},
+    load: function() {},
+    pause: function() {},
+    play: function() {},
+    playlistItem: function() {},
+    off: function() {},
+    on: function() {},
+    seek: function() {},
+    setup: function() {},
+    setVolume: function() {}
+  },
+  jwplayer = function() {
+    return jwplayerObj;
+  };
 
 describe( "init()", function() {
   var params =
@@ -54,6 +59,7 @@ describe( "init()", function() {
 
   it( "should call setup jwplayer with correct configuration", function() {
     var player = new RiseVision.Video.Player( params );
+
     player.init( files );
 
     expect( setupSpy ).to.have.been.calledWith( {
