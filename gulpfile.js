@@ -1,18 +1,16 @@
-/* jshint node: true */
-
 (function (console) {
   "use strict";
 
   var bower = require("gulp-bower");
   var colors = require("colors");
   var del = require("del");
+  const eslint = require("gulp-eslint");
   var gulp = require("gulp");
   var gulpif = require("gulp-if");
   var gutil = require("gulp-util");
   var concat = require("gulp-concat");
   var bump = require("gulp-bump");
   var file = require('gulp-file');
-  var jshint = require("gulp-jshint");
   var minifyCSS = require("gulp-minify-css");
   var usemin = require("gulp-usemin");
   var uglify = require("gulp-uglify");
@@ -25,14 +23,10 @@
   var wct = require("web-component-tester").gulp.init(gulp);
   var env = process.env.NODE_ENV || "prod";
 
-  var appJSFiles = [
-    "src/**/*.js",
-    "!./src/components/**/*"
-  ],
-    htmlFiles = [
-      "./src/settings.html",
-      "./src/widget.html"
-    ];
+  const htmlFiles = [
+    "./src/settings.html",
+    "./src/widget.html"
+  ];
 
   gulp.task("clean-bower", function(cb){
     del(["./src/components/**"], cb);
@@ -56,12 +50,12 @@
       .pipe(gulp.dest("./"));
   });
 
-  gulp.task("lint", function() {
-    return gulp.src(appJSFiles)
-      .pipe(jshint())
-      .pipe(jshint.reporter("jshint-stylish"))
-      .pipe(jshint.reporter("fail"));
-  });
+  gulp.task( "lint", function() {
+    return gulp.src( [ "src/**/*.js", "test/**/*.js" ] )
+      .pipe( eslint() )
+      .pipe( eslint.format() )
+      .pipe( eslint.failAfterError() );
+  } );
 
   gulp.task("source", ["lint"], function () {
     var isProd = (env === "prod");
@@ -123,7 +117,7 @@
 
   gulp.task("version", function () {
     var pkg = require("./package.json"),
-      str = '/* exported version */\n' + 
+      str = '/* exported version */\n' +
         'var version = "' + pkg.version + '";';
 
     return file('version.js', str, {src: true})
