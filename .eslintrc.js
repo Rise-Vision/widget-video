@@ -11,6 +11,10 @@ module.exports = {
     "quotes": [
       "error",
       "double"
+    ],
+    "newline-after-var": [
+      "error",
+      "always"
     ]
   }
 };

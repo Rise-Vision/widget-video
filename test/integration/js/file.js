@@ -147,6 +147,7 @@ suite( "Storage Errors", function() {
 
   test( "should handle when 'no file' error occurs", function() {
     var filePath = window.gadget.settings.additionalParams.storage.folder + "/" + window.gadget.settings.additionalParams.storage.fileName;
+
     params.event = "storage file not found";
     params.event_details = filePath;
 

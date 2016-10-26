@@ -1,6 +1,7 @@
 /* global jwplayer */
 
 var RiseVision = RiseVision || {};
+
 RiseVision.Video = RiseVision.Video || {};
 
 RiseVision.Video.Player = function( params ) {

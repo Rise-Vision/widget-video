@@ -1,6 +1,7 @@
 /* global gadgets, _ */
 
 var RiseVision = RiseVision || {};
+
 RiseVision.Video = {};
 
 RiseVision.Video = ( function( window, gadgets ) {

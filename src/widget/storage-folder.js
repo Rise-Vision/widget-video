@@ -1,6 +1,7 @@
 /* global config, _ */
 
 var RiseVision = RiseVision || {};
+
 RiseVision.Video = RiseVision.Video || {};
 
 RiseVision.Video.StorageFolder = function( data ) {
