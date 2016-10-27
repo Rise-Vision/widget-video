@@ -33,26 +33,34 @@ RiseVision.Video.NonStorage = function( data ) {
         }
 
       } else {
-        // error occurred
-        RiseVision.Video.logEvent( {
-          "event": "non-storage error",
-          "event_details": error.message,
-          "file_url": response.url
-        }, true );
 
-        if ( riseCache.isV2Running() ) {
-          errorMessage = riseCache.getErrorMessage( statusCode );
+        if ( error.message == "File is downloading" ) {
+
+          RiseVision.Video.onFileUnavailable( error.message );
+
         } else {
-          // Show a different message if there is a 404 coming from rise cache
-          if ( error.message ) {
-            statusCode = +error.message.substring( error.message.indexOf( ":" ) + 2 );
+
+          // error occurred
+          RiseVision.Video.logEvent( {
+            "event": "non-storage error",
+            "event_details": error.message,
+            "file_url": response.url
+          }, true );
+
+          if ( riseCache.isV2Running() ) {
+            errorMessage = riseCache.getErrorMessage( statusCode );
+          } else {
+            // Show a different message if there is a 404 coming from rise cache
+            if ( error.message ) {
+              statusCode = +error.message.substring( error.message.indexOf( ":" ) + 2 );
+            }
+
+            errorMessage = utils.getRiseCacheErrorMessage( statusCode );
           }
 
-          errorMessage = utils.getRiseCacheErrorMessage( statusCode );
+          // show the error
+          RiseVision.Video.showError( errorMessage );
         }
-
-        // show the error
-        RiseVision.Video.showError( errorMessage );
       }
     }, omitCacheBuster );
   }
