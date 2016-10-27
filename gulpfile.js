@@ -181,8 +181,8 @@
   gulp.task("test:unit:player-main", factory.testUnitAngular(
     {testFiles: [
       "src/widget/player-utils.js",
-      "src/widget/player.js",
-      "test/unit/widget/player-spec.js"
+      "src/widget/player-vjs.js",
+      "test/unit/widget/player-vjs-spec.js"
     ]}
   ));
 
