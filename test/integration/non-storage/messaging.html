@@ -212,10 +212,10 @@
       test("should show File is downloaidng message when RC responds with a 202 for 3 consecutive times", function() {
         requests[1].respond(202); // HEAD request
         clock.tick(3000);
-        assert.isFalse((document.getElementById("messageContainer").style.display === "node"), "message visibility");
+        assert.equal(document.querySelector(".message").innerHTML, "There was a problem retrieving the file from Rise Cache.", "file is downloading message text");        
         requests[2].respond(202); // HEAD request
         clock.tick(3000);
-        assert.isFalse((document.getElementById("messageContainer").style.display === "node"), "message visibility");
+        assert.equal(document.querySelector(".message").innerHTML, "There was a problem retrieving the file from Rise Cache.", "file is downloading message text");
         requests[3].respond(202); // HEAD request
         assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "file is downloading message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
