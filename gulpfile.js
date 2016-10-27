@@ -1,6 +1,7 @@
 (function (console) {
   "use strict";
 
+  const babel = require("gulp-babel");
   var bower = require("gulp-bower");
   var colors = require("colors");
   var del = require("del");
@@ -11,6 +12,7 @@
   var concat = require("gulp-concat");
   var bump = require("gulp-bump");
   var file = require('gulp-file');
+  const lazypipe = require("lazypipe");
   var minifyCSS = require("gulp-minify-css");
   var usemin = require("gulp-usemin");
   var uglify = require("gulp-uglify");
@@ -28,8 +30,27 @@
     "./src/widget.html"
   ];
 
+  const isProd = (env === "prod");
+
+  const prodTasks = lazypipe()
+    .pipe(sourcemaps.init)
+    .pipe(function() {
+      return babel({
+        presets: ["es2015"],
+        minified: true,
+        sourceMap: true
+      });
+    })
+    .pipe(function() {
+      return sourcemaps.write(".");
+    });
+
   gulp.task("clean-bower", function(cb){
     del(["./src/components/**"], cb);
+  });
+
+  gulp.task("clean-temp", function(cb) {
+    del(["./temp/**"], cb);
   });
 
   gulp.task("clean", function (cb) {
@@ -57,18 +78,33 @@
       .pipe( eslint.failAfterError() );
   } );
 
-  gulp.task("source", ["lint"], function () {
-    var isProd = (env === "prod");
-
+  gulp.task("css", () => {
     return gulp.src(htmlFiles)
       .pipe(gulpif(isProd,
-        // Minify for production.
         usemin({
-          css: [minifyCSS()],
-          js: [sourcemaps.init(), uglify(), sourcemaps.write()]
+          css: [minifyCSS()]
         }),
-        // Don't minify for staging.
         usemin({})
+      ))
+      .pipe(gulp.dest("dist/"));
+  });
+
+  gulp.task("js", ["lint"], () => {
+    return gulp.src(htmlFiles)
+      .pipe(usemin({
+        js: []
+      }))
+      .pipe(gulp.dest("temp/"));
+  });
+
+  gulp.task("babel", ["js"], () => {
+    return gulp.src("temp/**/*.js")
+      .pipe(gulpif(isProd, prodTasks(),
+        // Staging
+        babel({
+          presets: ["es2015"],
+          compact: false
+        })
       ))
       .pipe(gulp.dest("dist/"));
   });
@@ -231,7 +267,7 @@
   });
 
   gulp.task("build-dev", function (cb) {
-    runSequence(["clean", "config", "version"], ["source", "fonts", "images", "i18n", "rise-storage"], ["unminify"], cb);
+    runSequence(["clean", "config", "version"], ["css", "babel", "fonts", "images", "i18n", "rise-storage"], ["unminify", "clean-temp"], cb);
   });
 
   gulp.task("test", function(cb) {
@@ -239,7 +275,7 @@
   });
 
   gulp.task("build", function (cb) {
-    runSequence(["clean", "config", "bower-update", "version"], ["source", "fonts", "images", "i18n", "rise-storage"], ["unminify"], cb);
+    runSequence(["clean", "config", "bower-update", "version"], ["css", "babel", "fonts", "images", "i18n", "rise-storage"], ["unminify", "clean-temp"], cb);
   });
 
   gulp.task("default", [], function() {
