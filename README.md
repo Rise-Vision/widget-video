@@ -38,13 +38,14 @@ git clone https://github.com/Rise-Vision/widget-video.git
 
 If you want to get up and running quickly without having to install npm, Bower and Gulp, then you can make your code changes directly to the files in the `dist` folder. Please keep in mind that by doing so, you won't be able to take advantage of the many benefits that these tools provide, such as managing dependencies and running automated tests & builds. Should you decide that you would like to use these tools, you will first need to install them:
 
-- [Node.js and npm](http://blog.nodeknockout.com/post/65463770933/how-to-install-node-js-and-npm)
+- [Node.js and npm](http://blog.nodeknockout.com/post/65463770933/how-to-install-node-js-and-npm) - Node 6.x.x or greater is required for this Widget
 - [Bower](http://bower.io/#install-bower) - To install Bower, run the following command in Terminal: `npm install -g bower`. Should you encounter any errors, try running the following command instead: `sudo npm install -g bower`.
 - [Gulp](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md) - To install Gulp, run the following command in Terminal: `npm install -g gulp`. Should you encounter any errors, try running the following command instead: `sudo npm install -g gulp`.
 
 Next, perform these additional steps at the command line:
 ```
 cd widget-video
+npm install -g phantomjs
 npm install
 bower install
 gulp build
