@@ -34,7 +34,7 @@ RiseVision.Video.NonStorage = function( data ) {
 
       } else {
 
-        if ( error.message == "File is downloading" ) {
+        if ( error.message && error.message == "File is downloading" ) {
 
           RiseVision.Video.onFileUnavailable( error.message );
 
