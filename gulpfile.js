@@ -151,6 +151,11 @@
       .pipe(gulp.dest("dist/"));
   });
 
+  gulp.task("videojs", function() {
+    return gulp.src("src/components/videojs/dist/video.min.js")
+      .pipe(gulp.dest("dist/components/videojs/dist"));
+  });
+
   gulp.task("version", function () {
     var pkg = require("./package.json"),
       str = '/* exported version */\n' +
@@ -267,7 +272,7 @@
   });
 
   gulp.task("build-dev", function (cb) {
-    runSequence(["clean", "config", "version"], ["css", "babel", "fonts", "images", "i18n", "rise-storage"], ["unminify", "clean-temp"], cb);
+    runSequence(["clean", "config", "version"], ["css", "babel", "videojs", "fonts", "images", "i18n", "rise-storage"], ["unminify", "clean-temp"], cb);
   });
 
   gulp.task("test", function(cb) {
@@ -275,7 +280,7 @@
   });
 
   gulp.task("build", function (cb) {
-    runSequence(["clean", "config", "bower-update", "version"], ["css", "babel", "fonts", "images", "i18n", "rise-storage"], ["unminify", "clean-temp"], cb);
+    runSequence(["clean", "config", "bower-update", "version"], ["css", "babel", "videojs", "fonts", "images", "i18n", "rise-storage"], ["unminify", "clean-temp"], cb);
   });
 
   gulp.task("default", [], function() {
