@@ -152,8 +152,7 @@
 
       suiteSetup(function() {
         xhr = sinon.useFakeXMLHttpRequest();
-        clock = sinon.useFakeTimers();
-
+        
         xhr.onCreate = function (xhr) {
           requests.push(xhr);
         };
@@ -165,11 +164,16 @@
 
       setup(function() {
         requests = [];
+        clock = sinon.useFakeTimers();
 
         riseCache.ping(function(){});
         requests[0].respond(200);
 
         nonStorage.init();
+      });
+
+      teardown(function () {
+        clock.restore();
       });
 
       test("should show non-storage error message", function() {
@@ -202,8 +206,19 @@
         clock.tick(500);
         assert(spy.calledOnce);
 
-        clock.restore();
         RiseVision.Video.play.restore();
+      });
+
+      test("should show File is downloaidng message when RC responds with a 202 for 3 consecutive times", function() {
+        requests[1].respond(202); // HEAD request
+        clock.tick(3000);
+        assert.equal(document.querySelector(".message").innerHTML, "There was a problem retrieving the file from Rise Cache.", "file is downloading message text");        
+        requests[2].respond(202); // HEAD request
+        clock.tick(3000);
+        assert.equal(document.querySelector(".message").innerHTML, "There was a problem retrieving the file from Rise Cache.", "file is downloading message text");
+        requests[3].respond(202); // HEAD request
+        assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "file is downloading message text");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
     });
   });
