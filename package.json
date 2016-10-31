@@ -45,6 +45,6 @@
     "lazypipe": "^1.0.1",
     "run-sequence": "^0.3.2",
     "web-component-tester": "*",
-    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#1.7.0"
+    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#1.7.1"
   }
 }
