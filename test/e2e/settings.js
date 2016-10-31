@@ -1,5 +1,7 @@
 /* global require, browser, describe, beforeEach, it, element, by */
 
+/* eslint-disable func-names */
+
 ( function() {
   "use strict";
 

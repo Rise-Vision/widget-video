@@ -1,5 +1,7 @@
 /* global requests, suiteSetup, suite, teardown, test, assert, RiseVision, sinon */
 
+/* eslint-disable func-names */
+
 var spy,
   clock,
   storage,

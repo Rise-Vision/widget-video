@@ -1,4 +1,4 @@
-( function( window ) {
+( function data( window ) {
   "use strict";
 
   window.gadget = window.gadget || {};

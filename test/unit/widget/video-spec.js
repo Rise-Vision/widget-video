@@ -1,4 +1,7 @@
 /* global beforeEach, afterEach, describe, it, expect, sinon, RiseVision */
+
+/* eslint-disable func-names */
+
 "use strict";
 
 describe( "getTableName", function() {

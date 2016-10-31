@@ -1,5 +1,8 @@
 /* global describe, before, after, it, expect, sinon, RiseVision */
 /* exported videojs */
+
+/* eslint-disable func-names */
+
 "use strict";
 
 var videoJSObj =

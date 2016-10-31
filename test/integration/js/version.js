@@ -1,5 +1,7 @@
 /* global suiteSetup, suiteTeardown, test, assert, RiseVision, sinon, config */
 
+/* eslint-disable func-names */
+
 var xhr,
   requests,
   isV2Running = false;
