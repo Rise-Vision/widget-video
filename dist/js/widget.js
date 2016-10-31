@@ -27636,16 +27636,18 @@ RiseVision.Video.PlayerVJS = function( params ) {
   }
 
   function _ready() {
-    // set the source
-    _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+    if ( _files && _files.length && _files.length > 0 ) {
+      // set the source
+      _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
 
-    // handle when video completes
-    _playerInstance.on( "ended", function() {
-      RiseVision.Video.playerEnded();
-    } );
+      // handle when video completes
+      _playerInstance.on( "ended", function() {
+        RiseVision.Video.playerEnded();
+      } );
 
-    // notify that player is ready
-    RiseVision.Video.playerReady();
+      // notify that player is ready
+      RiseVision.Video.playerReady();
+    }
   }
 
   /*
@@ -27668,7 +27670,10 @@ RiseVision.Video.PlayerVJS = function( params ) {
     if ( _updateWaiting ) {
       _updateWaiting = false;
       // set a new source
-      _playerInstance.src( { type: _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+
+      if ( _files && _files.length && _files.length > 0 ) {
+        _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+      }
     }
 
     _playerInstance.play();

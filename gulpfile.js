@@ -51,7 +51,7 @@
   });
 
   gulp.task( "lint", function() {
-    return gulp.src( [ "src/**/*.js", "test/**/*.js" ] )
+    return gulp.src( [ "src/**/*.js" ] )
       .pipe( eslint() )
       .pipe( eslint.format() )
       .pipe( eslint.failAfterError() );
