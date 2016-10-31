@@ -139,7 +139,9 @@ RiseVision.Video.StorageFile = function( data ) {
     storage.setAttribute( "fileName", data.storage.fileName );
     storage.setAttribute( "companyId", data.storage.companyId );
     storage.setAttribute( "env", config.STORAGE_ENV );
-    storage.go();
+
+    // TODO: VideoJS with storage files, temporarily prevent this code executing
+    //storage.go();
   }
 
   function retry() {
@@ -149,7 +151,8 @@ RiseVision.Video.StorageFile = function( data ) {
       return;
     }
 
-    storage.go();
+    // TODO: VideoJS with storage files, temporarily prevent this code executing
+    //storage.go();
   }
 
   return {

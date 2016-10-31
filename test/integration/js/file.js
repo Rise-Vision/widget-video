@@ -1,6 +1,8 @@
 /* global requests, suiteSetup, suite, suiteTeardown, setup, teardown, test, assert,
   RiseVision, sinon, config */
 
+/* eslint-disable func-names */
+
 var ready = false,
   isV2Running = false,
   storage,

@@ -1,4 +1,7 @@
 /* global describe, beforeEach, it, expect, module, inject */
+
+/* eslint-disable func-names */
+
 "use strict";
 
 describe( "Unit Tests - Settings Controller", function() {

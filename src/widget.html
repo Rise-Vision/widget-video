@@ -5,20 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Video Widget</title>
 
-  <script type="text/javascript" src="//s3.amazonaws.com/rise-common/scripts/jwplayer-7.4.2/jwplayer.js"></script>
-  <script>jwplayer.key="YRamd/nrBPuzrLYWPaV+VmMiQ8H7UAP+WFPDG3+GCxr7wVPI"</script>
-
   <!-- build:css css/video.min.css -->
+  <link rel="stylesheet" type="text/css" href="components/videojs/dist/video-js.css">
   <link rel="stylesheet" type="text/css" href="widget/css/video.css">
   <link rel="stylesheet" type="text/css" href="components/widget-common/dist/css/message.css">
-  <link rel="stylesheet" type="text/css" href="skin/jwplayer-skin.css">
   <!-- endbuild -->
 
 </head>
 <body>
 
   <div id="container">
-    <div id="player"></div>
+    <video id="player" class="video-js" preload="auto"></video>
   </div>
 
   <div id="messageContainer"></div>
@@ -26,6 +23,7 @@
   <script src="//rvashow2.appspot.com/gadgets/gadgets.min.js"></script>
 
   <!-- build:js js/widget.min.js -->
+  <script src="components/videojs/dist/video.js"></script>
   <script src="components/underscore/underscore.js"></script>
   <script src="components/widget-common/dist/config.js"></script>
   <script src="components/widget-common/dist/logger.js"></script>
@@ -38,7 +36,7 @@
   <script src="widget/storage-file.js"></script>
   <script src="widget/storage-folder.js"></script>
   <script src="widget/non-storage.js"></script>
-  <script src="widget/player.js"></script>
+  <script src="widget/player-vjs.js"></script>
   <script src="components/widget-common/dist/message.js"></script>
   <script src="widget/main.js"></script>
   <script src="widget/analytics.js"></script>

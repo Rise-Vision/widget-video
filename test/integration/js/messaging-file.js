@@ -1,5 +1,7 @@
 /* global requests, suiteSetup, suite, test, assert, RiseVision, sinon */
 
+/* eslint-disable func-names */
+
 var ready = false,
   isV2Running = false,
   storage,

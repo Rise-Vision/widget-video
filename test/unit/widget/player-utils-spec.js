@@ -1,4 +1,7 @@
 /* global describe, it, expect, RiseVision */
+
+/* eslint-disable func-names */
+
 "use strict";
 
 describe( "getVideoFileType()", function() {

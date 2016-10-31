@@ -49,3 +49,8 @@ body {
   position: relative;
 }
 
+/* Hide buffer spinner */
+.video-js .vjs-loading-spinner {
+  display: none;
+}
+
