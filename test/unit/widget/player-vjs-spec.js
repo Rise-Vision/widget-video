@@ -64,6 +64,7 @@ describe( "init()", function() {
 
     expect( optionsSpy ).to.have.been.calledWith( {
       controls: false,
+      fluid: true,
       height: params.height,
       width: params.width
     } );
