@@ -75,6 +75,12 @@
       clock.restore();
     });
 
+    suite( "VideoJS options", function() {
+      test( "should add controls to video", function() {
+        assert.isNotNull( document.querySelector("#player.vjs-controls-enabled") );
+      } );
+    } );
+
     suite("non-storage initialization - file added", function () {
       var onInitSpy = sinon.spy(RiseVision.Video, "onFileInit");
 
