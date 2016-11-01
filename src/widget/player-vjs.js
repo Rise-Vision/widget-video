@@ -7,7 +7,8 @@ RiseVision.Video = RiseVision.Video || {};
 RiseVision.Video.PlayerVJS = function( params ) {
   "use strict";
 
-  var _playerInstance = null,
+  var _autoPlay = false,
+    _playerInstance = null,
     _files = null,
     _utils = RiseVision.Video.PlayerUtils,
     _updateWaiting = false;
@@ -18,6 +19,7 @@ RiseVision.Video.PlayerVJS = function( params ) {
 
   function _getOptions() {
     return {
+      autoplay: _autoPlay,
       controls: params.video.controls,
       fluid: params.video.scaleToFit,
       height: params.height,
@@ -45,6 +47,8 @@ RiseVision.Video.PlayerVJS = function( params ) {
    */
   function init( files ) {
     _files = files;
+    _autoPlay = ( !params.video.controls ) ? true : params.video.autoplay;
+
     _playerInstance = videojs( "player", _getOptions(), function() {
       _ready();
     } );
@@ -66,7 +70,9 @@ RiseVision.Video.PlayerVJS = function( params ) {
       }
     }
 
-    _playerInstance.play();
+    if ( _autoPlay ) {
+      _playerInstance.play();
+    }
   }
 
   function reset() {
