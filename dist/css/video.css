@@ -1357,6 +1357,10 @@ body {
   display: none;
 }
 
+.vjs-nofull .vjs-fullscreen-control {
+  display:none;
+}
+
 
 #messageContainer {
   display: none; /* hide by default */

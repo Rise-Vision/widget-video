@@ -54,3 +54,7 @@ body {
   display: none;
 }
 
+.vjs-nofull .vjs-fullscreen-control {
+  display:none;
+}
+
