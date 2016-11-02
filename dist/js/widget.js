@@ -382,6 +382,16 @@ RiseVision.Common.Utilities = (function() {
     });
   }
 
+  function loadScript( src ) {
+    var head = document.getElementsByTagName( "head" )[ 0 ],
+      script = document.createElement( "script" );
+
+    script.type = "text/javascript";
+    script.src = src;
+
+    head.appendChild( script );
+  }
+
   function preloadImages(urls) {
     var length = urls.length,
       images = [];
@@ -489,6 +499,7 @@ RiseVision.Common.Utilities = (function() {
     loadFonts:        loadFonts,
     loadCustomFont:   loadCustomFont,
     loadGoogleFonts:   loadGoogleFonts,
+    loadScript: loadScript,
     preloadImages:    preloadImages,
     getRiseCacheErrorMessage: getRiseCacheErrorMessage,
     unescapeHTML: unescapeHTML,
@@ -1630,6 +1641,10 @@ RiseVision.Video.PlayerVJS = function( params ) {
     if ( _files && _files.length && _files.length > 0 ) {
       // set the source
       _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+
+      if ( params.video && params.video.volume && Number.isInteger( params.video.volume ) ) {
+        _playerInstance.volume( params.video.volume / 100 );
+      }
 
       // handle when video completes
       _playerInstance.on( "ended", function() {
