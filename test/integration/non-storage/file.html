@@ -85,6 +85,14 @@
       } );
     } );
 
+    suite("Disable fullscreen", function() {
+
+      test( "should add css class", function() {
+        assert.isNotNull( document.querySelector( "#player.vjs-nofull" ) );
+      } );
+
+    });
+
     suite("non-storage initialization - file added", function () {
       var onInitSpy = sinon.spy(RiseVision.Video, "onFileInit");
 

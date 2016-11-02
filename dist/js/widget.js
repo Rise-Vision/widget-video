@@ -1608,6 +1608,13 @@ RiseVision.Video.PlayerVJS = function( params ) {
   /*
    *  Private Methods
    */
+  function _disableFullscreen() {
+    var video = document.getElementById( "player" );
+
+    if ( video ) {
+      video.className += video.className ? " vjs-nofull" : "vjs-nofull";
+    }
+  }
 
   function _getOptions() {
     return {
@@ -1640,6 +1647,8 @@ RiseVision.Video.PlayerVJS = function( params ) {
   function init( files ) {
     _files = files;
     _autoPlay = ( !params.video.controls ) ? true : params.video.autoplay;
+
+    _disableFullscreen();
 
     _playerInstance = videojs( "player", _getOptions(), function() {
       _ready();
