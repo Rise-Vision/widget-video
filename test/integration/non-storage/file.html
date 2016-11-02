@@ -124,6 +124,14 @@
 
     });
 
+    suite( "volume", function() {
+      test( "should set volume", function() {
+        var video = document.getElementById( "player_html5_api" );
+
+        assert.equal( video.volume, 0.5 );
+      } );
+    } );
+
   });
 </script>
 
