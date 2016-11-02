@@ -1642,7 +1642,8 @@ RiseVision.Video.PlayerVJS = function( params ) {
       // set the source
       _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
 
-      if ( params.video && params.video.volume && Number.isInteger( params.video.volume ) ) {
+      if ( params.video && ( typeof params.video.volume !== "undefined" )
+        && Number.isInteger( params.video.volume ) ) {
         _playerInstance.volume( params.video.volume / 100 );
       }
 
