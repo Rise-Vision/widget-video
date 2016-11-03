@@ -63,7 +63,6 @@ describe( "init()", function() {
     player.init( files );
 
     expect( optionsSpy ).to.have.been.calledWith( {
-      autoplay: true,
       controls: true,
       fluid: true,
       height: params.height,
