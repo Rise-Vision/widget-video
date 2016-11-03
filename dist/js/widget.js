@@ -1596,14 +1596,17 @@ var RiseVision = RiseVision || {};
 
 RiseVision.Video = RiseVision.Video || {};
 
-RiseVision.Video.PlayerVJS = function( params ) {
+RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
   "use strict";
 
   var _autoPlay = false,
     _playerInstance = null,
     _files = null,
     _utils = RiseVision.Video.PlayerUtils,
-    _updateWaiting = false;
+    _updateWaiting = false,
+    _isPaused = false,
+    _pauseTimer,
+    _pause;
 
   /*
    *  Private Methods
@@ -1626,6 +1629,26 @@ RiseVision.Video.PlayerVJS = function( params ) {
     };
   }
 
+  function _onPause() {
+    if ( !_isPaused ) {
+      clearTimeout( _pauseTimer );
+
+      _pauseTimer = setTimeout( function restart() {
+        if ( _playerInstance.paused() ) {
+          _playerInstance.play();
+        }
+      }, _pause * 1000 );
+    }
+  }
+
+  function _configureHandlers() {
+    if ( params.video.controls && _pause > 1 ) {
+      _playerInstance.on( "pause", _onPause );
+    }
+
+    _playerInstance.on( "ended", RiseVision.Video.playerEnded );
+  }
+
   function _ready() {
     if ( _files && _files.length && _files.length > 0 ) {
       // set the source
@@ -1636,10 +1659,7 @@ RiseVision.Video.PlayerVJS = function( params ) {
         _playerInstance.volume( params.video.volume / 100 );
       }
 
-      // handle when video completes
-      _playerInstance.on( "ended", function() {
-        RiseVision.Video.playerEnded();
-      } );
+      _configureHandlers();
 
       // notify that player is ready
       RiseVision.Video.playerReady();
@@ -1655,18 +1675,30 @@ RiseVision.Video.PlayerVJS = function( params ) {
 
     _disableFullscreen();
 
-    _playerInstance = videojs( "player", _getOptions(), function() {
-      _ready();
-    } );
+    // Validate video.pause setting.
+    if ( params.video.pause ) {
+      params.video.pause = ( typeof params.video.pause === "string" ) ? parseInt( params.video.pause, 10 ) : params.video.pause;
+      _pause = ( isNaN( params.video.pause ) ) ? 0 : params.video.pause;
+    } else {
+      _pause = 0;
+    }
+
+    _playerInstance = videojs( "player", _getOptions(), _ready );
   }
 
   function pause() {
+    _isPaused = true;
+
     if ( !_playerInstance.paused() ) {
       _playerInstance.pause();
     }
+
+    clearTimeout( _pauseTimer );
   }
 
   function play() {
+    _isPaused = false;
+
     if ( _updateWaiting ) {
       _updateWaiting = false;
       // set a new source
