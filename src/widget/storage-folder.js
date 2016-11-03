@@ -193,9 +193,7 @@ RiseVision.Video.StorageFolder = function( data ) {
     storage.setAttribute( "companyId", data.storage.companyId );
     storage.setAttribute( "folder", data.storage.folder );
     storage.setAttribute( "env", config.STORAGE_ENV );
-
-    // TODO: VideoJS with storage files, temporarily prevent this code executing
-    //storage.go();
+    storage.go();
   }
 
   return {
