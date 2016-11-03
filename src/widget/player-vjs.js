@@ -30,7 +30,6 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
 
   function _getOptions() {
     return {
-      autoplay: _autoPlay,
       controls: params.video.controls,
       fluid: params.video.scaleToFit,
       height: params.height,
