@@ -1,11 +1,12 @@
-*.log
-src/components/
+dist/
 node_modules/
-coverage/
+reports/
+src/components/
 src/config/config.js
 src/config/version.js
-tmp
 src/*-e2e.html
-reports/
+coverage/
+tmp
+*.log
 .idea
 widget-video.iml
