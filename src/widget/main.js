@@ -41,6 +41,7 @@
           if ( !additionalParams.storage.fileName ) {
             // folder was selected
             mode = "folder";
+            RiseVision.Common.Utilities.loadScript( config.COMPONENTS_PATH + "videojs-playlist/dist/videojs-playlist.min.js" );
           } else {
             // file was selected
             mode = "file";
