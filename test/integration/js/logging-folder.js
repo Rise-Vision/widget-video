@@ -16,7 +16,7 @@ var playStub,
     "company_id": '"companyId"',
     "display_id": '"displayId"',
     /* eslint-enable quotes */
-    "version": "1.1.0"
+    "version": "2.0.0"
   },
   check = function( done ) {
     if ( ready ) {
