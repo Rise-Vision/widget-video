@@ -382,6 +382,13 @@ RiseVision.Common.Utilities = (function() {
     });
   }
 
+  function loadScript( src ) {
+    var script = document.createElement( "script" );
+
+    script.src = src;
+    document.body.appendChild( script );
+  }
+
   function preloadImages(urls) {
     var length = urls.length,
       images = [];
@@ -482,18 +489,19 @@ RiseVision.Common.Utilities = (function() {
   }
 
   return {
-    addProtocol: addProtocol,
-    getQueryParameter: getQueryParameter,
-    getFontCssStyle:  getFontCssStyle,
-    addCSSRules:      addCSSRules,
-    loadFonts:        loadFonts,
-    loadCustomFont:   loadCustomFont,
-    loadGoogleFonts:   loadGoogleFonts,
-    preloadImages:    preloadImages,
+    addProtocol:              addProtocol,
+    getQueryParameter:        getQueryParameter,
+    getFontCssStyle:          getFontCssStyle,
+    addCSSRules:              addCSSRules,
+    loadFonts:                loadFonts,
+    loadCustomFont:           loadCustomFont,
+    loadGoogleFonts:          loadGoogleFonts,
+    loadScript:               loadScript,
+    preloadImages:            preloadImages,
     getRiseCacheErrorMessage: getRiseCacheErrorMessage,
-    unescapeHTML: unescapeHTML,
-    hasInternetConnection: hasInternetConnection,
-    isLegacy: isLegacy
+    unescapeHTML:             unescapeHTML,
+    hasInternetConnection:    hasInternetConnection,
+    isLegacy:                 isLegacy
   };
 })();
 
@@ -934,7 +942,7 @@ RiseVision.Video = ( function( window, gadgets ) {
       _player.play();
     } else {
       if ( _currentFiles && _currentFiles.length > 0 ) {
-        _player = new RiseVision.Video.PlayerVJS( _additionalParams );
+        _player = new RiseVision.Video.PlayerVJS( _additionalParams, _mode );
         _player.init( _currentFiles );
       }
     }
@@ -1093,20 +1101,6 @@ RiseVision.Video.PlayerUtils = ( function() {
   /*
    *  Public  Methods
    */
-  function getPlaylist( list ) {
-    var i,
-      playlist = [];
-
-    for ( i = 0; i < list.length; i += 1 ) {
-      playlist.push( {
-        file: list[ i ],
-        type: this.getVideoFileType( list[ i ] )
-      } );
-    }
-
-    return playlist;
-  }
-
   function getVideoFileType( url ) {
     var extensions = [ ".mp4", ".webm" ],
       urlLowercase = url.toLowerCase(),
@@ -1115,7 +1109,7 @@ RiseVision.Video.PlayerUtils = ( function() {
 
     for ( i = 0; i <= extensions.length; i += 1 ) {
       if ( urlLowercase.indexOf( extensions[ i ] ) !== -1 ) {
-        type = extensions[ i ].substr( extensions[ i ].lastIndexOf( "." ) + 1 );
+        type = "video/" + extensions[ i ].substr( extensions[ i ].lastIndexOf( "." ) + 1 );
         break;
       }
     }
@@ -1124,7 +1118,6 @@ RiseVision.Video.PlayerUtils = ( function() {
   }
 
   return {
-    "getPlaylist": getPlaylist,
     "getVideoFileType": getVideoFileType
   };
 
@@ -1486,9 +1479,7 @@ RiseVision.Video.StorageFolder = function( data ) {
     storage.setAttribute( "companyId", data.storage.companyId );
     storage.setAttribute( "folder", data.storage.folder );
     storage.setAttribute( "env", config.STORAGE_ENV );
-
-    // TODO: VideoJS with storage files, temporarily prevent this code executing
-    //storage.go();
+    storage.go();
   }
 
   return {
@@ -1594,12 +1585,13 @@ var RiseVision = RiseVision || {};
 
 RiseVision.Video = RiseVision.Video || {};
 
-RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
+RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
   "use strict";
 
   var _autoPlay = false,
     _playerInstance = null,
     _files = null,
+    _fileCount = 0,
     _utils = RiseVision.Video.PlayerUtils,
     _updateWaiting = false,
     _isPaused = false,
@@ -1619,7 +1611,6 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
 
   function _getOptions() {
     return {
-      autoplay: _autoPlay,
       controls: params.video.controls,
       fluid: params.video.scaleToFit,
       height: params.height,
@@ -1639,25 +1630,68 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
     }
   }
 
+  function _onEnded() {
+    if ( mode === "file" ) {
+      RiseVision.Video.playerEnded();
+    } else if ( mode === "folder" ) {
+      _fileCount++;
+
+      if ( ( _fileCount >= _playerInstance.playlist().length ) ) {
+        _fileCount = 0;
+        _playerInstance.playlist.currentItem( 0 );
+        RiseVision.Video.playerEnded();
+      } else {
+        _playerInstance.playlist.next();
+      }
+    }
+  }
+
+  function _initPlaylist() {
+    var playlist = [],
+      playlistItem,
+      sources,
+      source;
+
+    _files.forEach( function addPlaylistItem( file ) {
+      sources = [];
+      source = {
+        src: file,
+        type: _utils.getVideoFileType( file )
+      };
+
+      sources.push( source );
+      playlistItem = { sources: sources };
+      playlist.push( playlistItem );
+    } );
+
+    _playerInstance.playlist( playlist );
+  }
+
   function _configureHandlers() {
     if ( params.video.controls && _pause > 1 ) {
       _playerInstance.on( "pause", _onPause );
     }
 
-    _playerInstance.on( "ended", RiseVision.Video.playerEnded );
+    _playerInstance.on( "ended", _onEnded );
+  }
+
+  function _setVolume() {
+    if ( params.video && ( typeof params.video.volume !== "undefined" )
+      && Number.isInteger( params.video.volume ) ) {
+      _playerInstance.volume( params.video.volume / 100 );
+    }
   }
 
   function _ready() {
     if ( _files && _files.length && _files.length > 0 ) {
-      // set the source
-      _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
-
-      if ( params.video && ( typeof params.video.volume !== "undefined" )
-        && Number.isInteger( params.video.volume ) ) {
-        _playerInstance.volume( params.video.volume / 100 );
+      if ( mode === "file" ) {
+        _playerInstance.src( { type: _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+      } else if ( mode === "folder" ) {
+        _initPlaylist();
       }
 
       _configureHandlers();
+      _setVolume();
 
       // notify that player is ready
       RiseVision.Video.playerReady();
@@ -1699,10 +1733,14 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
 
     if ( _updateWaiting ) {
       _updateWaiting = false;
-      // set a new source
 
+      // set a new source
       if ( _files && _files.length && _files.length > 0 ) {
-        _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+        if ( mode === "file" ) {
+          _playerInstance.src( { type: _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+        } else if ( mode === "folder" ) {
+          _initPlaylist();
+        }
       }
     }
 
@@ -1847,6 +1885,7 @@ RiseVision.Common.Message = function (mainContainer, messageContainer) {
           if ( !additionalParams.storage.fileName ) {
             // folder was selected
             mode = "folder";
+            RiseVision.Common.Utilities.loadScript( config.COMPONENTS_PATH + "videojs-playlist/dist/videojs-playlist.min.js" );
           } else {
             // file was selected
             mode = "file";

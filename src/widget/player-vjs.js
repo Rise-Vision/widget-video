@@ -4,12 +4,13 @@ var RiseVision = RiseVision || {};
 
 RiseVision.Video = RiseVision.Video || {};
 
-RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
+RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
   "use strict";
 
   var _autoPlay = false,
     _playerInstance = null,
     _files = null,
+    _fileCount = 0,
     _utils = RiseVision.Video.PlayerUtils,
     _updateWaiting = false,
     _isPaused = false,
@@ -29,7 +30,6 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
 
   function _getOptions() {
     return {
-      autoplay: _autoPlay,
       controls: params.video.controls,
       fluid: params.video.scaleToFit,
       height: params.height,
@@ -49,25 +49,68 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
     }
   }
 
+  function _onEnded() {
+    if ( mode === "file" ) {
+      RiseVision.Video.playerEnded();
+    } else if ( mode === "folder" ) {
+      _fileCount++;
+
+      if ( ( _fileCount >= _playerInstance.playlist().length ) ) {
+        _fileCount = 0;
+        _playerInstance.playlist.currentItem( 0 );
+        RiseVision.Video.playerEnded();
+      } else {
+        _playerInstance.playlist.next();
+      }
+    }
+  }
+
+  function _initPlaylist() {
+    var playlist = [],
+      playlistItem,
+      sources,
+      source;
+
+    _files.forEach( function addPlaylistItem( file ) {
+      sources = [];
+      source = {
+        src: file,
+        type: _utils.getVideoFileType( file )
+      };
+
+      sources.push( source );
+      playlistItem = { sources: sources };
+      playlist.push( playlistItem );
+    } );
+
+    _playerInstance.playlist( playlist );
+  }
+
   function _configureHandlers() {
     if ( params.video.controls && _pause > 1 ) {
       _playerInstance.on( "pause", _onPause );
     }
 
-    _playerInstance.on( "ended", RiseVision.Video.playerEnded );
+    _playerInstance.on( "ended", _onEnded );
+  }
+
+  function _setVolume() {
+    if ( params.video && ( typeof params.video.volume !== "undefined" )
+      && Number.isInteger( params.video.volume ) ) {
+      _playerInstance.volume( params.video.volume / 100 );
+    }
   }
 
   function _ready() {
     if ( _files && _files.length && _files.length > 0 ) {
-      // set the source
-      _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
-
-      if ( params.video && ( typeof params.video.volume !== "undefined" )
-        && Number.isInteger( params.video.volume ) ) {
-        _playerInstance.volume( params.video.volume / 100 );
+      if ( mode === "file" ) {
+        _playerInstance.src( { type: _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+      } else if ( mode === "folder" ) {
+        _initPlaylist();
       }
 
       _configureHandlers();
+      _setVolume();
 
       // notify that player is ready
       RiseVision.Video.playerReady();
@@ -109,10 +152,14 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params ) {
 
     if ( _updateWaiting ) {
       _updateWaiting = false;
-      // set a new source
 
+      // set a new source
       if ( _files && _files.length && _files.length > 0 ) {
-        _playerInstance.src( { type: "video/" + _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+        if ( mode === "file" ) {
+          _playerInstance.src( { type: _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+        } else if ( mode === "folder" ) {
+          _initPlaylist();
+        }
       }
     }
 

@@ -43,6 +43,11 @@ suite( "Storage Initialization - file added", function() {
     RiseVision.Video.onFileInit.restore();
   } );
 
+  test( "should load playlist script", function() {
+    assert.isNotNull( document.querySelector( "script[src='" + config.COMPONENTS_PATH +
+      "videojs-playlist/dist/videojs-playlist.min.js']" ) );
+  } );
+
   test( "should set fileType attribute of storage component", function() {
     assert.equal( storage.filetype, "video" );
   } );
