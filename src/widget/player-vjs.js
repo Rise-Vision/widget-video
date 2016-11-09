@@ -65,6 +65,13 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
     }
   }
 
+  function _onError() {
+
+    var error = _playerInstance.error();
+
+    RiseVision.Video.playerError( error );
+  }
+
   function _initPlaylist() {
     var playlist = [],
       playlistItem,
@@ -92,6 +99,7 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
     }
 
     _playerInstance.on( "ended", _onEnded );
+    _playerInstance.on( "error", _onError );
   }
 
   function _setVolume() {
