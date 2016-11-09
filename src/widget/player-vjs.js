@@ -67,9 +67,7 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
 
   function _onError() {
 
-    var error = _playerInstance.error();
-
-    RiseVision.Video.playerError( error );
+    RiseVision.Video.playerError( _playerInstance.error() );
   }
 
   function _initPlaylist() {
