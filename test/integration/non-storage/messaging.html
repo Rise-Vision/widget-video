@@ -114,7 +114,6 @@
       });
 
       test("should show MEDIA_ERR_ABORTED error message when file could not be played", function() {
-        console.log(MediaError.errorTypes);
         RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_ABORTED ], message:  defaultMessages[ MediaError.MEDIA_ERR_ABORTED ] });
 
         assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ MediaError.MEDIA_ERR_ABORTED ], "message text");
