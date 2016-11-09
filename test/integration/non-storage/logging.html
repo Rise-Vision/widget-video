@@ -151,7 +151,7 @@
         spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
 
         params.event = "player error";
-        params.event_details = null;
+        params.event_details = "MEDIA_ERR_UNKNOWN - Sorry, there was a problem playing the video.";
 
         RiseVision.Video.playerError();
 
@@ -162,9 +162,9 @@
       test("should log a player error with an error type", function() {
         spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
 
-        params.event_details = "setup";
+        params.event_details = "MEDIA_ERR_NETWORK - Sorry, there was a problem playing the video.";
 
-        RiseVision.Video.playerError({ "type": params.event_details });
+        RiseVision.Video.playerError({ "code": 2 });
 
         assert(spy.calledOnce);
         assert(spy.calledWith(table, params));
@@ -173,9 +173,9 @@
       test("should log a player error with an error message", function() {
         spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
 
-        params.event_details = "Error loading player: No media sources found";
+        params.event_details = "MEDIA_ERR_UNKNOWN - Any error message";
 
-        RiseVision.Video.playerError({ "message": params.event_details });
+        RiseVision.Video.playerError({ "message": "Any error message" });
 
         assert(spy.calledOnce);
         assert(spy.calledWith(table, params));
@@ -184,9 +184,9 @@
       test("should log a player error with an error type and message", function() {
         spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
 
-        params.event_details = "setup - Error loading player: No media sources found";
+        params.event_details = "MEDIA_ERR_NETWORK - A network error caused the media download to fail part-way.";
 
-        RiseVision.Video.playerError({ "type": "setup", "message": "Error loading player: No media sources found" });
+        RiseVision.Video.playerError({ "code": 2, "message": "A network error caused the media download to fail part-way." });
 
         assert(spy.calledOnce);
         assert(spy.calledWith(table, params));
@@ -194,7 +194,7 @@
 
       test("should not log a player error when done is fired if the error has resolved itself on a refresh", function() {
         // Force player error.
-        RiseVision.Video.playerError({ "type": "setup", "message": "Error loading player: No media sources found" });
+        RiseVision.Video.playerError({ "code": 2, "message": "A network error caused the media download to fail part-way." });
 
         // Resolve player error.
         RiseVision.Video.onFileRefresh(params.file_url);
@@ -215,10 +215,10 @@
         clock = sinon.useFakeTimers();
 
         params.event = "player error";
-        params.event_details = "setup - Error loading player: No media sources found";
+        params.event_details = "MEDIA_ERR_NETWORK - A network error caused the media download to fail part-way.";
 
         // Force "done" to fire by simulating a player error.
-        RiseVision.Video.playerError({ "type": "setup", "message": "Error loading player: No media sources found" });
+        RiseVision.Video.playerError({ "code": 2, "message": "A network error caused the media download to fail part-way." });
         spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
         clock.tick(5000);
 

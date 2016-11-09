@@ -90,42 +90,64 @@
     });
 
     suite("player error message", function() {
-      var FORMAT_MESSAGE = "There was a problem playing that video. It could be that we don't " +
-        "support that format or it is not encoded correctly.";
+       var errorTypes = [
+           'MEDIA_ERR_CUSTOM',
+           'MEDIA_ERR_ABORTED',
+           'MEDIA_ERR_NETWORK',
+           'MEDIA_ERR_DECODE',
+           'MEDIA_ERR_SRC_NOT_SUPPORTED',
+           'MEDIA_ERR_ENCRYPTED'
+         ],
+         defaultMessages = {
+           1: 'You aborted the media playback',
+           2: 'A network error caused the media download to fail part-way.',
+           3: 'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.',
+           4: 'The media could not be loaded, either because the server or network failed or because the format is not supported.',
+           5: 'The media is encrypted and we do not have the keys to decrypt it.'
+         };
 
-      test("should show playback error message", function() {
+      test("should show playback default error message", function() {
         RiseVision.Video.playerError();
 
         assert.equal(document.querySelector(".message").innerHTML, "Sorry, there was a problem playing the video.", "message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
 
-      test("should show format error message when file could not be played", function() {
-        RiseVision.Video.playerError({ "message": "Error loading media: File could not be played" });
+      test("should show MEDIA_ERR_ABORTED error message when file could not be played", function() {
+        console.log(MediaError.errorTypes);
+        RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_ABORTED ], message:  defaultMessages[ MediaError.MEDIA_ERR_ABORTED ] });
 
-        assert.equal(document.querySelector(".message").innerHTML, FORMAT_MESSAGE, "message text");
+        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ MediaError.MEDIA_ERR_ABORTED ], "message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
 
-      test("should show format error message when Youtube video could not be played", function() {
-        RiseVision.Video.playerError({ "message": "Error loading YouTube: Video could not be played" });
+      test("should show MEDIA_ERR_NETWORK error message when file could not be played", function() {
+        RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_NETWORK ], message:  defaultMessages[ MediaError.MEDIA_ERR_NETWORK ] });
 
-        assert.equal(document.querySelector(".message").innerHTML, FORMAT_MESSAGE, "message text");
+        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ MediaError.MEDIA_ERR_NETWORK ], "message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
 
 
-      test("should show appropriate error message when no media sources are found", function() {
-        RiseVision.Video.playerError({ "message": "Error loading player: No media sources found" });
+      test("should show MEDIA_ERR_DECODE error message when file could not be played", function() {
+        RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_DECODE ], message:  defaultMessages[ MediaError.MEDIA_ERR_DECODE ] });
 
-        assert.equal(document.querySelector(".message").innerHTML, "The format of that video is not supported", "message text");
+        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ MediaError.MEDIA_ERR_DECODE ], "message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
 
-      test("should show appropriate error message when no playable sources are found", function() {
-        RiseVision.Video.playerError({ "message": "Error loading playlist: No playable sources found" });
+      test("should show MEDIA_ERR_SRC_NOT_SUPPORTED error message when file could not be played", function() {
+        RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED ], message:  defaultMessages[ MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED ] });
 
-        assert.equal(document.querySelector(".message").innerHTML, "The format of that video is not supported", "message text");
+        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED], "message text");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
+      });
+
+      test("should show MEDIA_ERR_ENCRYPTED error message when file could not be played", function() {
+        // Used digit 5 here because of a bug on the MediaError. It is not prototyping the MEDIA_ERR_ENCRYPTED type.
+        RiseVision.Video.playerError({ type: errorTypes[ 5 ], message:  defaultMessages[ 5 ] });
+
+        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ 5 ], "message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
 

@@ -308,12 +308,12 @@ RiseVision.Video = ( function( window, gadgets ) {
       type = "MEDIA_ERR_UNKNOWN",
       errorMessage = "Sorry, there was a problem playing the video.",
       errorTypes = [
-        "MEDIA_ERR_CUSTOM",            // = 0
-        "MEDIA_ERR_ABORTED",           // = 1
-        "MEDIA_ERR_NETWORK",           // = 2
-        "MEDIA_ERR_DECODE",            // = 3
-        "MEDIA_ERR_SRC_NOT_SUPPORTED", // = 4
-        "MEDIA_ERR_ENCRYPTED"          // = 5
+        "MEDIA_ERR_CUSTOM",
+        "MEDIA_ERR_ABORTED",
+        "MEDIA_ERR_NETWORK",
+        "MEDIA_ERR_DECODE",
+        "MEDIA_ERR_SRC_NOT_SUPPORTED",
+        "MEDIA_ERR_ENCRYPTED"
       ];
 
     if ( error ) {
