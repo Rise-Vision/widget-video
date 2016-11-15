@@ -302,44 +302,31 @@ RiseVision.Video = ( function( window, gadgets ) {
     _ready();
   }
 
-  // An error occurred with JW Player.
+  // An error occurred with Player.
   function playerError( error ) {
-    var details = null,
-      params = {},
-      message = "Sorry, there was a problem playing the video.",
-      MEDIA_ERROR = "Error loading media: File could not be played",
-      YOUTUBE_ERROR = "Error loading YouTube: Video could not be played",
-      PLAYER_ERROR = "Error loading player: No media sources found",
-      PLAYLIST_ERROR = "Error loading playlist: No playable sources found",
-      ENCODING_MESSAGE = "There was a problem playing that video. It could be that we don't " +
-        "support that format or it is not encoded correctly.",
-      FORMAT_MESSAGE = "The format of that video is not supported";
+    var params = {},
+      type = "MEDIA_ERR_UNKNOWN",
+      errorMessage = "Sorry, there was a problem playing the video.",
+      errorTypes = [
+        "MEDIA_ERR_CUSTOM",
+        "MEDIA_ERR_ABORTED",
+        "MEDIA_ERR_NETWORK",
+        "MEDIA_ERR_DECODE",
+        "MEDIA_ERR_SRC_NOT_SUPPORTED",
+        "MEDIA_ERR_ENCRYPTED"
+      ];
 
     if ( error ) {
-      if ( error.type && error.message ) {
-        details = error.type + " - " + error.message;
-      } else if ( error.type ) {
-        details = error.type;
-      } else if ( error.message ) {
-        details = error.message;
-      }
-
-      // Display appropriate on-screen error message.
-      if ( error.message ) {
-        if ( ( error.message === MEDIA_ERROR ) || ( error.message === YOUTUBE_ERROR ) ) {
-          message = ENCODING_MESSAGE;
-        } else if ( error.message === PLAYER_ERROR || error.message === PLAYLIST_ERROR ) {
-          message = FORMAT_MESSAGE;
-        }
-      }
+      type = errorTypes[ error.code ] || type;
+      errorMessage = error.message || errorMessage;
     }
 
     params.event = "player error";
-    params.event_details = details;
+    params.event_details = type + " - " + errorMessage;
     _playerErrorFlag = true;
 
     logEvent( params, true );
-    showError( message );
+    showError( errorMessage );
   }
 
   function stop() {
