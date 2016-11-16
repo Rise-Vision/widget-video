@@ -1,4 +1,4 @@
-/* global requests, suiteSetup, suite, test, assert, RiseVision, sinon */
+/* global requests, suiteSetup, suiteTeardown, suite, test, assert, RiseVision, sinon */
 
 /* eslint-disable func-names */
 
@@ -97,7 +97,11 @@ suite( "storage api error", function() {
 } );
 
 suite( "normal storage response", function() {
+  var playerSpy;
+
   suiteSetup( function() {
+    playerSpy = sinon.spy( RiseVision.Video, "PlayerVJS" );
+
     storage.dispatchEvent( new CustomEvent( "rise-storage-response", {
       "detail": {
         "added": true,
@@ -108,9 +112,14 @@ suite( "normal storage response", function() {
     } ) );
   } );
 
+  suiteTeardown( function() {
+    playerSpy.restore();
+  } );
+
   test( "should not show a message", function() {
     assert.isTrue( ( document.getElementById( "container" ).style.display === "block" ), "video container is showing" );
     assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "none" ), "message container is hidden" );
+    assert.isTrue( playerSpy.calledOnce, "No error flags preventing PlayerVJS instance from being created" );
   } );
 } );
 

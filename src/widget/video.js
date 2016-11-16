@@ -75,6 +75,14 @@ RiseVision.Video = ( function( window, gadgets ) {
     return null;
   }
 
+  function _resetErrorFlags() {
+    _errorFlag = false;
+    _playerErrorFlag = false;
+    _storageErrorFlag = false;
+    _unavailableFlag = false;
+    _errorLog = null;
+  }
+
   /*
    *  Public Methods
    */
@@ -122,7 +130,7 @@ RiseVision.Video = ( function( window, gadgets ) {
       _currentFiles = urls;
     }
 
-    _unavailableFlag = false;
+    _resetErrorFlags();
 
     _message.hide();
 
@@ -145,11 +153,7 @@ RiseVision.Video = ( function( window, gadgets ) {
     }
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
-    _errorFlag = false;
-    _playerErrorFlag = false;
-    _storageErrorFlag = false;
-    _unavailableFlag = false;
-    _errorLog = null;
+    _resetErrorFlags();
   }
 
   function onFileUnavailable( message ) {
