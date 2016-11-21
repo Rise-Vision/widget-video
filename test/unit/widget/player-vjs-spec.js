@@ -27,6 +27,8 @@ var videoJSObj =
     return videoJSObj;
   };
 
+videojs.options = { children: [] };
+
 describe( "init()", function() {
   var params =
     {

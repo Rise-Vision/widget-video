@@ -140,7 +140,23 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
       _pause = 0;
     }
 
+    _removeLoadingSpinner();
+
     _playerInstance = videojs( "player", _getOptions(), _ready );
+  }
+
+
+  /*
+    Remove the loading spinner from the video js components list. It is not a well defined way to do that by the api.
+    it is more a of hack so it could break if they change something in the future.
+    See code here https://github.com/videojs/video.js/blob/f05a9271b831ad11c54f36bca1f6e1a822b15942/src/js/player.js#L2776
+   */
+  function _removeLoadingSpinner() {
+    var loadingSpinnerIndex = videojs.options.children.indexOf( "loadingSpinner" );
+
+    if ( loadingSpinnerIndex > -1 ) {
+      videojs.options.children.splice( loadingSpinnerIndex, 1 );
+    }
   }
 
   function pause() {
