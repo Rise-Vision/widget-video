@@ -140,7 +140,21 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
       _pause = 0;
     }
 
+
     _playerInstance = videojs( "player", _getOptions(), _ready );
+
+    _removeLoadingSpinner();
+
+  }
+
+
+  /*
+    Remove the loading spinner using video js api
+   */
+  function _removeLoadingSpinner() {
+    var loadingSpinnerComponent = _playerInstance.getChild( "loadingSpinner" );
+
+    _playerInstance.removeChild( loadingSpinnerComponent );
   }
 
   function pause() {

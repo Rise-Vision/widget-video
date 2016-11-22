@@ -5,7 +5,8 @@
 
 "use strict";
 
-var videoJSObj =
+var loadSpinnerComponent,
+  videoJSObj =
   {
     src: function() {},
     options: function() {},
@@ -14,7 +15,11 @@ var videoJSObj =
     play: function() {},
     remainingTime: function() {},
     currentTime: function() {},
-    on: function() {}
+    on: function() {},
+    getChild: function() {
+      return loadSpinnerComponent
+    },
+    removeChild: function() {}
   },
   videojs = function( tag, opts, cb ) {
     videoJSObj.options( opts );
@@ -45,10 +50,14 @@ describe( "init()", function() {
       "https://test.com/test%2Fvideos%2Fvideo1.webm"
     ],
     optionsSpy,
+    getChildSpy,
+    removeChildSpy,
     srcSpy;
 
   before( function() {
     optionsSpy = sinon.spy( videoJSObj, "options" );
+    getChildSpy = sinon.spy( videoJSObj, "getChild" );
+    removeChildSpy = sinon.spy( videoJSObj, "removeChild" );
     srcSpy = sinon.spy( videoJSObj, "src" );
   } );
 
@@ -68,6 +77,10 @@ describe( "init()", function() {
       height: params.height,
       width: params.width
     } );
+
+    expect( getChildSpy ).to.have.been.calledWith( "loadingSpinner" );
+
+    expect( removeChildSpy ).to.have.been.calledWith( loadSpinnerComponent );
 
     // delay for callback execution
     setTimeout( function() {

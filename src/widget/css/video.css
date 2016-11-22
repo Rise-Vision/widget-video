@@ -51,7 +51,7 @@ body {
 
 /* Hide buffer spinner */
 .video-js .vjs-loading-spinner {
-  display: none;
+  display: none !important;
 }
 
 .vjs-nofull .vjs-fullscreen-control {
