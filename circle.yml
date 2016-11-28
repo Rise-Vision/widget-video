@@ -59,4 +59,5 @@ deployment:
       - echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME
       - $awscli s3 ls s3://$BUCKET_NAME || ($awscli s3 mb s3://$BUCKET_NAME && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
       - $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+      - tar czvf dist.tar.gz dist
       - ssh widget-memory-tester@104.197.26.57 'cd widget-memory-tester; DISPLAY=:10 DISPLAY_ID=MGAU442Y3CV9 RUNNING_TIME=3600000 gulp test > /dev/null &'
