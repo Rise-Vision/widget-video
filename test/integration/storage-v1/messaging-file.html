@@ -44,12 +44,12 @@
 <script src="../../data/storage-file.js"></script>
 <script src="../js/messaging-file.js"></script>
 <script>
-  sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode) {
+  sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode, displayId) {
     storage = document.querySelector("rise-storage");
     ready = true;
 
     RiseVision.Video.setAdditionalParams.restore();
-    RiseVision.Video.setAdditionalParams(params, mode);
+    RiseVision.Video.setAdditionalParams(params, mode, displayId);
   });
 </script>
 

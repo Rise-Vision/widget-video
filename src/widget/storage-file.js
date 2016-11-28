@@ -4,7 +4,7 @@ var RiseVision = RiseVision || {};
 
 RiseVision.Video = RiseVision.Video || {};
 
-RiseVision.Video.StorageFile = function( data ) {
+RiseVision.Video.StorageFile = function( data, displayId ) {
   "use strict";
 
   var _initialLoad = true,
@@ -138,6 +138,7 @@ RiseVision.Video.StorageFile = function( data ) {
     storage.setAttribute( "folder", data.storage.folder );
     storage.setAttribute( "fileName", data.storage.fileName );
     storage.setAttribute( "companyId", data.storage.companyId );
+    storage.setAttribute( "displayId", displayId );
     storage.setAttribute( "env", config.STORAGE_ENV );
 
     storage.go();

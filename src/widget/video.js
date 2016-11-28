@@ -9,6 +9,7 @@ RiseVision.Video = ( function( window, gadgets ) {
 
   var _additionalParams,
     _mode,
+    _displayId,
     _isLoading = true,
     _configDetails = null,
     _prefs = null,
@@ -252,11 +253,12 @@ RiseVision.Video = ( function( window, gadgets ) {
     _currentPlaylistIndex = index;
   }
 
-  function setAdditionalParams( params, mode ) {
+  function setAdditionalParams( params, mode, displayId ) {
     var isStorageFile;
 
     _additionalParams = _.clone( params );
     _mode = mode;
+    _displayId = displayId;
     _prefs = new gadgets.Prefs();
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
@@ -291,14 +293,14 @@ RiseVision.Video = ( function( window, gadgets ) {
           _configDetails = "storage file";
 
           // create and initialize the Storage file instance
-          _storage = new RiseVision.Video.StorageFile( _additionalParams );
+          _storage = new RiseVision.Video.StorageFile( _additionalParams, _displayId );
           _storage.init();
         }
       } else if ( _mode === "folder" ) {
         _configDetails = "storage folder";
 
         // create and initialize the Storage folder instance
-        _storage = new RiseVision.Video.StorageFolder( _additionalParams );
+        _storage = new RiseVision.Video.StorageFolder( _additionalParams, _displayId );
         _storage.init();
       }
     }
