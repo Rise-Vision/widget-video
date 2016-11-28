@@ -60,6 +60,10 @@ suite( "Storage Initialization - file added", function() {
     assert.equal( storage.companyid, "b428b4e8-c8b9-41d5-8a10-b4193c789443" );
   } );
 
+  test( "should set displayid attribute of storage component", function() {
+    assert.equal( storage.displayid, "\"displayId\"" );
+  } );
+
   test( "should set env attribute of storage component", function() {
     assert.equal( storage.env, config.STORAGE_ENV );
   } );

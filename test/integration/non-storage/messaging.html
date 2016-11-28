@@ -56,13 +56,13 @@
       }
     }, paramsStub, ready = false;
 
-    paramsStub = sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode) {
+    paramsStub = sinon.stub(RiseVision.Video, "setAdditionalParams", function (params, mode, displayId) {
       ready = true;
 
       // restore the function
       paramsStub.restore();
       // call it again with the params
-      RiseVision.Video.setAdditionalParams(params, mode);
+      RiseVision.Video.setAdditionalParams(params, mode, displayId);
     });
 
     suiteSetup(function(done) {
