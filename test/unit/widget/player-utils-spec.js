@@ -27,3 +27,20 @@ describe( "getVideoFileType()", function() {
   } );
 
 } );
+
+describe( "getAspectRatio()", function() {
+  var utils = RiseVision.Video.PlayerUtils;
+
+  it( "should return 4:3 aspect ratio ", function() {
+    expect( utils.getAspectRatio( 1280, 960 ) ).to.equal( "4:3" );
+  } );
+
+  it( "should return 16:9 aspect ratio ", function() {
+    expect( utils.getAspectRatio( 640, 360 ) ).to.equal( "16:9" );
+  } );
+
+  it( "should return 5:4 aspect ratio ", function() {
+    expect( utils.getAspectRatio( 1280, 1024 ) ).to.equal( "5:4" );
+  } );
+
+} );

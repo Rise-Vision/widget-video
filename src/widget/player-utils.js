@@ -24,7 +24,21 @@ RiseVision.Video.PlayerUtils = ( function() {
     return type;
   }
 
+  function getAspectRatio( width, height ) {
+
+    var r;
+
+    function gcd( a, b ) {
+      return ( b == 0 ) ? a : gcd( b, a % b );
+    }
+
+    r = gcd( width, height );
+
+    return width / r + ":" + height / r;
+  }
+
   return {
+    "getAspectRatio": getAspectRatio,
     "getVideoFileType": getVideoFileType
   };
 
