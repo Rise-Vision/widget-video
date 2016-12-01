@@ -70,6 +70,23 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
     RiseVision.Video.playerError( _playerInstance.error() );
   }
 
+  function _onLoadedMetaData() {
+    // Log aspect event
+    RiseVision.Video.logEvent( {
+      event: "aspect",
+      event_details: JSON.stringify( {
+        placeholderWidth: params.width,
+        placeholderHeight: params.height,
+        placeholderAspect: _utils.getAspectRatio( params.width, params.height ),
+        videoWidth: _playerInstance.videoWidth(),
+        videoHeight: _playerInstance.videoHeight(),
+        videoAspect: _utils.getAspectRatio( _playerInstance.videoWidth(), _playerInstance.videoHeight() ),
+        scaleToFit: params.video.scaleToFit
+      } ),
+      file_url: _playerInstance.currentSrc()
+    }, false );
+  }
+
   function _initPlaylist() {
     var playlist = [],
       playlistItem,
@@ -98,6 +115,7 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
 
     _playerInstance.on( "ended", _onEnded );
     _playerInstance.on( "error", _onError );
+    _playerInstance.on( "loadedmetadata", _onLoadedMetaData );
   }
 
   function _setVolume() {
