@@ -125,10 +125,24 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
 
       var params = {
         "event": "rise cache not running",
-        "event_details": ( e.detail && e.detail.error ) ? e.detail.error.message : ""
+        "event_details": ""
       };
 
+      if ( e.detail ) {
+        if ( e.detail.error ) {
+          // storage v1
+          params.event_details = e.detail.error.message;
+        } else if ( e.detail.resp && e.detail.resp.error ) {
+          // storage v2
+          params.event_details = e.detail.resp.error.message;
+        }
+      }
+
       RiseVision.Video.logEvent( params, true );
+
+      if ( e.detail && e.detail.isPlayerRunning ) {
+        RiseVision.Video.showError( "Waiting for Rise Cache" );
+      }
     } );
 
     storage.addEventListener( "rise-cache-file-unavailable", function() {
