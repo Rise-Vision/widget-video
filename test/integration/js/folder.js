@@ -1,4 +1,4 @@
-/* global requests, suiteSetup, suite, suiteTeardown, test, assert, RiseVision, sinon, config */
+/* global requests, suiteSetup, suite, suiteTeardown, setup, teardown, test, assert, RiseVision, sinon, config */
 
 /* eslint-disable func-names */
 
@@ -235,4 +235,62 @@ suite( "Network Recovery", function() {
     RiseVision.Video.onFileRefresh.restore();
   } );
 
+} );
+
+suite( "storage errors", function() {
+  var params = { "event": "" },
+    onShowErrorStub,
+    onLogEventStub;
+
+  setup( function() {
+    onShowErrorStub = sinon.stub( RiseVision.Video, "showError", function() {} );
+    onLogEventStub = sinon.stub( RiseVision.Video, "logEvent", function() {} );
+  } );
+
+  teardown( function() {
+    delete params.url;
+    delete params.event_details;
+
+    RiseVision.Video.showError.restore();
+    RiseVision.Video.logEvent.restore();
+  } );
+
+  test( "should handle when a 'rise cache not running' occurs", function() {
+    params.event = "rise cache not running";
+    params.event_details = "The request failed with status code: 404";
+
+    delete params.file_url;
+
+    if ( isV2Running ) {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {
+        "detail": {
+          "resp": {
+            "error": {
+              "message": "The request failed with status code: 404"
+            }
+          },
+          "isPlayerRunning": true
+        },
+        "bubbles": true
+      } ) );
+
+      assert( onShowErrorStub.calledOnce, "showError() called once" );
+      assert( onShowErrorStub.calledWith( "Waiting for Rise Cache" ),
+        "showError() called with correct message" );
+
+    } else {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {
+        "detail": {
+          "error": {
+            "message": "The request failed with status code: 404"
+          }
+        },
+        "bubbles": true
+      } ) );
+    }
+
+    assert( onLogEventStub.calledOnce, "logEvent() called once" );
+    assert( onLogEventStub.calledWith( params, true ), "logEvent() called with correct params" );
+
+  } );
 } );
