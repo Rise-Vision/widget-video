@@ -230,3 +230,52 @@ suite( "rise cache error", function() {
     RiseVision.Video.play.restore();
   } );
 } );
+
+suite( "rise cache not running", function() {
+  test( "should show rise cache not running message using rise-storage v2", function() {
+    if ( isV2Running ) {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {
+        "detail": {
+          "resp": {
+            "error": {
+              "message": "The request failed with status code: 404"
+            }
+          },
+          "isPlayerRunning": true
+        },
+        "bubbles": true
+      } ) );
+
+      assert.equal( document.querySelector( ".message" ).innerHTML, "Waiting for Rise Cache", "message text" );
+      assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "block" ), "message visibility" );
+    }
+  } );
+
+  test( "should call play function 5 seconds after a rise cache not running error using rise-storage v2", function() {
+    var clock = sinon.useFakeTimers(),
+      spy = sinon.spy( RiseVision.Video, "play" );
+
+    if ( isV2Running ) {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {
+        "detail": {
+          "resp": {
+            "error": {
+              "message": "The request failed with status code: 404"
+            }
+          },
+          "isPlayerRunning": true
+        },
+        "bubbles": true
+      } ) );
+
+      clock.tick( 4500 );
+      assert( spy.notCalled );
+      clock.tick( 500 );
+      assert( spy.calledOnce );
+
+      clock.restore();
+      RiseVision.Video.play.restore();
+    }
+
+  } );
+} );

@@ -184,7 +184,17 @@ suite( "rise storage error", function() {
   test( "should log a rise cache not running when ping response is empty", function() {
     spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
 
-    storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", null ) );
+    if ( isV2Running ) {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {
+        "detail": {
+          "resp": null,
+          "isPlayerRunning": true
+        },
+        "bubbles": true
+      } ) );
+    } else {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", null ) );
+    }
 
     params.event = "rise cache not running";
     params.event_details = "";
@@ -196,14 +206,28 @@ suite( "rise storage error", function() {
   test( "should log a rise cache not running when ping response is 404", function() {
     spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
 
-    storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {
-      "detail": {
-        "error": {
-          "message": "The request failed with status code: 404"
-        }
-      },
-      "bubbles": true
-    } ) );
+    if ( isV2Running ) {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {
+        "detail": {
+          "resp": {
+            "error": {
+              "message": "The request failed with status code: 404"
+            }
+          },
+          "isPlayerRunning": true
+        },
+        "bubbles": true
+      } ) );
+    } else {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {
+        "detail": {
+          "error": {
+            "message": "The request failed with status code: 404"
+          }
+        },
+        "bubbles": true
+      } ) );
+    }
 
     params.event = "rise cache not running";
     params.event_details = "The request failed with status code: 404";
