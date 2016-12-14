@@ -272,10 +272,47 @@ suite( "rise cache not running", function() {
       assert( spy.notCalled );
       clock.tick( 500 );
       assert( spy.calledOnce );
-
-      clock.restore();
-      RiseVision.Video.play.restore();
     }
 
+    clock.restore();
+    RiseVision.Video.play.restore();
+
+  } );
+} );
+
+suite( "cache folder unavailable", function() {
+
+  test( "should show folder unavailable message", function() {
+    storage.dispatchEvent( new CustomEvent( "rise-cache-folder-unavailable", {
+      "detail": {
+        "status": 202,
+        "message": "File is downloading"
+      },
+      "bubbles": true
+    } ) );
+
+    assert.equal( document.querySelector( ".message" ).innerHTML, "Files are downloading", "message text" );
+    assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "block" ), "message visibility" );
+  } );
+
+  test( "should call play function 5 seconds after a folder unavailable", function() {
+    var clock = sinon.useFakeTimers(),
+      spy = sinon.spy( RiseVision.Video, "play" );
+
+    storage.dispatchEvent( new CustomEvent( "rise-cache-folder-unavailable", {
+      "detail": {
+        "status": 202,
+        "message": "File is downloading"
+      },
+      "bubbles": true
+    } ) );
+
+    clock.tick( 4500 );
+    assert( spy.notCalled );
+    clock.tick( 500 );
+    assert( spy.calledOnce );
+
+    clock.restore();
+    RiseVision.Video.play.restore();
   } );
 } );
