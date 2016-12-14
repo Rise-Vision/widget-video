@@ -203,6 +203,10 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
       }
     } );
 
+    storage.addEventListener( "rise-cache-folder-unavailable", function() {
+      RiseVision.Video.onFileUnavailable( "Files are downloading" );
+    } );
+
     storage.setAttribute( "fileType", "video" );
     storage.setAttribute( "companyId", data.storage.companyId );
     storage.setAttribute( "displayId", displayId );
@@ -211,7 +215,18 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
     storage.go();
   }
 
+  function retry() {
+    var storage = document.getElementById( "videoStorage" );
+
+    if ( !storage ) {
+      return;
+    }
+
+    storage.go();
+  }
+
   return {
-    "init": init
+    "init": init,
+    "retry": retry
   };
 };
