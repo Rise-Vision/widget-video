@@ -231,22 +231,40 @@ suite( "Storage Errors", function() {
 
   test( "should handle when a rise cache error occurs", function() {
     params.event = "rise cache error";
-    params.event_details = "The request failed with status code: 500";
 
-    storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
-      "detail": {
-        "error": {
-          "message": "The request failed with status code: 500"
-        }
-      },
-      "bubbles": true
-    } ) );
+    if ( isV2Running ) {
+      params.event_details = "The request failed with status code: 502";
+
+      storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
+        "detail": {
+          "error": {
+            "message": "The request failed with status code: 502"
+          }
+        },
+        "bubbles": true
+      } ) );
+
+      assert( onShowErrorStub.calledWith( "There was a problem retrieving the file." ),
+        "showError() called with correct message" );
+    } else {
+      params.event_details = "The request failed with status code: 500";
+
+      storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
+        "detail": {
+          "error": {
+            "message": "The request failed with status code: 500"
+          }
+        },
+        "bubbles": true
+      } ) );
+
+      assert( onShowErrorStub.calledWith( "There was a problem retrieving the file from Rise Cache." ),
+        "showError() called with correct message" );
+    }
 
     assert( onLogEventStub.calledOnce, "logEvent() called once" );
     assert( onLogEventStub.calledWith( params, true ), "logEvent() called with correct params" );
     assert( onShowErrorStub.calledOnce, "showError() called once" );
-    assert( onShowErrorStub.calledWith( "There was a problem retrieving the file from Rise Cache." ),
-      "showError() called with correct message" );
   } );
 
   test( "should handle when a 'rise cache not running' occurs", function() {
