@@ -167,31 +167,61 @@ suite( "storage error", function() {
 
 suite( "rise cache error", function() {
   test( "should show rise cache error message", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
-      "detail": {
-        "error": {
-          "message": "The request failed with status code: 500"
-        }
-      },
-      "bubbles": true
-    } ) );
+    if ( isV2Running ) {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
+        "detail": {
+          "error": {
+            "message": "The request failed with status code: 502"
+          }
+        },
+        "bubbles": true
+      } ) );
 
-    assert.equal( document.querySelector( ".message" ).innerHTML, "There was a problem retrieving the file from Rise Cache.", "message text" );
-    assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "block" ), "message visibility" );
+      assert.equal( document.querySelector( ".message" ).innerHTML,
+        "There was a problem retrieving the file.", "message text" );
+    } else {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
+        "detail": {
+          "error": {
+            "message": "The request failed with status code: 500"
+          }
+        },
+        "bubbles": true
+      } ) );
+
+      assert.equal( document.querySelector( ".message" ).innerHTML,
+        "There was a problem retrieving the file from Rise Cache.", "message text" );
+    }
+
+    assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "block" ),
+        "message visibility" );
   } );
 
   test( "should show rise cache error message for 404 status", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
-      "detail": {
-        "error": {
-          "message": "The request failed with status code: 404"
-        }
-      },
-      "bubbles": true
-    } ) );
+    if ( isV2Running ) {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
+        "detail": {
+          "error": {
+            "message": "The request failed with status code: 534"
+          }
+        },
+        "bubbles": true
+      } ) );
+    } else {
+      storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
+        "detail": {
+          "error": {
+            "message": "The request failed with status code: 404"
+          }
+        },
+        "bubbles": true
+      } ) );
+    }
 
-    assert.equal( document.querySelector( ".message" ).innerHTML, "The file does not exist or cannot be accessed.", "message text" );
-    assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "block" ), "message visibility" );
+    assert.equal( document.querySelector( ".message" ).innerHTML,
+      "The file does not exist or cannot be accessed.", "message text" );
+    assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "block" ),
+      "message visibility" );
   } );
 
   test( "should show rise cache error message for 507 status", function() {
