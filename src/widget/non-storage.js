@@ -47,19 +47,21 @@ RiseVision.Video.NonStorage = function( data ) {
             "file_url": response.url
           }, true );
 
-          if ( riseCache.isV2Running() ) {
-            errorMessage = riseCache.getErrorMessage( statusCode );
-          } else {
-            // Show a different message if there is a 404 coming from rise cache
+          riseCache.isV2Running( function showError( isV2 ) {
             if ( error.message ) {
               statusCode = +error.message.substring( error.message.indexOf( ":" ) + 2 );
             }
 
-            errorMessage = utils.getRiseCacheErrorMessage( statusCode );
-          }
+            if ( isV2 ) {
+              errorMessage = riseCache.getErrorMessage( statusCode );
+            // Show a different message if there is a 404 coming from rise cache
+            } else {
+              errorMessage = utils.getRiseCacheErrorMessage( statusCode );
+            }
 
-          // show the error
-          RiseVision.Video.showError( errorMessage );
+            // show the error
+            RiseVision.Video.showError( errorMessage );
+          } );
         }
       }
     }, omitCacheBuster );
