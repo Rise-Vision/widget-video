@@ -241,6 +241,31 @@
         assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "file is downloading message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
+
+      test( "should not show File is downloading message when retry RC and response is 200", function() {
+        var spy = sinon.spy(RiseVision.Video, "play");
+
+        requests[1].respond(202); // HEAD request
+        clock.tick(3000);
+        requests[2].respond(202); // HEAD request
+        clock.tick(3000);
+        requests[3].respond(202); // HEAD request
+        assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "file is downloading message text");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
+
+        // bypass error timer
+        clock.tick(5000);
+
+        // error flags are set so play() call won't execute non-storage retry(), force it instead
+        nonStorage.retry();
+        requests[4].respond(200);
+
+        assert.isTrue((document.getElementById("container").style.display === "block"), "video container is showing");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "none"), "message container is hidden");
+        assert.isTrue(spy.calledOnce);
+
+        spy.restore();
+      } );
     });
   });
 </script>
