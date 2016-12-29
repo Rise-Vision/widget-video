@@ -169,7 +169,7 @@
     suite("non-storage error message", function() {
       var nonStorage = new RiseVision.Video.NonStorage({ "url": "http://www.test.com/test.jpg" }),
         riseCache = RiseVision.Common.RiseCache,
-        xhr, clock, requests;
+        xhr, clock, requests, spy;
 
       suiteSetup(function() {
         xhr = sinon.useFakeXMLHttpRequest();
@@ -186,6 +186,7 @@
       setup(function() {
         requests = [];
         clock = sinon.useFakeTimers();
+        spy = sinon.spy(RiseVision.Video, "play");
 
         riseCache.ping(function(){});
         requests[0].respond(200);
@@ -195,6 +196,7 @@
 
       teardown(function () {
         clock.restore();
+        spy.restore();
       });
 
       test("should show non-storage error message", function() {
@@ -219,15 +221,12 @@
       });
 
       test("should call play function 5 seconds after a non-storage error", function() {
-        var spy = sinon.spy(RiseVision.Video, "play");
         requests[1].respond(0); // HEAD request
         requests[2].respond(0); // GET request
         clock.tick(4500);
         assert(spy.notCalled);
         clock.tick(500);
         assert(spy.calledOnce);
-
-        RiseVision.Video.play.restore();
       });
 
       test("should show File is downloaidng message when RC responds with a 202 for 3 consecutive times", function() {
@@ -241,6 +240,27 @@
         assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "file is downloading message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
       });
+
+      test( "should not show File is downloading message when retry RC and response is 200", function() {
+        requests[1].respond(202); // HEAD request
+        clock.tick(3000);
+        requests[2].respond(202); // HEAD request
+        clock.tick(3000);
+        requests[3].respond(202); // HEAD request
+        assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "file is downloading message text");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
+
+        // bypass error timer
+        clock.tick(5000);
+
+        // error flags are set so play() call won't execute non-storage retry(), force it instead
+        nonStorage.retry();
+        requests[4].respond(200);
+
+        assert.isTrue((document.getElementById("container").style.display === "block"), "video container is showing");
+        assert.isTrue((document.getElementById("messageContainer").style.display === "none"), "message container is hidden");
+        assert.isTrue(spy.calledOnce);
+      } );
     });
   });
 </script>

@@ -87,7 +87,12 @@ RiseVision.Video.NonStorage = function( data ) {
     _getFile( true );
   }
 
+  function retry() {
+    _getFile( false );
+  }
+
   return {
-    "init": init
+    "init": init,
+    "retry": retry
   };
 };
