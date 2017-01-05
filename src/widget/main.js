@@ -80,7 +80,7 @@
   }
 
   // check which version of Rise Cache is running and dynamically add rise-storage dependencies
-  RiseVision.Common.RiseCache.isV2Running( function( isV2 ) {
+  RiseVision.Common.RiseCache.isRCV2Player( function( isV2 ) {
     var fragment = document.createDocumentFragment(),
       link = document.createElement( "link" ),
       webcomponents = document.createElement( "script" ),

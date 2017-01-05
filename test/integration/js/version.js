@@ -17,7 +17,7 @@ sinon.stub( RiseVision.Common.RiseCache, "isV2Running", function( callback ) {
   sinon.stub( RiseVision.Video, "setAdditionalParams" );
 
   RiseVision.Common.RiseCache.isV2Running.restore();
-  RiseVision.Common.RiseCache.isV2Running( callback );
+  RiseVision.Common.RiseCache.isRCV2Player( callback );
 } );
 
 suiteSetup( function() {
