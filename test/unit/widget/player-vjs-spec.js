@@ -73,7 +73,7 @@ describe( "init()", function() {
 
     expect( optionsSpy ).to.have.been.calledWith( {
       controls: true,
-      fluid: true,
+      fluid: false,
       height: params.height,
       width: params.width
     } );
