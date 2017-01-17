@@ -201,7 +201,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
       RiseVision.Video.logEvent( params, true );
 
       if ( e.detail && e.detail.isPlayerRunning ) {
-        RiseVision.Video.showError( "Waiting for Rise Cache" );
+        RiseVision.Video.showError( "Waiting for Rise Cache", true );
       }
     } );
 
