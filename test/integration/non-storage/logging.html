@@ -283,7 +283,7 @@
 
         params.event = "non-storage error";
         params.event_details = "The request failed with status code: 0";
-        params.file_url = "//localhost:9494/?url=http%3A%2F%2Fs3.amazonaws.com%2Fstu-testing%2Fsample_videos%2Fbig-buck-bunny_trailer.webm";
+        params.file_url = "http://localhost:9494/?url=http%3A%2F%2Fs3.amazonaws.com%2Fstu-testing%2Fsample_videos%2Fbig-buck-bunny_trailer.webm";
 
         nonStorage.init();
         requests[1].respond(0); // HEAD request
