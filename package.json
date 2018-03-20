@@ -46,5 +46,8 @@
     "run-sequence": "^0.3.2",
     "web-component-tester": "5.0.0",
     "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#1.7.3"
+  },
+  "optionalDependencies": {
+    "wct-local": "<2.0.16"
   }
 }
