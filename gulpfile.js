@@ -28,7 +28,11 @@
   const htmlFiles = [
     "./src/settings.html",
     "./src/widget.html"
-  ];
+  ],
+    es6Modules = [
+      "./node_modules/common-component/local-messaging.js",
+      "./node_modules/common-component/player-local-storage.js"
+    ];
 
   const isProd = (env === "prod");
 
@@ -36,7 +40,7 @@
     .pipe(sourcemaps.init)
     .pipe(function() {
       return babel({
-        presets: ["es2015"],
+        presets: ["env"],
         minified: true,
         sourceMap: true
       });
@@ -89,7 +93,15 @@
       .pipe(gulp.dest("dist/"));
   });
 
-  gulp.task("js", ["lint"], () => {
+  gulp.task("es6-modules", function() {
+    return gulp.src(es6Modules)
+      .pipe(babel({
+        "plugins": ["transform-es2015-modules-umd"]
+      }))
+      .pipe(gulp.dest("src/common-modules/"));
+  });
+
+  gulp.task("js", ["lint", "es6-modules"], () => {
     return gulp.src(htmlFiles)
       .pipe(usemin({
         js: []
@@ -102,7 +114,7 @@
       .pipe(gulpif(isProd, prodTasks(),
         // Staging
         babel({
-          presets: ["es2015"],
+          presets: ["env"],
           compact: false
         })
       ))

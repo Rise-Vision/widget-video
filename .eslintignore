@@ -1,4 +1,5 @@
 src/components/**
+src/common-modules/**
 src/config/config.js
 src/config/version.js
 src/widget/analytics.js
