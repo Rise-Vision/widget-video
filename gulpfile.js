@@ -12,7 +12,6 @@
   var concat = require("gulp-concat");
   var bump = require("gulp-bump");
   var file = require('gulp-file');
-  const lazypipe = require("lazypipe");
   var minifyCSS = require("gulp-minify-css");
   var usemin = require("gulp-usemin");
   var uglify = require("gulp-uglify");
@@ -34,27 +33,8 @@
       "./node_modules/common-component/player-local-storage.js"
     ];
 
-  const isProd = (env === "prod");
-
-  const prodTasks = lazypipe()
-    .pipe(sourcemaps.init)
-    .pipe(function() {
-      return babel({
-        presets: ["env"],
-        minified: true,
-        sourceMap: true
-      });
-    })
-    .pipe(function() {
-      return sourcemaps.write(".");
-    });
-
   gulp.task("clean-bower", function(cb){
     del(["./src/components/**"], cb);
-  });
-
-  gulp.task("clean-temp", function(cb) {
-    del(["./temp/**"], cb);
   });
 
   gulp.task("clean", function (cb) {
@@ -82,41 +62,27 @@
       .pipe( eslint.failAfterError() );
   } );
 
-  gulp.task("css", () => {
-    return gulp.src(htmlFiles)
-      .pipe(gulpif(isProd,
-        usemin({
-          css: [minifyCSS()]
-        }),
-        usemin({})
-      ))
-      .pipe(gulp.dest("dist/"));
-  });
-
   gulp.task("es6-modules", function() {
     return gulp.src(es6Modules)
       .pipe(babel({
+        "presets": ["env"],
         "plugins": ["transform-es2015-modules-umd"]
       }))
       .pipe(gulp.dest("src/common-modules/"));
   });
 
-  gulp.task("js", ["lint", "es6-modules"], () => {
-    return gulp.src(htmlFiles)
-      .pipe(usemin({
-        js: []
-      }))
-      .pipe(gulp.dest("temp/"));
-  });
+  gulp.task("source", ["lint"], function () {
+    var isProd = (env === "prod");
 
-  gulp.task("babel", ["js"], () => {
-    return gulp.src("temp/**/*.js")
-      .pipe(gulpif(isProd, prodTasks(),
-        // Staging
-        babel({
-          presets: ["env"],
-          compact: false
-        })
+    return gulp.src(htmlFiles)
+      .pipe(gulpif(isProd,
+        // Minify for production.
+        usemin({
+          css: [sourcemaps.init(), minifyCSS(), sourcemaps.write()],
+          js: [sourcemaps.init(), uglify(), sourcemaps.write()]
+        }),
+        // Don't minify for staging.
+        usemin({})
       ))
       .pipe(gulp.dest("dist/"));
   });
@@ -290,8 +256,8 @@
 
   gulp.task("build-dev", function (cb) {
     runSequence(["clean", "config", "version"],
-      ["es6-modules", "css", "babel", "videojs",  "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
-      ["unminify", "clean-temp"], cb);
+      ["es6-modules", "source", "videojs",  "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
+      ["unminify"], cb);
   });
 
   gulp.task("test", function(cb) {
@@ -300,8 +266,8 @@
 
   gulp.task("build", function (cb) {
     runSequence(["clean", "config", "bower-update", "version"],
-      ["es6-modules", "css", "babel", "videojs", "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
-      ["unminify", "clean-temp"], cb);
+      ["es6-modules", "source", "videojs", "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
+      ["unminify"], cb);
   });
 
   gulp.task("default", [], function() {
