@@ -290,17 +290,17 @@
 
   gulp.task("build-dev", function (cb) {
     runSequence(["clean", "config", "version"],
-      ["css", "babel", "videojs",  "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
+      ["es6-modules", "css", "babel", "videojs",  "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
       ["unminify", "clean-temp"], cb);
   });
 
   gulp.task("test", function(cb) {
-    runSequence("version", "test:unit", "test:integration", "test:e2e", cb);
+    runSequence("version", "es6-modules", "test:unit", "test:integration", "test:e2e", cb);
   });
 
   gulp.task("build", function (cb) {
     runSequence(["clean", "config", "bower-update", "version"],
-      ["css", "babel", "videojs", "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
+      ["es6-modules", "css", "babel", "videojs", "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
       ["unminify", "clean-temp"], cb);
   });
 
