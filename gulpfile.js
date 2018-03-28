@@ -12,7 +12,6 @@
   var concat = require("gulp-concat");
   var bump = require("gulp-bump");
   var file = require('gulp-file');
-  const lazypipe = require("lazypipe");
   var minifyCSS = require("gulp-minify-css");
   var usemin = require("gulp-usemin");
   var uglify = require("gulp-uglify");
@@ -28,29 +27,14 @@
   const htmlFiles = [
     "./src/settings.html",
     "./src/widget.html"
-  ];
-
-  const isProd = (env === "prod");
-
-  const prodTasks = lazypipe()
-    .pipe(sourcemaps.init)
-    .pipe(function() {
-      return babel({
-        presets: ["es2015"],
-        minified: true,
-        sourceMap: true
-      });
-    })
-    .pipe(function() {
-      return sourcemaps.write(".");
-    });
+  ],
+    es6Modules = [
+      "./node_modules/common-component/local-messaging.js",
+      "./node_modules/common-component/player-local-storage.js"
+    ];
 
   gulp.task("clean-bower", function(cb){
     del(["./src/components/**"], cb);
-  });
-
-  gulp.task("clean-temp", function(cb) {
-    del(["./temp/**"], cb);
   });
 
   gulp.task("clean", function (cb) {
@@ -78,33 +62,27 @@
       .pipe( eslint.failAfterError() );
   } );
 
-  gulp.task("css", () => {
+  gulp.task("es6-modules", function() {
+    return gulp.src(es6Modules)
+      .pipe(babel({
+        "presets": ["env"],
+        "plugins": ["transform-es2015-modules-umd"]
+      }))
+      .pipe(gulp.dest("src/common-modules/"));
+  });
+
+  gulp.task("source", ["lint"], function () {
+    var isProd = (env === "prod");
+
     return gulp.src(htmlFiles)
       .pipe(gulpif(isProd,
+        // Minify for production.
         usemin({
-          css: [minifyCSS()]
+          css: [sourcemaps.init(), minifyCSS(), sourcemaps.write()],
+          js: [sourcemaps.init(), uglify(), sourcemaps.write()]
         }),
+        // Don't minify for staging.
         usemin({})
-      ))
-      .pipe(gulp.dest("dist/"));
-  });
-
-  gulp.task("js", ["lint"], () => {
-    return gulp.src(htmlFiles)
-      .pipe(usemin({
-        js: []
-      }))
-      .pipe(gulp.dest("temp/"));
-  });
-
-  gulp.task("babel", ["js"], () => {
-    return gulp.src("temp/**/*.js")
-      .pipe(gulpif(isProd, prodTasks(),
-        // Staging
-        babel({
-          presets: ["es2015"],
-          compact: false
-        })
       ))
       .pipe(gulp.dest("dist/"));
   });
@@ -278,18 +256,18 @@
 
   gulp.task("build-dev", function (cb) {
     runSequence(["clean", "config", "version"],
-      ["css", "babel", "videojs",  "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
-      ["unminify", "clean-temp"], cb);
+      ["es6-modules", "source", "videojs",  "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
+      ["unminify"], cb);
   });
 
   gulp.task("test", function(cb) {
-    runSequence("version", "test:unit", "test:integration", "test:e2e", cb);
+    runSequence("version", "es6-modules", "test:unit", "test:integration", "test:e2e", cb);
   });
 
   gulp.task("build", function (cb) {
     runSequence(["clean", "config", "bower-update", "version"],
-      ["css", "babel", "videojs", "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
-      ["unminify", "clean-temp"], cb);
+      ["es6-modules", "source", "videojs", "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
+      ["unminify"], cb);
   });
 
   gulp.task("default", [], function() {
