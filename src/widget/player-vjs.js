@@ -15,7 +15,8 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
     _updateWaiting = false,
     _isPaused = false,
     _pauseTimer,
-    _pause;
+    _pause,
+    _loadTimer;
 
   /*
    *  Private Methods
@@ -116,6 +117,28 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
     _playerInstance.on( "ended", _onEnded );
     _playerInstance.on( "error", _onError );
     _playerInstance.on( "loadedmetadata", _onLoadedMetaData );
+    _playerInstance.on( "loadstart", _onLoadStart );
+    _playerInstance.on( "canplay", _onCanPlay );
+  }
+
+  function _onCanPlay() {
+    clearTimeout( _loadTimer );
+  }
+
+  function _onLoadStart() {
+    clearTimeout( _loadTimer );
+
+    _loadTimer = setTimeout( function logError() {
+      if ( !_playerInstance.readyState() ) {
+        RiseVision.Video.logEvent( {
+          event: "player error",
+          event_details: "failed to start loading file after 10 seconds",
+          file_url: _playerInstance.currentSrc()
+        }, true );
+        // calling load cancel pending request and creates a new one
+        _playerInstance.load();
+      }
+    }, 10000 );
   }
 
   function _setVolume() {
@@ -209,10 +232,10 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
   function reset() {
     pause();
 
-    // if video is at end, a future play call will start video over from beginning automatically
-    if ( _playerInstance.remainingTime() > 0 ) {
-      _playerInstance.currentTime( 0 );
-    }
+    // reset should always reset the video to the start
+    _playerInstance.currentTime( 0 );
+    // calling load causes requests not to be pending on Chrome 59
+    _playerInstance.load();
   }
 
   function update( files ) {
