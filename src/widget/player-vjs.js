@@ -209,10 +209,8 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
   function reset() {
     pause();
 
-    // if video is at end, a future play call will start video over from beginning automatically
-    if ( _playerInstance.remainingTime() > 0 ) {
-      _playerInstance.currentTime( 0 );
-    }
+    // reset should always reset the video to the start
+    _playerInstance.currentTime( 0 );
   }
 
   function update( files ) {
