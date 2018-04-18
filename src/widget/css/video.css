@@ -58,3 +58,6 @@ body {
   display:none;
 }
 
+.vjs-seeking {
+  display: none;
+}
