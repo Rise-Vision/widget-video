@@ -58,6 +58,6 @@ body {
   display:none;
 }
 
-.vjs-seeking {
+.vjs-ended .vjs-seeking {
   display: none;
 }
