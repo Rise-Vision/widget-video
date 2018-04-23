@@ -58,6 +58,6 @@ body {
   display:none;
 }
 
-.vjs-ended .vjs-seeking {
+.vjs-user-inactive .vjs-seeking {
   display: none;
 }
