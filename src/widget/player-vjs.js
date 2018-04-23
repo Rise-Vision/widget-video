@@ -116,6 +116,18 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
     _playerInstance.on( "ended", _onEnded );
     _playerInstance.on( "error", _onError );
     _playerInstance.on( "loadedmetadata", _onLoadedMetaData );
+    _playerInstance.on( "seeking", _onSeeking );
+    _playerInstance.on( "seeked", _onSeeked );
+  }
+
+  function _onSeeking() {
+    if ( _playerInstance.currentTime() == 0 ) {
+      _playerInstance.hide();
+    }
+  }
+
+  function _onSeeked() {
+    _playerInstance.show();
   }
 
   function _setVolume() {

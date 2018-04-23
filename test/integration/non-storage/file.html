@@ -138,6 +138,8 @@
       test( "should resume playing video after 5 seconds when paused", function( done ) {
         var video = document.getElementById( "player_html5_api" );
 
+        video.muted = true;
+        video.play();
         video.pause();
         clock.restore();
 
