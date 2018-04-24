@@ -134,34 +134,6 @@
       } );
     } );
 
-    suite( "playback", function() {
-      test( "should resume playing video after 5 seconds when paused", function( done ) {
-        var video = document.getElementById( "player_html5_api" );
-
-        video.pause();
-        clock.restore();
-
-        // Allow enough time for player "pause" event to fire.
-        setTimeout( function() {
-          assert.isNotNull( document.querySelector( "#player.vjs-paused" ) );
-
-          clock.tick( 5000 );
-          clock.restore();
-
-          // Allow enough time for player element classes to be updated.
-          setTimeout( function() {
-            assert.isNull( document.querySelector( "#player.vjs-paused" ) );
-            assert.isNotNull( document.querySelector( "#player.vjs-playing" ) );
-            done();
-          }, 0 );
-
-          clock = sinon.useFakeTimers();
-        }, 0 );
-
-        clock = sinon.useFakeTimers();
-      } );
-    } );
-
   });
 </script>
 
