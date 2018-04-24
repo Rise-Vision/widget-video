@@ -153,10 +153,10 @@
             assert.isNull( document.querySelector( "#player.vjs-paused" ) );
             assert.isNotNull( document.querySelector( "#player.vjs-playing" ) );
             done();
-          }, 0 );
+          }, 200 );
 
           clock = sinon.useFakeTimers();
-        }, 0 );
+        }, 200 );
 
         clock = sinon.useFakeTimers();
       } );
