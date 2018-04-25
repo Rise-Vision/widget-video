@@ -161,6 +161,8 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
 
     _playerInstance = videojs( "player", _getOptions(), _ready );
 
+    _playerInstance.poster("https://i.imgur.com/7rV7EGp.jpg");
+
     _removeLoadingSpinner();
 
   }
