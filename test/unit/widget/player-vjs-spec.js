@@ -66,31 +66,5 @@ describe( "init()", function() {
     videoJSObj.src.restore();
   } );
 
-  it( "should setup videojs with correct options and src value", function() {
-    var player = new RiseVision.Video.PlayerVJS( params );
-
-    player.init( files );
-
-    expect( optionsSpy ).to.have.been.calledWith( {
-      controls: true,
-      fluid: false,
-      height: params.height,
-      width: params.width
-    } );
-
-    expect( getChildSpy ).to.have.been.calledWith( "loadingSpinner" );
-
-    expect( removeChildSpy ).to.have.been.calledWith( loadSpinnerComponent );
-
-    // delay for callback execution
-    setTimeout( function() {
-      expect( srcSpy ).to.have.been.calledWith( {
-        type: "video/webm",
-        src: "https://test.com/test%2Fvideos%2Fvideo1.webm"
-      } );
-    }, 30 );
-
-
-  } );
 
 } );
