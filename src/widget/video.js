@@ -166,6 +166,12 @@ RiseVision.Video = ( function( window, gadgets ) {
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
     _resetErrorFlags();
+
+    _message.hide();
+
+    if ( !_viewerPaused ) {
+      play();
+    }
   }
 
   function onFileUnavailable( message ) {
