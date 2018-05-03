@@ -15,7 +15,7 @@ var spy,
     "company_id": '"companyId"',
     "display_id": '"displayId"',
     /* eslint-enable quotes */
-    "version": "1.1.0"
+    "version": "2.1.0"
   },
   check = function( done ) {
     if ( ready ) {
