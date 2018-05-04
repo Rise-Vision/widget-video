@@ -3,13 +3,17 @@
 ( function( window, gadgets ) {
   "use strict";
 
-  var prefs = new gadgets.Prefs(),
-    id = prefs.getString( "id" );
+  var id = new gadgets.Prefs().getString( "id" ),
+    useRLS = false;
 
   // Disable context menu (right click menu)
   window.oncontextmenu = function() {
     return false;
   };
+
+  function isValidDisplay( displayId ) {
+    return displayId && displayId !== "preview" && displayId !== "display_id" && displayId.indexOf( "displayId" ) === -1;
+  }
 
   function configure( names, values ) {
     var additionalParams = null,
@@ -45,93 +49,116 @@
           } else {
             // file was selected
             mode = "file";
+
+            // integration tests will set TEST_USE_RLS to true
+            useRLS = config.TEST_USE_RLS || isValidDisplay( displayId );
           }
         } else {
           // non-storage file was selected
           mode = "file";
         }
 
-        RiseVision.Video.setAdditionalParams( additionalParams, mode, displayId );
+        if ( useRLS ) {
+          // proceed with using RLS for single file
+          RiseVision.VideoRLS.setAdditionalParams( additionalParams, mode, displayId );
+          return;
+        }
+
+        // check which version of Rise Cache is running and dynamically add rise-storage dependencies
+        RiseVision.Common.RiseCache.isRCV2Player( function( isV2 ) {
+          var fragment = document.createDocumentFragment(),
+            link = document.createElement( "link" ),
+            webcomponents = document.createElement( "script" ),
+            href = config.COMPONENTS_PATH + ( ( isV2 ) ? "rise-storage-v2" : "rise-storage" ) + "/rise-storage.html",
+            storage = document.createElement( "rise-storage" ),
+            storageReady = false,
+            polymerReady = false;
+
+          function init() {
+            RiseVision.Video.setAdditionalParams( additionalParams, mode, displayId );
+          }
+
+          function onPolymerReady() {
+            window.removeEventListener( "WebComponentsReady", onPolymerReady );
+            polymerReady = true;
+
+            if ( storageReady && polymerReady ) {
+              init();
+            }
+          }
+
+          function onStorageReady() {
+            storage.removeEventListener( "rise-storage-ready", onStorageReady );
+            storageReady = true;
+
+            if ( storageReady && polymerReady ) {
+              init();
+            }
+          }
+
+          webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-lite.min.js";
+          window.addEventListener( "WebComponentsReady", onPolymerReady );
+
+          // add the webcomponents polyfill source to the document head
+          document.getElementsByTagName( "head" )[ 0 ].appendChild( webcomponents );
+
+          link.setAttribute( "rel", "import" );
+          link.setAttribute( "href", href );
+
+          // add the rise-storage <link> element to document head
+          document.getElementsByTagName( "head" )[ 0 ].appendChild( link );
+
+          storage.setAttribute( "id", "videoStorage" );
+          storage.setAttribute( "refresh", 5 );
+
+          if ( isV2 ) {
+            storage.setAttribute( "usage", "widget" );
+          }
+
+          storage.addEventListener( "rise-storage-ready", onStorageReady );
+          fragment.appendChild( storage );
+
+          // add the <rise-storage> element to the body
+          document.body.appendChild( fragment );
+        } );
       }
     }
   }
 
   function play() {
-    RiseVision.Video.play();
+    if ( !useRLS ) {
+      RiseVision.Video.play();
+    } else {
+      RiseVision.VideoRLS.play();
+    }
+
   }
 
   function pause() {
-    RiseVision.Video.pause();
+    if ( !useRLS ) {
+      RiseVision.Video.pause();
+    } else {
+      RiseVision.VideoRLS.pause();
+    }
+
   }
 
   function stop() {
-    RiseVision.Video.stop();
-  }
-
-  function init() {
-    if ( id && id !== "" ) {
-      gadgets.rpc.register( "rscmd_play_" + id, play );
-      gadgets.rpc.register( "rscmd_pause_" + id, pause );
-      gadgets.rpc.register( "rscmd_stop_" + id, stop );
-
-      gadgets.rpc.register( "rsparam_set_" + id, configure );
-      gadgets.rpc.call( "", "rsparam_get", null, id, [ "companyId", "displayId", "additionalParams" ] );
+    if ( !useRLS ) {
+      RiseVision.Video.stop();
+    } else {
+      RiseVision.VideoRLS.stop();
     }
   }
 
-  // check which version of Rise Cache is running and dynamically add rise-storage dependencies
-  RiseVision.Common.RiseCache.isRCV2Player( function( isV2 ) {
-    var fragment = document.createDocumentFragment(),
-      link = document.createElement( "link" ),
-      webcomponents = document.createElement( "script" ),
-      href = config.COMPONENTS_PATH + ( ( isV2 ) ? "rise-storage-v2" : "rise-storage" ) + "/rise-storage.html",
-      storage = document.createElement( "rise-storage" ),
-      storageReady = false,
-      polymerReady = false;
 
-    function onPolymerReady() {
-      window.removeEventListener( "WebComponentsReady", onPolymerReady );
-      polymerReady = true;
-
-      if ( storageReady && polymerReady ) {
-        init();
-      }
-    }
-
-    function onStorageReady() {
-      storage.removeEventListener( "rise-storage-ready", onStorageReady );
-      storageReady = true;
-
-      if ( storageReady && polymerReady ) {
-        init();
-      }
-    }
-
-    webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-lite.min.js";
-    window.addEventListener( "WebComponentsReady", onPolymerReady );
-
-    // add the webcomponents polyfill source to the document head
-    document.getElementsByTagName( "head" )[ 0 ].appendChild( webcomponents );
-
-    link.setAttribute( "rel", "import" );
-    link.setAttribute( "href", href );
-
-    // add the rise-storage <link> element to document head
-    document.getElementsByTagName( "head" )[ 0 ].appendChild( link );
-
-    storage.setAttribute( "id", "videoStorage" );
-    storage.setAttribute( "refresh", 5 );
-
-    if ( isV2 ) {
-      storage.setAttribute( "usage", "widget" );
-    }
-
-    storage.addEventListener( "rise-storage-ready", onStorageReady );
-    fragment.appendChild( storage );
-
-    // add the <rise-storage> element to the body
-    document.body.appendChild( fragment );
-  } );
+  if ( id && id !== "" ) {
+    gadgets.rpc.register( "rscmd_play_" + id, play );
+    gadgets.rpc.register( "rscmd_pause_" + id, pause );
+    gadgets.rpc.register( "rscmd_stop_" + id, stop );
+    gadgets.rpc.register( "rsparam_set_" + id, configure );
+    gadgets.rpc.call( "", "rsparam_get", null, id, [ "companyId", "displayId", "additionalParams" ] );
+  }
 
 } )( window, gadgets );
 

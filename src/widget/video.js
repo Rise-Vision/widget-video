@@ -15,7 +15,6 @@ RiseVision.Video = ( function( window, gadgets ) {
     _prefs = null,
     _storage = null,
     _nonStorage = null,
-    _playerLocalStorageFile = null,
     _message = null,
     _player = null,
     _viewerPaused = true,
@@ -83,16 +82,6 @@ RiseVision.Video = ( function( window, gadgets ) {
     _storageErrorFlag = false;
     _unavailableFlag = false;
     _errorLog = null;
-  }
-
-  function _localStorageBackgroundTesting() {
-    // don't test if display id is invalid or preview/local
-    if ( !_displayId || _displayId === "preview" || _displayId === "display_id" || _displayId.indexOf( "displayId" ) !== -1 ) {
-      return;
-    }
-
-    _playerLocalStorageFile = new RiseVision.Video.PlayerLocalStorageFile();
-    _playerLocalStorageFile.init();
   }
 
   /*
@@ -318,7 +307,6 @@ RiseVision.Video = ( function( window, gadgets ) {
       }
     }
 
-    _localStorageBackgroundTesting();
     _ready();
   }
 
