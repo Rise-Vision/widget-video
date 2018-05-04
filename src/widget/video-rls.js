@@ -28,8 +28,16 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   /*
    *  Public Methods
    */
-  function getTableName() {
-    return "video_v2_events";
+  function onFileInit( urls ) {
+
+  }
+
+  function onFileRefresh( urls ) {
+
+  }
+
+  function onFileUnavailable( message ) {
+
   }
 
   function pause() {}
@@ -55,11 +63,18 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     _init();
   }
 
+  function showError( message ) {
+
+  }
+
   return {
-    "getTableName": getTableName,
+    "onFileInit": onFileInit,
+    "onFileRefresh": onFileRefresh,
+    "onFileUnavailable": onFileUnavailable,
     "pause": pause,
     "play": play,
     "setAdditionalParams": setAdditionalParams,
+    "showError": showError,
     "stop": stop
   };
 
