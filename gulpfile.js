@@ -3,7 +3,6 @@
 
   const babel = require("gulp-babel");
   var bower = require("gulp-bower");
-  var colors = require("colors");
   var del = require("del");
   const eslint = require("gulp-eslint");
   var gulp = require("gulp");
