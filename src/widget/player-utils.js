@@ -1,8 +1,6 @@
 var RiseVision = RiseVision || {};
 
-RiseVision.Video = RiseVision.Video || {};
-
-RiseVision.Video.PlayerUtils = ( function() {
+RiseVision.PlayerUtils = ( function() {
   "use strict";
 
   /*

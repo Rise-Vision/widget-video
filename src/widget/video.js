@@ -225,7 +225,7 @@ RiseVision.Video = ( function( window, gadgets ) {
       _player.play();
     } else {
       if ( _currentFiles && _currentFiles.length > 0 ) {
-        _player = new RiseVision.Video.PlayerVJS( _additionalParams, _mode );
+        _player = new RiseVision.PlayerVJS( _additionalParams, _mode, RiseVision.Video );
         _player.init( _currentFiles );
       }
     }

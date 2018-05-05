@@ -147,7 +147,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       _player.play();
     } else {
       if ( _currentFiles && _currentFiles.length > 0 ) {
-        _player = new RiseVision.Video.PlayerVJS( _params, _mode );
+        _player = new RiseVision.PlayerVJS( _params, _mode, RiseVision.VideoRLS );
         _player.init( _currentFiles );
       }
     }
