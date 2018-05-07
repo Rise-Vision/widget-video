@@ -27,7 +27,7 @@ RiseVision.VideoUtils = ( function() {
   }
 
   function getTableName() {
-    return "image_events";
+    return "video_v2_events";
   }
 
   function logEvent( params ) {

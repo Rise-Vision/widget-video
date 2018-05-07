@@ -56,6 +56,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   }
 
   function _resetErrorFlags() {
+    _errorFlag = false;
     _unavailableFlag = false;
   }
 
