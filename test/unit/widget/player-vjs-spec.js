@@ -67,7 +67,7 @@ describe( "init()", function() {
   } );
 
   it( "should setup videojs with correct options and src value", function() {
-    var player = new RiseVision.Video.PlayerVJS( params );
+    var player = new RiseVision.PlayerVJS( params );
 
     player.init( files );
 
