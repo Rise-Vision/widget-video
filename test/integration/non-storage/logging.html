@@ -31,6 +31,7 @@
 <script src="../../../src/components/widget-common/dist/rise-cache.js"></script>
 <script src="../../../src/config/version.js"></script>
 <script src="../../../src/config/test.js"></script>
+<script src="../../../src/widget/video-utils.js"></script>
 <script src="../../../src/widget/video.js"></script>
 <script src="../../../src/widget/player-utils.js"></script>
 <script src="../../../src/widget/non-storage.js"></script>
@@ -123,15 +124,6 @@
         }));
       });
 
-      test("should log the play event", function() {
-        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
-
-        RiseVision.Video.play();
-
-        assert(spy.calledOnce);
-        assert(spy.calledWith(table, params));
-      });
-
     });
 
     suite("player error", function() {
@@ -189,67 +181,6 @@
         RiseVision.Video.playerError({ "code": 2, "message": "A network error caused the media download to fail part-way." });
 
         assert(spy.calledOnce);
-        assert(spy.calledWith(table, params));
-      });
-
-      test("should not log a player error when done is fired if the error has resolved itself on a refresh", function() {
-        // Force player error.
-        RiseVision.Video.playerError({ "code": 2, "message": "A network error caused the media download to fail part-way." });
-
-        // Resolve player error.
-        RiseVision.Video.onFileRefresh(params.file_url);
-
-        // Force done to fire again.
-        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
-        RiseVision.Video.playerEnded();
-
-        params.event = "done";
-        delete params.event_details;  // No event_details for a done event.
-
-        assert(spy.calledOnce);
-        assert(spy.calledWith(table, params));
-      });
-
-      test("should log a player error when done is fired", function() {
-        // enforce a new scope for fake timer
-        clock = sinon.useFakeTimers();
-
-        params.event = "player error";
-        params.event_details = "MEDIA_ERR_NETWORK - A network error caused the media download to fail part-way.";
-
-        // Force "done" to fire by simulating a player error.
-        RiseVision.Video.playerError({ "code": 2, "message": "A network error caused the media download to fail part-way." });
-        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
-        clock.tick(5000);
-
-        assert(spy.calledTwice); // player error + done
-        assert(spy.calledWith(table, params));
-      });
-    });
-
-    suite("done", function() {
-      var playStub;
-
-      suiteSetup(function() {
-        // Stub the play function to prevent it from logging events.
-        playStub = sinon.stub(RiseVision.Video, "play");
-        clock = sinon.useFakeTimers();
-      });
-
-      suiteTeardown(function() {
-        playStub.restore();
-      });
-
-      test("should log the done event", function() {
-        // Force "done" to fire by simulating a player error.
-        RiseVision.Video.playerError();
-        spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");
-        clock.tick(5000);
-
-        params.event = "done";
-        delete params.event_details;  // No event_details for a done event.
-
-        assert(spy.calledTwice); // player error + done
         assert(spy.calledWith(table, params));
       });
     });

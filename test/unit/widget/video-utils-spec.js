@@ -44,7 +44,8 @@ describe( "logEvent", function() {
     var params = {
       "event": "test",
       "company_id": "",
-      "display_id": ""
+      "display_id": "",
+      "file_url": null
     };
 
     RiseVision.VideoUtils.logEvent( { "event": "test" } );
