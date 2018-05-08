@@ -176,9 +176,7 @@ suite( "file deleted", function() {
       } );
     } );
 
-    console.log(document.getElementById( "container" ).style.visibility);
-
-    assert.isTrue((document.getElementById("container").style.display === "block"), "video container is showing");
+    assert.isTrue( ( document.getElementById( "container" ).style.display === "block" ), "video container is showing" );
     assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "none" ), "message container is hidden" );
   } );
 } );

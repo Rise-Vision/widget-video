@@ -39,8 +39,6 @@ suite( "configuration", function() {
 
   test( "should log the configuration event", function() {
 
-    console.log(logSpy.args);
-
     assert( logSpy.calledWith( table, {
       "event": "configuration",
       "event_details": "storage file",

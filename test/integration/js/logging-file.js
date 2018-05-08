@@ -3,7 +3,6 @@
 /* eslint-disable func-names */
 
 var spy,
-  clock,
   storage,
   ready = false,
   isV2Running = false,
@@ -20,7 +19,6 @@ var spy,
   check = function( done ) {
     if ( ready ) {
       sinon.stub( RiseVision.Video, "play" );
-      clock = sinon.useFakeTimers();
 
       done();
     } else {
