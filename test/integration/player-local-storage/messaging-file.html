@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>Video Widget</title>
+
+  <script src="../../../src/components/web-component-tester/browser.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../../../src/components/videojs/dist/video-js.css">
+  <link rel="stylesheet" type="text/css" href="../../../src/widget/css/video.css">
+  <link rel="stylesheet" href="../../../src/components/widget-common/dist/css/message.css">
+</head>
+<body>
+
+<div id="container">
+  <video id="player" class="video-js" preload="auto"></video>
+</div>
+
+<div id="messageContainer"></div>
+
+<script src="../../../node_modules/widget-tester/mocks/gadget-mocks.js"></script>
+<script src="../../../node_modules/widget-tester/mocks/logger-mock.js"></script>
+
+<script src="../../../src/components/videojs/dist/video.min.js"></script>
+<script src="../../../src/components/underscore/underscore-min.js"></script>
+
+<script src="../../../src/components/widget-common/dist/config.js"></script>
+<script src="../../../src/components/widget-common/dist/common.js"></script>
+<script src="../../../src/common-modules/local-messaging.js"></script>
+<script src="../../../src/common-modules/player-local-storage.js"></script>
+<script src="../../../src/components/widget-common/dist/message.js"></script>
+<script src="../../../src/config/version.js"></script>
+<script src="../../../src/config/test.js"></script>
+<script src="../../../src/widget/video-utils.js"></script>
+<script src="../../../src/widget/video-rls.js"></script>
+<script src="../../../src/widget/player-utils.js"></script>
+<script src="../../../src/widget/player-vjs.js"></script>
+<script src="../../../src/widget/player-local-storage-file.js"></script>
+
+<script type="text/javascript">
+  config.COMPONENTS_PATH = "../../../src/components/";
+</script>
+
+<script src="../../data/storage-file.js"></script>
+<script src="../js/player-local-storage-messaging-file.js"></script>
+<script>
+  var messageHandlers = [];
+
+  config.TEST_USE_RLS = true;
+
+  top.RiseVision = RiseVision || {};
+  top.RiseVision.Viewer = {};
+  top.RiseVision.Viewer.LocalMessaging = {
+    write: function() {
+      // console.log(message);
+    },
+    receiveMessages: function( action ) {
+      messageHandlers.push( function( data ) {
+        action( data );
+      } );
+    },
+    canConnect: function() {
+      return true;
+    }
+  };
+
+  sinon.stub( RiseVision.VideoRLS, "setAdditionalParams", function( params, mode, displayId ) {
+    ready = true;
+
+    RiseVision.VideoRLS.setAdditionalParams.restore();
+    RiseVision.VideoRLS.setAdditionalParams( params, mode, displayId );
+  } );
+</script>
+
+<script src="../../../src/widget/main.js"></script>
+
+</body>
+</html>
