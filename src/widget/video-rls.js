@@ -8,8 +8,7 @@ RiseVision.VideoRLS = {};
 RiseVision.VideoRLS = ( function( window, gadgets ) {
   "use strict";
 
-  var _mode,
-    _prefs = new gadgets.Prefs(),
+  var _prefs = new gadgets.Prefs(),
     _videoUtils = RiseVision.VideoUtils,
     _params = null,
     _message = null,
@@ -19,7 +18,6 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     _configurationType = null,
     _storage = null,
     _resume = true,
-    _currentFiles = [],
     _errorFlag = false,
     _unavailableFlag = false;
 
@@ -41,13 +39,13 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       // show wait message while Storage initializes
       _message.show( "Please wait while your video is downloaded." );
 
-      if ( _mode === "file" ) {
+      if ( _videoUtils.getMode() === "file" ) {
         _configurationType = "storage file";
 
         // create and initialize the Storage file instance
         _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile( _params );
         _storage.init();
-      } else if ( _mode === "folder" ) {
+      } else if ( _videoUtils.getMode() === "folder" ) {
         // TODO: coming soon
       }
     }
@@ -64,9 +62,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
    *  Public Methods
    */
   function onFileInit( urls ) {
-    if ( _mode === "file" ) {
-      _currentFiles[ 0 ] = urls;
-    }
+    _videoUtils.setCurrentFiles( urls );
 
     _resetErrorFlags();
 
@@ -78,13 +74,10 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   }
 
   function onFileRefresh( urls ) {
-    if ( _mode === "file" ) {
-      // urls value will be a string of one url
-      _currentFiles[ 0 ] = urls;
-    }
+    _videoUtils.setCurrentFiles( urls );
 
     if ( _player ) {
-      _player.update( _currentFiles );
+      _player.update( _videoUtils.getCurrentFiles() );
     }
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
@@ -118,7 +111,9 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   }
 
   function play() {
-    if ( _configurationLogged ) {
+    var currentFiles;
+
+    if ( !_configurationLogged ) {
       _configurationLogged = true;
 
       // Log configuration event.
@@ -147,15 +142,13 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
 
       _player.play();
     } else {
-      if ( _currentFiles && _currentFiles.length > 0 ) {
-        _player = new RiseVision.PlayerVJS( _params, _mode, RiseVision.VideoRLS );
-        _player.init( _currentFiles );
+      currentFiles = _videoUtils.getCurrentFiles();
+
+      if ( currentFiles && currentFiles.length > 0 ) {
+        _player = new RiseVision.PlayerVJS( _params, _videoUtils.getMode(), RiseVision.VideoRLS );
+        _player.init( currentFiles );
       }
     }
-  }
-
-  function playerEnded() {
-    _videoUtils.sendDoneToViewer();
   }
 
   function playerError( error ) {
@@ -198,7 +191,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
 
   function setAdditionalParams( params, mode ) {
     _params = _.clone( params );
-    _mode = mode;
+    _videoUtils.setMode( mode );
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
     document.getElementById( "container" ).style.height = _prefs.getInt( "rsH" ) + "px";
@@ -227,7 +220,6 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     "onFileUnavailable": onFileUnavailable,
     "pause": pause,
     "play": play,
-    "playerEnded": playerEnded,
     "playerError": playerError,
     "playerReady": playerReady,
     "setAdditionalParams": setAdditionalParams,

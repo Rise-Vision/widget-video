@@ -50,14 +50,14 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
 
   function _onEnded() {
     if ( mode === "file" ) {
-      videoRef.playerEnded();
+      _videoUtils.playerEnded();
     } else if ( mode === "folder" ) {
       _fileCount++;
 
       if ( ( _fileCount >= _playerInstance.playlist().length ) ) {
         _fileCount = 0;
         _playerInstance.playlist.currentItem( 0 );
-        videoRef.playerEnded();
+        _videoUtils.playerEnded();
       } else {
         _playerInstance.playlist.next();
       }

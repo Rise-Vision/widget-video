@@ -8,7 +8,6 @@ RiseVision.Video = ( function( window, gadgets ) {
   "use strict";
 
   var _additionalParams,
-    _mode,
     _displayId,
     _isLoading = true,
     _configDetails = null,
@@ -20,7 +19,6 @@ RiseVision.Video = ( function( window, gadgets ) {
     _player = null,
     _viewerPaused = true,
     _resume = true,
-    _currentFiles = [],
     _errorFlag = false,
     _storageErrorFlag = false,
     _playerErrorFlag = false,
@@ -47,13 +45,13 @@ RiseVision.Video = ( function( window, gadgets ) {
       document.getElementById( "messageContainer" ) );
 
     if ( RiseVision.Common.Utilities.isLegacy() ) {
-      _videoUtils.showError( "This version of Video Widget is not supported on this version of Rise Player. " +
+      showError( "This version of Video Widget is not supported on this version of Rise Player. " +
         "Please use the latest Rise Player version available at https://help.risevision.com/user/create-a-display" );
     } else {
       // show wait message while Storage initializes
       _message.show( "Please wait while your video is downloaded." );
 
-      if ( _mode === "file" ) {
+      if ( _videoUtils.getMode() === "file" ) {
         isStorageFile = ( Object.keys( _additionalParams.storage ).length !== 0 );
 
         if ( !isStorageFile ) {
@@ -68,7 +66,7 @@ RiseVision.Video = ( function( window, gadgets ) {
           _storage = new RiseVision.Video.StorageFile( _additionalParams, _displayId );
           _storage.init();
         }
-      } else if ( _mode === "folder" ) {
+      } else if ( _videoUtils.getMode() === "folder" ) {
         _configDetails = "storage folder";
 
         // create and initialize the Storage folder instance
@@ -92,13 +90,7 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   function onFileInit( urls ) {
-    if ( _mode === "file" ) {
-      // urls value will be a string
-      _currentFiles[ 0 ] = urls;
-    } else if ( _mode === "folder" ) {
-      // urls value will be an array
-      _currentFiles = urls;
-    }
+    _videoUtils.setCurrentFiles( urls );
 
     _resetErrorFlags();
 
@@ -110,16 +102,10 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   function onFileRefresh( urls ) {
-    if ( _mode === "file" ) {
-      // urls value will be a string of one url
-      _currentFiles[ 0 ] = urls;
-    } else if ( _mode === "folder" ) {
-      // urls value will be an array of urls
-      _currentFiles = urls;
-    }
+    _videoUtils.setCurrentFiles( urls );
 
     if ( _player ) {
-      _player.update( _currentFiles );
+      _player.update( _videoUtils.getCurrentFiles() );
     }
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
@@ -154,6 +140,8 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   function play() {
+    var currentFiles;
+
     if ( _isLoading ) {
       _isLoading = false;
 
@@ -187,16 +175,14 @@ RiseVision.Video = ( function( window, gadgets ) {
 
       _player.play();
     } else {
-      if ( _currentFiles && _currentFiles.length > 0 ) {
-        _player = new RiseVision.PlayerVJS( _additionalParams, _mode, RiseVision.Video );
-        _player.init( _currentFiles );
+      currentFiles = _videoUtils.getCurrentFiles();
+
+      if ( currentFiles && currentFiles.length > 0 ) {
+        _player = new RiseVision.PlayerVJS( _additionalParams, _videoUtils.getMode(), RiseVision.Video );
+        _player.init( currentFiles );
       }
     }
 
-  }
-
-  function playerEnded() {
-    _videoUtils.sendDoneToViewer();
   }
 
   function playerReady() {
@@ -210,7 +196,7 @@ RiseVision.Video = ( function( window, gadgets ) {
 
   function setAdditionalParams( params, mode, displayId ) {
     _additionalParams = _.clone( params );
-    _mode = mode;
+    _videoUtils.setMode( mode );
     _displayId = displayId;
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
@@ -246,8 +232,21 @@ RiseVision.Video = ( function( window, gadgets ) {
     _playerErrorFlag = true;
 
     _videoUtils.logEvent( params, true );
-    _videoUtils.showError( errorMessage );
+    showError( errorMessage );
   }
+
+  function showError( message, isStorageError ) {
+    _errorFlag = true;
+    _storageErrorFlag = typeof isStorageError !== "undefined";
+
+    _message.show( message );
+
+    // if Widget is playing right now, run the timer
+    if ( !_viewerPaused ) {
+      _videoUtils.startErrorTimer();
+    }
+  }
+
 
   function stop() {
     pause();
@@ -262,9 +261,9 @@ RiseVision.Video = ( function( window, gadgets ) {
     "pause": pause,
     "play": play,
     "setAdditionalParams": setAdditionalParams,
-    "playerEnded": playerEnded,
     "playerReady": playerReady,
     "playerError": playerError,
+    "showError": showError,
     "stop": stop
   };
 

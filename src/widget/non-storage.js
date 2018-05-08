@@ -61,7 +61,7 @@ RiseVision.Video.NonStorage = function( data ) {
             }
 
             // show the error
-            videoUtils.showError( errorMessage );
+            RiseVision.Video.showError( errorMessage );
           } );
         }
       }

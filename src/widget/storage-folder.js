@@ -106,35 +106,35 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
       };
 
       videoUtils.logEvent( params, true );
-      videoUtils.showError( "Sorry, there was a problem communicating with Rise Storage." );
+      RiseVision.Video.showError( "Sorry, there was a problem communicating with Rise Storage." );
     } );
 
     storage.addEventListener( "rise-storage-empty-folder", function() {
       var params = { "event": "storage folder empty" };
 
       videoUtils.logEvent( params, true );
-      videoUtils.showError( "The selected folder does not contain any videos." );
+      RiseVision.Video.showError( "The selected folder does not contain any videos." );
     } );
 
     storage.addEventListener( "rise-storage-no-folder", function( e ) {
       var params = { "event": "storage folder doesn't exist", "event_details": e.detail };
 
       videoUtils.logEvent( params, true );
-      videoUtils.showError( "The selected folder does not exist or has been moved to Trash." );
+      RiseVision.Video.showError( "The selected folder does not exist or has been moved to Trash." );
     } );
 
     storage.addEventListener( "rise-storage-folder-invalid", function() {
       var params = { "event": "storage folder format(s) invalid" };
 
       videoUtils.logEvent( params, true );
-      videoUtils.showError( "The selected folder does not contain any supported video formats." );
+      RiseVision.Video.showError( "The selected folder does not contain any supported video formats." );
     } );
 
     storage.addEventListener( "rise-storage-subscription-expired", function() {
       var params = { "event": "storage subscription expired" };
 
       videoUtils.logEvent( params, true );
-      videoUtils.showError( "Rise Storage subscription is not active." );
+      RiseVision.Video.showError( "Rise Storage subscription is not active." );
     } );
 
     storage.addEventListener( "rise-storage-subscription-error", function( e ) {
@@ -153,7 +153,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
       };
 
       videoUtils.logEvent( params, true );
-      videoUtils.showError( "Sorry, there was a problem communicating with Rise Storage.", true );
+      RiseVision.Video.showError( "Sorry, there was a problem communicating with Rise Storage.", true );
     } );
 
     storage.addEventListener( "rise-cache-error", function( e ) {
@@ -178,7 +178,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
           errorMessage = utils.getRiseCacheErrorMessage( statusCode );
         }
 
-        videoUtils.showError( errorMessage );
+        RiseVision.Video.showError( errorMessage );
       } );
     } );
 
@@ -202,7 +202,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
       videoUtils.logEvent( params, true );
 
       if ( e.detail && e.detail.isPlayerRunning ) {
-        videoUtils.showError( "Waiting for Rise Cache", true );
+        RiseVision.Video.showError( "Waiting for Rise Cache", true );
       }
     } );
 
