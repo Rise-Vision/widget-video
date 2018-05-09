@@ -100,7 +100,7 @@ suite( "normal storage response", function() {
   var playerSpy;
 
   suiteSetup( function() {
-    playerSpy = sinon.spy( RiseVision.Video, "PlayerVJS" );
+    playerSpy = sinon.spy( RiseVision, "PlayerVJS" );
 
     storage.dispatchEvent( new CustomEvent( "rise-storage-response", {
       "detail": {

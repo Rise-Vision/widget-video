@@ -3,7 +3,6 @@
 
   const babel = require("gulp-babel");
   var bower = require("gulp-bower");
-  var colors = require("colors");
   var del = require("del");
   const eslint = require("gulp-eslint");
   var gulp = require("gulp");
@@ -221,8 +220,8 @@
       "src/components/widget-common/dist/config.js",
       "src/config/version.js",
       "src/config/test.js",
-      "src/widget/video.js",
-      "test/unit/widget/video-spec.js"
+      "src/widget/video-utils.js",
+      "test/unit/widget/video-utils-spec.js"
     ]}
   ));
 

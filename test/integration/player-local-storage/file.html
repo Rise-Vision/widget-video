@@ -27,28 +27,50 @@
 
 <script src="../../../src/components/widget-common/dist/config.js"></script>
 <script src="../../../src/components/widget-common/dist/common.js"></script>
+<script src="../../../src/common-modules/local-messaging.js"></script>
+<script src="../../../src/common-modules/player-local-storage.js"></script>
 <script src="../../../src/components/widget-common/dist/message.js"></script>
-<script src="../../../src/components/widget-common/dist/rise-cache.js"></script>
 <script src="../../../src/config/version.js"></script>
 <script src="../../../src/config/test.js"></script>
 <script src="../../../src/widget/video-utils.js"></script>
-<script src="../../../src/widget/video.js"></script>
+<script src="../../../src/widget/video-rls.js"></script>
 <script src="../../../src/widget/player-utils.js"></script>
-<script src="../../../src/widget/storage-file.js"></script>
 <script src="../../../src/widget/player-vjs.js"></script>
+<script src="../../../src/widget/player-local-storage-file.js"></script>
 
 <script type="text/javascript">
   config.COMPONENTS_PATH = "../../../src/components/";
 </script>
 
-<!-- TEST FILES -->
 <script src="../../data/storage-file.js"></script>
-<script src="../js/version.js"></script>
+<script src="../js/player-local-storage-file.js"></script>
 <script>
-  test("link element added to document head using original rise-storage source", function () {
-    var head = document.getElementsByTagName("head")[0];
-    assert.isNotNull(head.querySelector("link[href='" + config.COMPONENTS_PATH + "rise-storage/rise-storage.html'"));
-  });
+  var messageHandlers = [];
+
+  config.TEST_USE_RLS = true;
+
+  top.RiseVision = RiseVision || {};
+  top.RiseVision.Viewer = {};
+  top.RiseVision.Viewer.LocalMessaging = {
+    write: function() {
+      // console.log(message);
+    },
+    receiveMessages: function( action ) {
+      messageHandlers.push( function( data ) {
+        action( data );
+      } );
+    },
+    canConnect: function() {
+      return true;
+    }
+  };
+
+  sinon.stub( RiseVision.VideoRLS, "setAdditionalParams", function( params, mode, displayId ) {
+    ready = true;
+
+    RiseVision.VideoRLS.setAdditionalParams.restore();
+    RiseVision.VideoRLS.setAdditionalParams( params, mode, displayId );
+  } );
 </script>
 
 <script src="../../../src/widget/main.js"></script>

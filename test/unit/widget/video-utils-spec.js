@@ -6,7 +6,7 @@
 
 describe( "getTableName", function() {
   it( "should return the correct table name", function() {
-    expect( RiseVision.Video.getTableName(), "video_v2_events" );
+    expect( RiseVision.VideoUtils.getTableName(), "video_v2_events" );
   } );
 } );
 
@@ -31,7 +31,7 @@ describe( "logEvent", function() {
       "display_id": ""
     };
 
-    RiseVision.Video.logEvent( {
+    RiseVision.VideoUtils.logEvent( {
       "event": "test",
       "event_details": "test details",
       "file_url": "http://www.test.com/file.webm"
@@ -43,12 +43,12 @@ describe( "logEvent", function() {
   it( "should call spy with correct parameters when only the event parameter is set", function() {
     var params = {
       "event": "test",
-      "file_url": null,
       "company_id": "",
-      "display_id": ""
+      "display_id": "",
+      "file_url": null
     };
 
-    RiseVision.Video.logEvent( { "event": "test" } );
+    RiseVision.VideoUtils.logEvent( { "event": "test" } );
 
     expect( logSpy ).to.have.been.calledWith( "video_v2_events", params );
   } );

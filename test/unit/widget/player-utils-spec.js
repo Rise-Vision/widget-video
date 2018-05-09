@@ -5,7 +5,7 @@
 "use strict";
 
 describe( "getVideoFileType()", function() {
-  var utils = RiseVision.Video.PlayerUtils;
+  var utils = RiseVision.PlayerUtils;
 
   it( "should return correct HTML5 video file type calling getVideoFileType()", function() {
     var baseUrl = "https://storage.googleapis.com/risemedialibrary-abc123/Widgets%2Ftest";
@@ -29,7 +29,7 @@ describe( "getVideoFileType()", function() {
 } );
 
 describe( "getAspectRatio()", function() {
-  var utils = RiseVision.Video.PlayerUtils;
+  var utils = RiseVision.PlayerUtils;
 
   it( "should return 4:3 aspect ratio ", function() {
     expect( utils.getAspectRatio( 1280, 960 ) ).to.equal( "4:3" );

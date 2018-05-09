@@ -140,7 +140,7 @@ suite( "Storage Errors", function() {
 
   setup( function() {
     onShowErrorStub = sinon.stub( RiseVision.Video, "showError", function() {} );
-    onLogEventStub = sinon.stub( RiseVision.Video, "logEvent", function() {} );
+    onLogEventStub = sinon.stub( RiseVision.VideoUtils, "logEvent", function() {} );
   } );
 
   teardown( function() {
@@ -148,7 +148,7 @@ suite( "Storage Errors", function() {
     delete params.event_details;
 
     RiseVision.Video.showError.restore();
-    RiseVision.Video.logEvent.restore();
+    RiseVision.VideoUtils.logEvent.restore();
   } );
 
   test( "should handle when 'no file' error occurs", function() {

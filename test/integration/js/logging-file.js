@@ -3,7 +3,6 @@
 /* eslint-disable func-names */
 
 var spy,
-  clock,
   storage,
   ready = false,
   isV2Running = false,
@@ -20,7 +19,6 @@ var spy,
   check = function( done ) {
     if ( ready ) {
       sinon.stub( RiseVision.Video, "play" );
-      clock = sinon.useFakeTimers();
 
       done();
     } else {
@@ -73,41 +71,6 @@ suite( "storage file not found", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params ) );
   } );
-
-  test( "should log a storage file not found error when done is fired", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-storage-no-file", {
-      "detail": "/Fish_Tank_Project.webm",
-      "bubbles": true
-    } ) );
-
-    spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-    clock.tick( 5000 );
-
-    // player error + done
-    assert( spy.calledTwice );
-    assert( spy.calledWith( table, params ) );
-  } );
-
-  test( "should not log a storage file not found error when done is fired if the error has resolved itself on a refresh", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-storage-no-file", {
-      "detail": "/Fish_Tank_Project.webm",
-      "bubbles": true
-    } ) );
-
-    // Resolve the error.
-    RiseVision.Video.onFileRefresh( window.gadget.settings.additionalParams.selector.url );
-
-    spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-    params.event = "done";
-    params.file_url = window.gadget.settings.additionalParams.selector.url;
-    params.file_format = "webm";
-    delete params.event_details;
-
-    clock.tick( 5000 );
-
-    assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
-  } );
 } );
 
 suite( "rise storage error", function() {
@@ -127,55 +90,6 @@ suite( "rise storage error", function() {
 
     params.event = "rise storage error";
     params.event_details = "The request failed with status code: 0";
-
-    assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
-  } );
-
-  test( "should log a rise storage error when done is fired", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-storage-error", {
-      "detail": {
-        "error": {
-          "currentTarget": {
-            "status": 0
-          }
-        }
-      },
-      "bubbles": true
-    } ) );
-
-    spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-    clock.tick( 5000 );
-
-     // rise storage error + done
-    assert( spy.calledTwice );
-    assert( spy.calledWith( table, params ) );
-  } );
-
-  test( "should not log a rise storage error when done is fired if the error has resolved itself on a refresh", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-storage-error", {
-      "detail": {
-        "error": {
-          "currentTarget": {
-            "status": 0
-          }
-        }
-      },
-      "bubbles": true
-    } ) );
-
-    // Resolve the error.
-    RiseVision.Video.onFileRefresh( window.gadget.settings.additionalParams.selector.url );
-
-    spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-
-    params.event = "done";
-    params.file_url = window.gadget.settings.additionalParams.selector.url;
-    params.file_format = "webm";
-    // No event_details for a done event.
-    delete params.event_details;
-
-    clock.tick( 5000 );
 
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params ) );
@@ -247,41 +161,9 @@ suite( "storage file throttled or no storage subscription", function() {
     } ) );
 
     params.event = "storage file throttled";
-    delete params.event_details;
-
-    assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
-  } );
-
-  test( "should log a storage file throttled error when done is fired", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-storage-file-throttled", {
-      "detail": window.gadget.settings.additionalParams.selector.url,
-      "bubbles": true
-    } ) );
-
-    spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-    clock.tick( 5000 );
-
-    // storage file throttled + done
-    assert( spy.calledTwice );
-    assert( spy.calledWith( table, params ) );
-  } );
-
-  test( "should not log a storage file unavailable error when done is fired if the error has resolved itself on a refresh", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-storage-file-throttled", {
-      "detail": window.gadget.settings.additionalParams.selector.url,
-      "bubbles": true
-    } ) );
-
-    // Resolve the error.
-    RiseVision.Video.onFileRefresh( window.gadget.settings.additionalParams.selector.url );
-
-    spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-    params.event = "done";
-    params.file_url = window.gadget.settings.additionalParams.selector.url;
+    params.file_url = "https://storage.googleapis.com/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets%2Fvideos%2Fa_food_show.webm";
     params.file_format = "webm";
-
-    clock.tick( 5000 );
+    delete params.event_details;
 
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params ) );
@@ -295,6 +177,8 @@ suite( "storage subscription expired", function() {
     storage.dispatchEvent( new CustomEvent( "rise-storage-subscription-expired" ) );
 
     params.event = "storage subscription expired";
+    params.file_url = null;
+    delete params.file_format;
 
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params ) );
@@ -320,101 +204,25 @@ suite( "storage subscription expired", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params ) );
   } );
+} );
 
-  test( "should log a storage subscription expired error when done is fired", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-storage-subscription-expired" ) );
-
+suite( "storage api error", function() {
+  test( "should log a storage api error", function() {
     spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-    clock.tick( 5000 );
 
-    delete params.event_details;
-    params.event = "storage subscription expired";
+    storage.dispatchEvent( new CustomEvent( "rise-storage-api-error", {
+      "detail": {
+        "result": false,
+        "code": 500,
+        "message": "Could not retrieve Bucket Items"
+      },
+      "bubbles": true
+    } ) );
 
-    // storage subscription expired + done
-    assert( spy.calledTwice );
-    assert( spy.calledWith( table, params ) );
-  } );
-
-  test( "should not log a storage subscription expired error when done is fired if the error has resolved itself on a refresh", function() {
-    storage.dispatchEvent( new CustomEvent( "rise-storage-subscription-expired" ) );
-
-    // Resolve the error.
-    RiseVision.Video.onFileRefresh( window.gadget.settings.additionalParams.selector.url );
-
-    spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-    params.event = "done";
-    params.file_url = window.gadget.settings.additionalParams.selector.url;
-    params.file_format = "webm";
-
-    clock.tick( 5000 );
+    params.event = "storage api error";
+    params.event_details = "Response code: 500, message: Could not retrieve Bucket Items";
 
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params ) );
   } );
-
-  suite( "storage api error", function() {
-    test( "should log a storage api error", function() {
-      spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-
-      storage.dispatchEvent( new CustomEvent( "rise-storage-api-error", {
-        "detail": {
-          "result": false,
-          "code": 500,
-          "message": "Could not retrieve Bucket Items"
-        },
-        "bubbles": true
-      } ) );
-
-      params.event = "storage api error";
-      params.event_details = "Response code: 500, message: Could not retrieve Bucket Items";
-
-      assert( spy.calledOnce );
-      assert( spy.calledWith( table, params ) );
-    } );
-
-    test( "should log a storage api error when done is fired", function() {
-      storage.dispatchEvent( new CustomEvent( "rise-storage-api-error", {
-        "detail": {
-          "result": false,
-          "code": 500,
-          "message": "Could not retrieve Bucket Items"
-        },
-        "bubbles": true
-      } ) );
-
-      spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-      clock.tick( 5000 );
-
-      // storage file not found + done
-      assert( spy.calledTwice );
-      assert( spy.calledWith( table, params ) );
-    } );
-
-    test( "should not log a storage api error when done is fired if the error has resolved itself on a refresh", function() {
-      storage.dispatchEvent( new CustomEvent( "rise-storage-api-error", {
-        "detail": {
-          "result": false,
-          "code": 500,
-          "message": "Could not retrieve Bucket Items"
-        },
-        "bubbles": true
-      } ) );
-
-      // Resolve the error.
-      RiseVision.Video.onFileRefresh( window.gadget.settings.additionalParams.selector.url );
-
-      spy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-      params.event = "done";
-      params.file_url = window.gadget.settings.additionalParams.selector.url;
-      params.file_format = "webm";
-      delete params.event_details;
-
-      clock.tick( 5000 );
-
-      assert( spy.calledOnce );
-      assert( spy.calledWith( table, params ) );
-    } );
-
-  } );
-
 } );

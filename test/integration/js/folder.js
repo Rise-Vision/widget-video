@@ -244,7 +244,7 @@ suite( "storage errors", function() {
 
   setup( function() {
     onShowErrorStub = sinon.stub( RiseVision.Video, "showError", function() {} );
-    onLogEventStub = sinon.stub( RiseVision.Video, "logEvent", function() {} );
+    onLogEventStub = sinon.stub( RiseVision.VideoUtils, "logEvent", function() {} );
   } );
 
   teardown( function() {
@@ -252,7 +252,7 @@ suite( "storage errors", function() {
     delete params.event_details;
 
     RiseVision.Video.showError.restore();
-    RiseVision.Video.logEvent.restore();
+    RiseVision.VideoUtils.logEvent.restore();
   } );
 
   test( "should handle when a 'rise cache not running' occurs", function() {

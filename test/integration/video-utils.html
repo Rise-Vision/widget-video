@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>Video Widget</title>
+
+  <script src="../../src/components/web-component-tester/browser.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../../src/components/videojs/dist/video-js.css">
+  <link rel="stylesheet" type="text/css" href="../../src/widget/css/video.css">
+  <link rel="stylesheet" href="../../src/components/widget-common/dist/css/message.css">
+</head>
+<body>
+
+<div id="container">
+  <video id="player" class="video-js" preload="auto"></video>
+</div>
+
+<div id="messageContainer"></div>
+
+<script src="../../node_modules/widget-tester/mocks/gadget-mocks.js"></script>
+<script src="../../node_modules/widget-tester/mocks/logger-mock.js"></script>
+<script src="../../src/components/widget-common/dist/common.js"></script>
+
+<script src="../../src/widget/video-utils.js"></script>
+
+<script>
+  var mainContainer = document.getElementById("container");
+
+  mainContainer.style.height = "778px";
+
+  suite("Video-Utils", function() {
+
+    var videoUtils = RiseVision.VideoUtils;
+
+    suite( "startErrorTimer", function() {
+
+      test( "should after 5 seconds send done to Viewer", function() {
+        var sendStub = sinon.stub(videoUtils, "sendDoneToViewer"),
+          clock = sinon.useFakeTimers();
+
+        videoUtils.startErrorTimer( "test-bucket/widget-testing/video-widget/video.webm" );
+
+        clock.tick(5000);
+
+        expect( sendStub.calledOnce ).to.be.true;
+
+        videoUtils.sendDoneToViewer.restore();
+        clock.restore();
+      } );
+
+    } );
+
+    suite( "setCurrentFiles", function() {
+
+      test( "should handle string type (single file)", function() {
+        videoUtils.setCurrentFiles( "test-bucket/video.webm" );
+
+        expect( videoUtils.getCurrentFiles().length ).to.equal( 1 );
+        expect( videoUtils.getCurrentFiles()[ 0 ] ).to.equal( "test-bucket/video.webm" );
+      } );
+
+      test( "should handle array type (folder)", function() {
+        videoUtils.setCurrentFiles( [ "test-bucket/video.webm", "test-bucket/video2.webm" ] );
+
+        expect( videoUtils.getCurrentFiles().length ).to.equal( 2 );
+        expect( videoUtils.getCurrentFiles()[ 0 ] ).to.equal( "test-bucket/video.webm" );
+        expect( videoUtils.getCurrentFiles()[ 1 ] ).to.equal( "test-bucket/video2.webm" );
+      } );
+
+    } );
+
+    suite( "playerEnded", function() {
+
+      test( "should call 'sendDoneToViewer()'", function() {
+        var sendStub = sinon.stub(videoUtils, "sendDoneToViewer");
+
+        videoUtils.playerEnded();
+
+        expect( sendStub.calledOnce ).to.be.true;
+
+        videoUtils.sendDoneToViewer.restore();
+      } );
+
+    } );
+
+  });
+</script>
+
+</body>
+</html>

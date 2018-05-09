@@ -2,16 +2,15 @@
 
 var RiseVision = RiseVision || {};
 
-RiseVision.Video = RiseVision.Video || {};
-
-RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
+RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   "use strict";
 
   var _autoPlay = false,
     _playerInstance = null,
     _files = null,
     _fileCount = 0,
-    _utils = RiseVision.Video.PlayerUtils,
+    _utils = RiseVision.PlayerUtils,
+    _videoUtils = RiseVision.VideoUtils,
     _updateWaiting = false,
     _isPaused = false,
     _pauseTimer,
@@ -51,14 +50,14 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
 
   function _onEnded() {
     if ( mode === "file" ) {
-      RiseVision.Video.playerEnded();
+      _videoUtils.playerEnded();
     } else if ( mode === "folder" ) {
       _fileCount++;
 
       if ( ( _fileCount >= _playerInstance.playlist().length ) ) {
         _fileCount = 0;
         _playerInstance.playlist.currentItem( 0 );
-        RiseVision.Video.playerEnded();
+        _videoUtils.playerEnded();
       } else {
         _playerInstance.playlist.next();
       }
@@ -67,12 +66,12 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
 
   function _onError() {
 
-    RiseVision.Video.playerError( _playerInstance.error() );
+    videoRef.playerError( _playerInstance.error() );
   }
 
   function _onLoadedMetaData() {
     // Log aspect event
-    RiseVision.Video.logEvent( {
+    _videoUtils.logEvent( {
       event: "aspect",
       event_details: JSON.stringify( {
         placeholderWidth: params.width,
@@ -137,7 +136,7 @@ RiseVision.Video.PlayerVJS = function PlayerVJS( params, mode ) {
       _setVolume();
 
       // notify that player is ready
-      RiseVision.Video.playerReady();
+      videoRef.playerReady();
     }
   }
 

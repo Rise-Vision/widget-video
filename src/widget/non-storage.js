@@ -7,6 +7,7 @@ RiseVision.Video.NonStorage = function( data ) {
 
   var riseCache = RiseVision.Common.RiseCache,
     utils = RiseVision.Common.Utilities,
+    videoUtils = RiseVision.VideoUtils,
     // 15 minutes
     _refreshDuration = 900000,
     _refreshIntervalId = null,
@@ -41,7 +42,7 @@ RiseVision.Video.NonStorage = function( data ) {
         } else {
 
           // error occurred
-          RiseVision.Video.logEvent( {
+          videoUtils.logEvent( {
             "event": "non-storage error",
             "event_details": error.message,
             "file_url": response.url
