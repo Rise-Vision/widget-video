@@ -89,25 +89,6 @@ suite( "errors", function() {
     assert( logSpy.calledWith( table, params ) );
   } );
 
-  test( "licensing unavailable", function() {
-    logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-
-    // mock receiving client-list message
-    messageHandlers.forEach( function( handler ) {
-      handler( {
-        topic: "client-list",
-        clients: [ "local-storage", "licensing" ]
-      } );
-    } );
-
-    clock.tick( 33000 );
-
-    params.event_details = "licensing unavailable";
-
-    assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
-  } );
-
   test( "unauthorized", function() {
     logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
 
