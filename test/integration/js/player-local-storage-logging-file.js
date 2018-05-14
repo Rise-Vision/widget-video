@@ -163,8 +163,7 @@ suite( "errors", function() {
       } );
     } );
 
-    params.event_details = "File's host server could not be reached";
-    params.error_details = "error details";
+    params.event_details = "File's host server could not be reached | error details";
 
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params ) );

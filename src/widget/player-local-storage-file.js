@@ -122,8 +122,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function( params ) {
       detail = data.detail || "",
       params = {
         "event": "error",
-        "event_details": msg,
-        "error_details": detail,
+        "event_details": msg + ( detail ? " | " + detail : "" ),
         "file_url": filePath
       };
 
