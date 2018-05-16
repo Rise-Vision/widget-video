@@ -8,6 +8,8 @@ RiseVision.VideoUtils = ( function() {
   var ERROR_TIMER_DELAY = 5000,
     _prefs = new gadgets.Prefs(),
     _currentFiles = [],
+    _useRLSSingleFile = false,
+    _params = null,
     _mode = null,
     _errorTimer = null;
 
@@ -38,6 +40,26 @@ RiseVision.VideoUtils = ( function() {
     return _mode;
   }
 
+  function getParams() {
+    return _params;
+  }
+
+  function getStorageSingleFilePath() {
+    var path = "";
+
+    if ( _params.storage.folder ) {
+      path += _params.storage.folder + ( _params.storage.folder.slice( -1 ) !== "/" ? "/" : "" );
+    }
+
+    path += _params.storage.fileName;
+
+    return "risemedialibrary-" + _params.storage.companyId + "/" + path;
+  }
+
+  function isRLSSingleFile() {
+    return _mode === "file" && _useRLSSingleFile;
+  }
+
   function startErrorTimer() {
     clearErrorTimer();
 
@@ -50,12 +72,17 @@ RiseVision.VideoUtils = ( function() {
     return "video_v2_events";
   }
 
-  function logEvent( params ) {
-    if ( !params.file_url ) {
-      params.file_url = _getCurrentFile();
+  function logEvent( data ) {
+    if ( RiseVision.VideoUtils.isRLSSingleFile() ) {
+      data.file_url = RiseVision.VideoUtils.getStorageSingleFilePath();
+      data.local_url = _getCurrentFile();
+    } else {
+      if ( !data.file_url ) {
+        data.file_url = _getCurrentFile();
+      }
     }
 
-    RiseVision.Common.LoggerUtils.logEvent( getTableName(), params );
+    RiseVision.Common.LoggerUtils.logEvent( getTableName(), data );
   }
 
   function playerEnded() {
@@ -87,17 +114,30 @@ RiseVision.VideoUtils = ( function() {
     _mode = mode;
   }
 
+  function setParams( params ) {
+    _params = params;
+  }
+
+  function setUseRLSSingleFile() {
+    _useRLSSingleFile = true;
+  }
+
   return {
     "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
     "getMode": getMode,
+    "getParams": getParams,
     "getTableName": getTableName,
+    "getStorageSingleFilePath": getStorageSingleFilePath,
+    "isRLSSingleFile": isRLSSingleFile,
     "logEvent": logEvent,
     "playerEnded": playerEnded,
     "sendDoneToViewer": sendDoneToViewer,
     "sendReadyToViewer": sendReadyToViewer,
     "setCurrentFiles": setCurrentFiles,
     "setMode": setMode,
+    "setParams": setParams,
+    "setUseRLSSingleFile": setUseRLSSingleFile,
     "startErrorTimer": startErrorTimer,
   };
 

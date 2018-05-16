@@ -7,8 +7,7 @@ RiseVision.Video = {};
 RiseVision.Video = ( function( window, gadgets ) {
   "use strict";
 
-  var _additionalParams,
-    _displayId,
+  var _displayId,
     _isLoading = true,
     _configDetails = null,
     _videoUtils = RiseVision.VideoUtils,
@@ -35,10 +34,11 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   function _init() {
-    var isStorageFile;
+    var params = _videoUtils.getParams(),
+      isStorageFile;
 
-    if ( _additionalParams.video.hasOwnProperty( "resume" ) ) {
-      _resume = _additionalParams.video.resume;
+    if ( params.video.hasOwnProperty( "resume" ) ) {
+      _resume = params.video.resume;
     }
 
     _message = new RiseVision.Common.Message( document.getElementById( "container" ),
@@ -52,25 +52,25 @@ RiseVision.Video = ( function( window, gadgets ) {
       _message.show( "Please wait while your video is downloaded." );
 
       if ( _videoUtils.getMode() === "file" ) {
-        isStorageFile = ( Object.keys( _additionalParams.storage ).length !== 0 );
+        isStorageFile = ( Object.keys( params.storage ).length !== 0 );
 
         if ( !isStorageFile ) {
           _configDetails = "custom";
 
-          _nonStorage = new RiseVision.Video.NonStorage( _additionalParams );
+          _nonStorage = new RiseVision.Video.NonStorage( params );
           _nonStorage.init();
         } else {
           _configDetails = "storage file";
 
           // create and initialize the Storage file instance
-          _storage = new RiseVision.Video.StorageFile( _additionalParams, _displayId );
+          _storage = new RiseVision.Video.StorageFile( params, _displayId );
           _storage.init();
         }
       } else if ( _videoUtils.getMode() === "folder" ) {
         _configDetails = "storage folder";
 
         // create and initialize the Storage folder instance
-        _storage = new RiseVision.Video.StorageFolder( _additionalParams, _displayId );
+        _storage = new RiseVision.Video.StorageFolder( params, _displayId );
         _storage.init();
       }
     }
@@ -81,6 +81,11 @@ RiseVision.Video = ( function( window, gadgets ) {
   /*
    *  Public Methods
    */
+
+  function isInPreview() {
+    return !_displayId || _displayId === "preview" || _displayId === "display_id";
+  }
+
   function hasStorageError() {
     return _storageErrorFlag;
   }
@@ -140,7 +145,8 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   function play() {
-    var currentFiles;
+    var params = _videoUtils.getParams(),
+      currentFiles;
 
     if ( _isLoading ) {
       _isLoading = false;
@@ -178,7 +184,7 @@ RiseVision.Video = ( function( window, gadgets ) {
       currentFiles = _videoUtils.getCurrentFiles();
 
       if ( currentFiles && currentFiles.length > 0 ) {
-        _player = new RiseVision.PlayerVJS( _additionalParams, _videoUtils.getMode(), RiseVision.Video );
+        _player = new RiseVision.PlayerVJS( params, _videoUtils.getMode(), RiseVision.Video );
         _player.init( currentFiles );
       }
     }
@@ -195,15 +201,18 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   function setAdditionalParams( params, mode, displayId ) {
-    _additionalParams = _.clone( params );
+    var data = _.clone( params );
+
     _videoUtils.setMode( mode );
     _displayId = displayId;
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
     document.getElementById( "container" ).style.height = _prefs.getInt( "rsH" ) + "px";
 
-    _additionalParams.width = _prefs.getInt( "rsW" );
-    _additionalParams.height = _prefs.getInt( "rsH" );
+    data.width = _prefs.getInt( "rsW" );
+    data.height = _prefs.getInt( "rsH" );
+
+    _videoUtils.setParams( data );
 
     _init();
   }
@@ -253,6 +262,7 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   return {
+    "isInPreview": isInPreview,
     "hasPlayerError": hasPlayerError,
     "hasStorageError": hasStorageError,
     "onFileInit": onFileInit,

@@ -119,7 +119,7 @@
           "storage": {},
           "video": {
             "scaleToFit": true,
-            "volume": 50,
+            "volume": 0,
             "controls": true,
             "autoplay": true,
             "resume": true,

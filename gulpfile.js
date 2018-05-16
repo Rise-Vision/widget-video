@@ -109,7 +109,7 @@
   });
 
   gulp.task("i18n", function(cb) {
-    return gulp.src(["src/components/rv-common-i18n/dist/locales/**/*"])
+    return gulp.src(["src/components/common-header/dist/locales/**/*"])
       .pipe(gulp.dest("dist/locales"));
   });
 

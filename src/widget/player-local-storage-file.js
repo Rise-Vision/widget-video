@@ -5,7 +5,7 @@ var RiseVision = RiseVision || {};
 
 RiseVision.VideoRLS = RiseVision.VideoRLS || {};
 
-RiseVision.VideoRLS.PlayerLocalStorageFile = function( params ) {
+RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
   "use strict";
 
   var INITIAL_PROCESSING_DELAY = 10000,
@@ -27,18 +27,6 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function( params ) {
       // file is still processing/downloading
       RiseVision.VideoRLS.onFileUnavailable( "File is downloading" );
     }, INITIAL_PROCESSING_DELAY );
-  }
-
-  function _getFilePath() {
-    var path = "";
-
-    if ( params.storage.folder ) {
-      path += params.storage.folder + ( params.storage.folder.slice( -1 ) !== "/" ? "/" : "" );
-    }
-
-    path += params.storage.fileName;
-
-    return "risemedialibrary-" + params.storage.companyId + "/" + path;
   }
 
   function _handleNoConnection() {
@@ -99,13 +87,13 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function( params ) {
   }
 
   function _handleFileNoExist() {
-    var params = {
+    var data = {
       "event": "error",
       "event_details": "file does not exist",
       "file_url": filePath
     };
 
-    videoUtils.logEvent( params, true );
+    videoUtils.logEvent( data, true );
 
     RiseVision.VideoRLS.showError( "The selected video does not exist or has been moved to Trash." );
   }
@@ -122,8 +110,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function( params ) {
       detail = data.detail || "",
       params = {
         "event": "error",
-        "event_details": msg,
-        "error_details": detail,
+        "event_details": msg + ( detail ? " | " + detail : "" ),
         "file_url": filePath
       };
 
@@ -183,7 +170,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function( params ) {
   }
 
   function init() {
-    filePath = _getFilePath();
+    filePath = videoUtils.getStorageSingleFilePath();
     storage = new playerLocalStorage.default( messaging, _handleEvents );
   }
 
