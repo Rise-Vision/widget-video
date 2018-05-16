@@ -8,6 +8,7 @@ RiseVision.VideoUtils = ( function() {
   var ERROR_TIMER_DELAY = 5000,
     _prefs = new gadgets.Prefs(),
     _currentFiles = [],
+    _params = null,
     _mode = null,
     _errorTimer = null;
 
@@ -36,6 +37,10 @@ RiseVision.VideoUtils = ( function() {
 
   function getMode() {
     return _mode;
+  }
+
+  function getParams() {
+    return _params;
   }
 
   function startErrorTimer() {
@@ -87,10 +92,15 @@ RiseVision.VideoUtils = ( function() {
     _mode = mode;
   }
 
+  function setParams( params ) {
+    _params = params;
+  }
+
   return {
     "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
     "getMode": getMode,
+    "getParams": getParams,
     "getTableName": getTableName,
     "logEvent": logEvent,
     "playerEnded": playerEnded,
@@ -98,6 +108,7 @@ RiseVision.VideoUtils = ( function() {
     "sendReadyToViewer": sendReadyToViewer,
     "setCurrentFiles": setCurrentFiles,
     "setMode": setMode,
+    "setParams": setParams,
     "startErrorTimer": startErrorTimer,
   };
 
