@@ -9,6 +9,7 @@ var table = "video_v2_events",
     "event_details": "",
     "file_url": "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
     "file_format": "webm",
+    "local_url": null,
     "company_id": "\"companyId\"",
     "display_id": "\"displayId\"",
     "version": "2.1.0"
@@ -42,7 +43,9 @@ suite( "configuration", function() {
     assert( logSpy.calledWith( table, {
       "event": "configuration",
       "event_details": "storage file",
-      "file_url": null,
+      "file_url": params.file_url,
+      "file_format": params.file_format,
+      "local_url": params.local_url,
       "company_id": params.company_id,
       "display_id": params.display_id,
       "version": params.version
