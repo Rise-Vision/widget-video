@@ -44,7 +44,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
         _configurationType = "storage file";
 
         // create and initialize the Storage file instance
-        _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile( params );
+        _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile();
         _storage.init();
       } else if ( _videoUtils.getMode() === "folder" ) {
         // TODO: coming soon
@@ -195,6 +195,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     var data = _.clone( params );
 
     _videoUtils.setMode( mode );
+    _videoUtils.setUseRLSSingleFile();
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
     document.getElementById( "container" ).style.height = _prefs.getInt( "rsH" ) + "px";
