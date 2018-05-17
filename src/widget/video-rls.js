@@ -10,7 +10,6 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
 
   var _prefs = new gadgets.Prefs(),
     _videoUtils = RiseVision.VideoUtils,
-    _params = null,
     _message = null,
     _player = null,
     _configurationLogged = false,
@@ -25,8 +24,10 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
    *  Private Methods
    */
   function _init() {
-    if ( _params.video.hasOwnProperty( "resume" ) ) {
-      _resume = _params.video.resume;
+    var params = _videoUtils.getParams();
+
+    if ( params.video.hasOwnProperty( "resume" ) ) {
+      _resume = params.video.resume;
     }
 
     _message = new RiseVision.Common.Message( document.getElementById( "container" ),
@@ -43,7 +44,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
         _configurationType = "storage file";
 
         // create and initialize the Storage file instance
-        _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile( _params );
+        _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile();
         _storage.init();
       } else if ( _videoUtils.getMode() === "folder" ) {
         // TODO: coming soon
@@ -111,7 +112,8 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   }
 
   function play() {
-    var currentFiles;
+    var params = _videoUtils.getParams(),
+      currentFiles;
 
     if ( !_configurationLogged ) {
       _configurationLogged = true;
@@ -145,7 +147,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       currentFiles = _videoUtils.getCurrentFiles();
 
       if ( currentFiles && currentFiles.length > 0 ) {
-        _player = new RiseVision.PlayerVJS( _params, _videoUtils.getMode(), RiseVision.VideoRLS );
+        _player = new RiseVision.PlayerVJS( params, _videoUtils.getMode(), RiseVision.VideoRLS );
         _player.init( currentFiles );
       }
     }
@@ -190,14 +192,18 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   }
 
   function setAdditionalParams( params, mode ) {
-    _params = _.clone( params );
+    var data = _.clone( params );
+
     _videoUtils.setMode( mode );
+    _videoUtils.setUseRLSSingleFile();
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
     document.getElementById( "container" ).style.height = _prefs.getInt( "rsH" ) + "px";
 
-    _params.width = _prefs.getInt( "rsW" );
-    _params.height = _prefs.getInt( "rsH" );
+    data.width = _prefs.getInt( "rsW" );
+    data.height = _prefs.getInt( "rsH" );
+
+    _videoUtils.setParams( data );
 
     _init();
   }
