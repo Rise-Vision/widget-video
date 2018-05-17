@@ -88,7 +88,7 @@ What actually happened. (screenshots / video captures always help)
 All contributions are greatly appreciated and welcome! If you would first like to sound out your contribution ideas, please post your thoughts to our [community](http://community.risevision.com), otherwise submit a pull request and we will do our best to incorporate it. Please be sure to submit corresponding E2E and unit tests where appropriate.
 
 ### Languages
-If you would like to translate the user interface for this product to another language, please refer to the [common-i18n](https://github.com/Rise-Vision/common-i18n) repository.
+If you would like to translate the user interface for this product to another language, please refer to the [common-header](https://github.com/Rise-Vision/common-header) repository.
 
 ## Resources
 If you have any questions or problems, please don't hesitate to join our lively and responsive community at http://community.risevision.com.
