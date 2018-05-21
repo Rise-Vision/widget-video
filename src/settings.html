@@ -5,9 +5,9 @@
   <title>Video Settings</title>
 
   <!-- build:css css/settings.min.css -->
-  <link rel="stylesheet" href="components/rv-common-style/dist/css/rise.min.css">
   <link rel="stylesheet" href="components/bootstrap-select/bootstrap-select.css">
   <link rel="stylesheet" href="components/rv-bootstrap-formhelpers/dist/css/rv-bootstrap-formhelpers.css">
+  <link rel="stylesheet" type="text/css" href="components/common-header/dist/css/rise.min.css">
   <!-- endbuild -->
 
   <style type="text/css">
@@ -54,7 +54,7 @@
                            ng-model="fileselector" selector-valid valid></file-selector>
 
             <!-- Volume -->
-            <label class="control-label add-top">
+            <label class="control-label u_margin-md-top">
               {{"video.volume.label" | translate}}
             </label>
             <div class="row">
@@ -65,7 +65,7 @@
             <br>
 
             <!-- Video Options -->
-            <label class="control-label add-top">
+            <label class="control-label u_margin-md-top">
               {{"video.options.label" | translate}}
             </label>
             <div class="row">
@@ -74,7 +74,7 @@
 
                   <!-- Resume Playback -->
                   <div class="col-md-12">
-                    <label class="add-bottom">
+                    <label class="u_margin-md-bottom">
                       <input type="checkbox" ng-model="settings.additionalParams.video.resume">
                       {{"widgets.resume" | translate}}
                     </label>
@@ -82,7 +82,7 @@
 
                   <!-- Scale to Fit -->
                   <div class="col-md-12">
-                    <label class="add-bottom">
+                    <label class="u_margin-md-bottom">
                       <input name="video-scale" type="checkbox" ng-model="settings.additionalParams.video.scaleToFit">
                       {{"widgets.scale-to-fit" | translate}}
                     </label>
@@ -90,7 +90,7 @@
 
                   <!-- Controls -->
                   <div class="col-md-12">
-                    <label class="add-bottom">
+                    <label class="u_margin-md-bottom">
                       <input type="checkbox" ng-model="settings.additionalParams.video.controls">
                       {{"video.options.controls" | translate}}
                     </label>
@@ -98,7 +98,7 @@
 
                   <!-- Auto Play -->
                   <div class="col-md-12" ng-show="settings.additionalParams.video.controls">
-                    <label class="add-bottom">
+                    <label class="u_margin-md-bottom">
                       <input type="checkbox" ng-model="settings.additionalParams.video.autoplay">
                       {{"video.options.autoplay" | translate}}
                     </label>
@@ -126,14 +126,14 @@
             </div>
 
             <hr>
+
+            <div class="alert alert-info">
+              <div class="alert-body ng-binding">
+                {{"video.preview.previewMutedText" | translate }}
+              </div>
+            </div>
           </div><!-- .modal-body -->
 
-          <div class="alert alert-info">
-            <div class="alert-body ng-binding">
-              {{"video.preview.previewMutedText" | translate }}
-            </div>
-          </div>
-          
           <!-- Modal Footer-->
           <div class="modal-footer">
             <!-- Button Toolbar -->
