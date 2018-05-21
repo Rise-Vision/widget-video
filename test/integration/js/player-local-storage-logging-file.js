@@ -12,7 +12,7 @@ var table = "video_v2_events",
     "local_url": null,
     "company_id": "\"companyId\"",
     "display_id": "\"displayId\"",
-    "version": "2.1.0"
+    "version": "1.1.0"
   },
   ready = false,
   messageHandlers,
