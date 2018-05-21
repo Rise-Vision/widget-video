@@ -81,6 +81,11 @@ RiseVision.Video = ( function( window, gadgets ) {
   /*
    *  Public Methods
    */
+
+  function isInPreview() {
+    return !_displayId || _displayId === "preview" || _displayId === "display_id";
+  }
+
   function hasStorageError() {
     return _storageErrorFlag;
   }
@@ -257,6 +262,7 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   return {
+    "isInPreview": isInPreview,
     "hasPlayerError": hasPlayerError,
     "hasStorageError": hasStorageError,
     "onFileInit": onFileInit,

@@ -10,6 +10,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _files = null,
     _fileCount = 0,
     _utils = RiseVision.PlayerUtils,
+    _video = RiseVision.Video,
     _videoUtils = RiseVision.VideoUtils,
     _updateWaiting = false,
     _isPaused = false,
@@ -125,10 +126,24 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _playerInstance.on( "loadedmetadata", _onLoadedMetaData );
   }
 
+  function _muteVideo() {
+    _playerInstance.volume( 0 );
+    _playerInstance.muted( true );
+  }
+
   function _setVolume() {
+    if ( _video.isInPreview() ) {
+      _muteVideo();
+      return;
+    }
+
     if ( params.video && ( typeof params.video.volume !== "undefined" )
       && Number.isInteger( params.video.volume ) ) {
       _playerInstance.volume( params.video.volume / 100 );
+
+      if ( params.video.volume === 0 ) {
+        _muteVideo();
+      }
     }
   }
 
