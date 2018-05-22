@@ -9,6 +9,7 @@ RiseVision.VideoUtils = ( function() {
     _prefs = new gadgets.Prefs(),
     _currentFiles = [],
     _useRLSSingleFile = false,
+    _displayId = null,
     _params = null,
     _mode = null,
     _errorTimer = null;
@@ -36,6 +37,10 @@ RiseVision.VideoUtils = ( function() {
     return _currentFiles;
   }
 
+  function getDisplayId() {
+    return _displayId;
+  }
+
   function getMode() {
     return _mode;
   }
@@ -54,6 +59,10 @@ RiseVision.VideoUtils = ( function() {
     path += _params.storage.fileName;
 
     return "risemedialibrary-" + _params.storage.companyId + "/" + path;
+  }
+
+  function isValidDisplayId() {
+    return _displayId && _displayId !== "preview" && _displayId !== "display_id" && _displayId.indexOf( "displayId" ) === -1;
   }
 
   function isRLSSingleFile() {
@@ -110,6 +119,10 @@ RiseVision.VideoUtils = ( function() {
     }
   }
 
+  function setDisplayId( displayId ) {
+    _displayId = displayId;
+  }
+
   function setMode( mode ) {
     _mode = mode;
   }
@@ -125,16 +138,19 @@ RiseVision.VideoUtils = ( function() {
   return {
     "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
+    "getDisplayId": getDisplayId,
     "getMode": getMode,
     "getParams": getParams,
     "getTableName": getTableName,
     "getStorageSingleFilePath": getStorageSingleFilePath,
+    "isValidDisplayId": isValidDisplayId,
     "isRLSSingleFile": isRLSSingleFile,
     "logEvent": logEvent,
     "playerEnded": playerEnded,
     "sendDoneToViewer": sendDoneToViewer,
     "sendReadyToViewer": sendReadyToViewer,
     "setCurrentFiles": setCurrentFiles,
+    "setDisplayId": setDisplayId,
     "setMode": setMode,
     "setParams": setParams,
     "setUseRLSSingleFile": setUseRLSSingleFile,

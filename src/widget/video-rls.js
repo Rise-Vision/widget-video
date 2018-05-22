@@ -191,10 +191,11 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     pause();
   }
 
-  function setAdditionalParams( params, mode ) {
+  function setAdditionalParams( params, mode, displayId ) {
     var data = _.clone( params );
 
     _videoUtils.setMode( mode );
+    _videoUtils.setDisplayId( displayId );
     _videoUtils.setUseRLSSingleFile();
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
