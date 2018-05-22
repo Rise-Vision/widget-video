@@ -41,7 +41,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       _message.show( "Please wait while your video is downloaded." );
 
       if ( _videoUtils.getMode() === "file" ) {
-        _configurationType = "storage file";
+        _configurationType = "storage file (rls)";
 
         // create and initialize the Storage file instance
         _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile();

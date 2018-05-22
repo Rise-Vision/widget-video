@@ -42,7 +42,7 @@ suite( "configuration", function() {
 
     assert( logSpy.calledWith( table, {
       "event": "configuration",
-      "event_details": "storage file",
+      "event_details": "storage file (rls)",
       "file_url": params.file_url,
       "file_format": params.file_format,
       "local_url": params.local_url,
