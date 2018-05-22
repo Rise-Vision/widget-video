@@ -109,19 +109,6 @@ suite( "errors", function() {
   } );
 
   test( "file error", function() {
-    messageHandlers.forEach( function( handler ) {
-      handler( {
-        topic: "file-error",
-        filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
-        msg: "File's host server could not be reached",
-        detail: "error details"
-      } );
-    } );
-
-    assert.equal( document.querySelector( ".message" ).innerHTML, "Unable to download the file." );
-  } );
-
-  test( "should call done and have Viewer call play function 5 seconds after an error", function() {
     var clock = sinon.useFakeTimers(),
       spy = sinon.spy( RiseVision.VideoRLS, "play" );
 
@@ -133,6 +120,8 @@ suite( "errors", function() {
         detail: "error details"
       } );
     } );
+
+    assert.equal( document.querySelector( ".message" ).innerHTML, "Unable to download the file." );
 
     clock.tick( 4500 );
     assert( spy.notCalled );

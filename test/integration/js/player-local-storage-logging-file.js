@@ -170,6 +170,18 @@ suite( "errors", function() {
 
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params ) );
+
+    messageHandlers.forEach( function( handler ) {
+      handler( {
+        topic: "file-error",
+        filePath: params.file_url,
+        msg: "File's host server could not be reached",
+        detail: "error details"
+      } );
+    } );
+
+    // should still have only called it once from previous initial file error log
+    assert( logSpy.calledOnce );
   } );
 
   test( "file deleted", function() {
