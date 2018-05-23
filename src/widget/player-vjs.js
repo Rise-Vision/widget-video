@@ -10,7 +10,6 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _files = null,
     _fileCount = 0,
     _utils = RiseVision.PlayerUtils,
-    _video = RiseVision.Video,
     _videoUtils = RiseVision.VideoUtils,
     _updateWaiting = false,
     _isPaused = false,
@@ -132,7 +131,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   }
 
   function _setVolume() {
-    if ( _video.isInPreview() ) {
+    if ( !_videoUtils.isValidDisplayId() ) {
       _muteVideo();
       return;
     }

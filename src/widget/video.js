@@ -7,8 +7,7 @@ RiseVision.Video = {};
 RiseVision.Video = ( function( window, gadgets ) {
   "use strict";
 
-  var _displayId,
-    _isLoading = true,
+  var _isLoading = true,
     _configDetails = null,
     _videoUtils = RiseVision.VideoUtils,
     _prefs = new gadgets.Prefs(),
@@ -63,14 +62,14 @@ RiseVision.Video = ( function( window, gadgets ) {
           _configDetails = "storage file";
 
           // create and initialize the Storage file instance
-          _storage = new RiseVision.Video.StorageFile( params, _displayId );
+          _storage = new RiseVision.Video.StorageFile( params, _videoUtils.getDisplayId() );
           _storage.init();
         }
       } else if ( _videoUtils.getMode() === "folder" ) {
         _configDetails = "storage folder";
 
         // create and initialize the Storage folder instance
-        _storage = new RiseVision.Video.StorageFolder( params, _displayId );
+        _storage = new RiseVision.Video.StorageFolder( params, _videoUtils.getDisplayId() );
         _storage.init();
       }
     }
@@ -81,11 +80,6 @@ RiseVision.Video = ( function( window, gadgets ) {
   /*
    *  Public Methods
    */
-
-  function isInPreview() {
-    return !_displayId || _displayId === "preview" || _displayId === "display_id";
-  }
-
   function hasStorageError() {
     return _storageErrorFlag;
   }
@@ -204,7 +198,7 @@ RiseVision.Video = ( function( window, gadgets ) {
     var data = _.clone( params );
 
     _videoUtils.setMode( mode );
-    _displayId = displayId;
+    _videoUtils.setDisplayId( displayId );
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
     document.getElementById( "container" ).style.height = _prefs.getInt( "rsH" ) + "px";
@@ -262,7 +256,6 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   return {
-    "isInPreview": isInPreview,
     "hasPlayerError": hasPlayerError,
     "hasStorageError": hasStorageError,
     "onFileInit": onFileInit,
