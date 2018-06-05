@@ -93,34 +93,18 @@
             link = document.createElement( "link" ),
             webcomponents = document.createElement( "script" ),
             href = config.COMPONENTS_PATH + ( ( isV2 ) ? "rise-storage-v2" : "rise-storage" ) + "/rise-storage.html",
-            storage = document.createElement( "rise-storage" ),
-            storageReady = false,
-            polymerReady = false;
+            storage = document.createElement( "rise-storage" );
 
           function init() {
             RiseVision.Video.setAdditionalParams( additionalParams, mode, displayId );
           }
 
-          function onPolymerReady() {
-            window.removeEventListener( "WebComponentsReady", onPolymerReady );
-            polymerReady = true;
-
-            if ( storageReady && polymerReady ) {
-              init();
-            }
-          }
-
           function onStorageReady() {
             storage.removeEventListener( "rise-storage-ready", onStorageReady );
-            storageReady = true;
-
-            if ( storageReady && polymerReady ) {
-              init();
-            }
+            init();
           }
 
-          webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-lite.min.js";
-          window.addEventListener( "WebComponentsReady", onPolymerReady );
+          webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-loader.js";
 
           // add the webcomponents polyfill source to the document head
           document.getElementsByTagName( "head" )[ 0 ].appendChild( webcomponents );
