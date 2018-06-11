@@ -56,7 +56,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
 
   function _handleUnauthorized() {
     videoUtils.logEvent( {
-      "event": "error",
+      "event": "warning",
       "event_details": "unauthorized",
       "file_url": filePath
     }, true );
