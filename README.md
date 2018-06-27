@@ -48,7 +48,7 @@ cd widget-video
 npm install -g phantomjs
 npm install
 bower install
-gulp build
+npm run build
 ```
 
 The source code for the Widget can be found in the `src` folder, and this is where you can make any necessary code changes.
