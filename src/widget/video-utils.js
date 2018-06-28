@@ -9,6 +9,7 @@ RiseVision.VideoUtils = ( function() {
     _prefs = new gadgets.Prefs(),
     _currentFiles = [],
     _useRLSSingleFile = false,
+    _companyId = null,
     _displayId = null,
     _params = null,
     _mode = null,
@@ -35,6 +36,10 @@ RiseVision.VideoUtils = ( function() {
 
   function getCurrentFiles() {
     return _currentFiles;
+  }
+
+  function getCompanyId() {
+    return _companyId;
   }
 
   function getDisplayId() {
@@ -119,6 +124,10 @@ RiseVision.VideoUtils = ( function() {
     }
   }
 
+  function setCompanyId( companyId ) {
+    _companyId = companyId;
+  }
+
   function setDisplayId( displayId ) {
     _displayId = displayId;
   }
@@ -138,6 +147,7 @@ RiseVision.VideoUtils = ( function() {
   return {
     "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
+    "getCompanyId": getCompanyId,
     "getDisplayId": getDisplayId,
     "getMode": getMode,
     "getParams": getParams,
@@ -151,6 +161,7 @@ RiseVision.VideoUtils = ( function() {
     "sendReadyToViewer": sendReadyToViewer,
     "setCurrentFiles": setCurrentFiles,
     "setDisplayId": setDisplayId,
+    "setCompanyId": setCompanyId,
     "setMode": setMode,
     "setParams": setParams,
     "setUseRLSSingleFile": setUseRLSSingleFile,

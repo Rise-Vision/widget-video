@@ -29,6 +29,7 @@
 <script src="../../../src/components/widget-common/dist/common.js"></script>
 <script src="../../../src/common-modules/local-messaging.js"></script>
 <script src="../../../src/common-modules/player-local-storage.js"></script>
+<script src="../../../src/common-modules/player-local-storage-licensing.js"></script>
 <script src="../../../src/components/widget-common/dist/message.js"></script>
 <script src="../../../src/config/version.js"></script>
 <script src="../../../src/config/test.js"></script>
@@ -70,6 +71,8 @@
 
     RiseVision.VideoRLS.setAdditionalParams.restore();
     RiseVision.VideoRLS.setAdditionalParams( params, mode, displayId );
+    // override company id to be the same company from the test data to bypass making direct licensing authorization request
+    RiseVision.VideoRLS.setAdditionalParams( params, mode, displayId, "b428b4e8-c8b9-41d5-8a10-b4193c789443" );
   } );
 </script>
 
