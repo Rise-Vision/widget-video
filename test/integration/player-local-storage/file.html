@@ -71,6 +71,8 @@
 
     RiseVision.VideoRLS.setAdditionalParams.restore();
     RiseVision.VideoRLS.setAdditionalParams( params, mode, displayId );
+    // override company id to be the same company from the test data to bypass making direct licensing authorization request
+    RiseVision.VideoRLS.setAdditionalParams( params, mode, displayId, "b428b4e8-c8b9-41d5-8a10-b4193c789443" );
   } );
 </script>
 
