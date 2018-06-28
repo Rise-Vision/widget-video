@@ -1,4 +1,4 @@
-/* global localMessaging, playerLocalStorage, _ */
+/* global localMessaging, playerLocalStorage, playerLocalStorageLicensing, config, _ */
 /* eslint-disable no-console */
 
 var RiseVision = RiseVision || {};
@@ -12,6 +12,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
     videoUtils = RiseVision.VideoUtils,
     messaging = new localMessaging.default(),
     filePath = "",
+    licensing = null,
     storage = null,
     initialProcessingTimer = null,
     watchInitiated = false,
@@ -70,6 +71,16 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       storage.watchFiles( filePath );
       watchInitiated = true;
     }
+  }
+
+  function _handleAuthorizationError( data ) {
+    var detail = data.detail || "";
+
+    videoUtils.logEvent( {
+      "event": "error",
+      "event_details": "authorization error - " + ( ( typeof detail === "string" ) ? detail : JSON.stringify( detail ) ),
+      "file_url": filePath
+    } );
   }
 
   function _handleFileProcessing() {
@@ -165,6 +176,9 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
     case "UNAUTHORIZED":
       _handleUnauthorized();
       break;
+    case "AUTHORIZATION-ERROR":
+      _handleAuthorizationError;
+      break;
     case "FILE-AVAILABLE":
       _handleFileAvailable( data );
       break;
@@ -184,8 +198,12 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
   }
 
   function init() {
+    var params = videoUtils.getParams(),
+      companyId = ( params.storage.companyId !== videoUtils.getCompanyId() ) ? params.storage.companyId : "";
+
     filePath = videoUtils.getStorageSingleFilePath();
-    storage = new playerLocalStorage.default( messaging, _handleEvents );
+    licensing = new playerLocalStorageLicensing.default( messaging, _handleEvents, companyId, config.STORAGE_ENV );
+    storage = new playerLocalStorage.default( messaging, licensing, _handleEvents );
   }
 
   function retry() {
