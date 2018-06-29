@@ -122,7 +122,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       _videoUtils.logEvent( {
         event: "configuration",
         event_details: _configurationType
-      }, false );
+      } );
     }
 
     _viewerPaused = false;
@@ -174,7 +174,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     params.event = "player error";
     params.event_details = type + " - " + errorMessage;
 
-    _videoUtils.logEvent( params, true );
+    _videoUtils.logEvent( params );
     showError( errorMessage );
   }
 

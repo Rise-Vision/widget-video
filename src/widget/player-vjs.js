@@ -91,7 +91,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     }
 
     // Log aspect event
-    _videoUtils.logEvent( data, false );
+    _videoUtils.logEvent( data );
   }
 
   function _initPlaylist() {
