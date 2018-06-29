@@ -8,22 +8,11 @@ RiseVision.VideoUtils = ( function() {
   var ERROR_TIMER_DELAY = 5000,
     _prefs = new gadgets.Prefs(),
     _currentFiles = [],
-    _useRLSSingleFile = false,
     _companyId = null,
     _displayId = null,
     _params = null,
     _mode = null,
     _errorTimer = null;
-
-  function _getCurrentFile() {
-    if ( _currentFiles && _currentFiles.length > 0 ) {
-      if ( _mode === "file" ) {
-        return _currentFiles[ 0 ];
-      }
-    }
-
-    return null;
-  }
 
   /*
    *  Public  Methods
@@ -32,6 +21,14 @@ RiseVision.VideoUtils = ( function() {
   function clearErrorTimer() {
     clearTimeout( _errorTimer );
     _errorTimer = null;
+  }
+
+  function getStorageFileName( filePath ) {
+    if ( !filePath || typeof filePath !== "string" ) {
+      return "";
+    }
+
+    return filePath.split( "#" ).shift().split( "?" ).shift().split( "/" ).pop();
   }
 
   function getCurrentFiles() {
@@ -66,12 +63,16 @@ RiseVision.VideoUtils = ( function() {
     return "risemedialibrary-" + _params.storage.companyId + "/" + path;
   }
 
-  function isValidDisplayId() {
-    return _displayId && _displayId !== "preview" && _displayId !== "display_id" && _displayId.indexOf( "displayId" ) === -1;
+  function getStorageFolderPath() {
+    var path = "";
+
+    path += _params.storage.folder + ( _params.storage.folder.slice( -1 ) !== "/" ? "/" : "" );
+
+    return "risemedialibrary-" + _params.storage.companyId + "/" + path;
   }
 
-  function isRLSSingleFile() {
-    return _mode === "file" && _useRLSSingleFile;
+  function isValidDisplayId() {
+    return _displayId && _displayId !== "preview" && _displayId !== "display_id" && _displayId.indexOf( "displayId" ) === -1;
   }
 
   function startErrorTimer() {
@@ -87,15 +88,6 @@ RiseVision.VideoUtils = ( function() {
   }
 
   function logEvent( data ) {
-    if ( RiseVision.VideoUtils.isRLSSingleFile() ) {
-      data.file_url = RiseVision.VideoUtils.getStorageSingleFilePath();
-      data.local_url = _getCurrentFile();
-    } else {
-      if ( !data.file_url ) {
-        data.file_url = _getCurrentFile();
-      }
-    }
-
     RiseVision.Common.LoggerUtils.logEvent( getTableName(), data );
   }
 
@@ -140,10 +132,6 @@ RiseVision.VideoUtils = ( function() {
     _params = params;
   }
 
-  function setUseRLSSingleFile() {
-    _useRLSSingleFile = true;
-  }
-
   return {
     "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
@@ -152,9 +140,10 @@ RiseVision.VideoUtils = ( function() {
     "getMode": getMode,
     "getParams": getParams,
     "getTableName": getTableName,
+    "getStorageFileName": getStorageFileName,
     "getStorageSingleFilePath": getStorageSingleFilePath,
+    "getStorageFolderPath": getStorageFolderPath,
     "isValidDisplayId": isValidDisplayId,
-    "isRLSSingleFile": isRLSSingleFile,
     "logEvent": logEvent,
     "playerEnded": playerEnded,
     "sendDoneToViewer": sendDoneToViewer,
@@ -164,7 +153,6 @@ RiseVision.VideoUtils = ( function() {
     "setCompanyId": setCompanyId,
     "setMode": setMode,
     "setParams": setParams,
-    "setUseRLSSingleFile": setUseRLSSingleFile,
     "startErrorTimer": startErrorTimer,
   };
 
