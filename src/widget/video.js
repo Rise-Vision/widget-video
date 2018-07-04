@@ -7,7 +7,7 @@ RiseVision.Video = {};
 RiseVision.Video = ( function( window, gadgets ) {
   "use strict";
 
-  var _isLoading = true,
+  var _configurationLogged = false,
     _configDetails = null,
     _videoUtils = RiseVision.VideoUtils,
     _prefs = new gadgets.Prefs(),
@@ -140,16 +140,28 @@ RiseVision.Video = ( function( window, gadgets ) {
 
   function play() {
     var params = _videoUtils.getParams(),
+      configParams = {
+        "event": "configuration",
+        "event_details": _configDetails
+      },
+      mode = _videoUtils.getMode(),
       currentFiles;
 
-    if ( _isLoading ) {
-      _isLoading = false;
+    if ( !_configurationLogged ) {
+      if ( mode === "file" ) {
+        if ( _configDetails !== "custom" ) {
+          configParams.file_url = _videoUtils.getStorageSingleFilePath();
+        } else {
+          configParams.file_url = ( params.url && params.url !== "" ) ? params.url : params.selector.url;
+        }
 
-      // Log configuration event.
-      _videoUtils.logEvent( {
-        event: "configuration",
-        event_details: _configDetails
-      } );
+      } else if ( mode === "folder" ) {
+        configParams.file_url = _videoUtils.getStorageFolderPath();
+        configParams.file_format = "WEBM|MP4|OGV|OGG";
+      }
+
+      _videoUtils.logEvent( configParams );
+      _configurationLogged = true;
     }
 
     _viewerPaused = false;
@@ -213,7 +225,9 @@ RiseVision.Video = ( function( window, gadgets ) {
 
   // An error occurred with Player.
   function playerError( error ) {
-    var params = {},
+    var params = _videoUtils.getParams(),
+      mode = _videoUtils.getMode(),
+      logParams = {},
       type = "MEDIA_ERR_UNKNOWN",
       errorMessage = "Sorry, there was a problem playing the video.",
       errorTypes = [
@@ -230,11 +244,26 @@ RiseVision.Video = ( function( window, gadgets ) {
       errorMessage = error.message || errorMessage;
     }
 
-    params.event = "player error";
-    params.event_details = type + " - " + errorMessage;
+    logParams.event = "player error";
+    logParams.event_details = type + " - " + errorMessage;
+
+    if ( mode === "file" ) {
+      if ( _configDetails !== "custom" ) {
+        logParams.file_url = _videoUtils.getStorageSingleFilePath();
+      } else {
+        logParams.file_url = ( params.url && params.url !== "" ) ? params.url : params.selector.url;
+      }
+
+      logParams.local_url = _videoUtils.getCurrentFiles()[ 0 ];
+
+    } else if ( mode === "folder" ) {
+      logParams.file_url = _videoUtils.getStorageFolderPath();
+      logParams.file_format = "WEBM|MP4|OGV|OGG";
+    }
+
     _playerErrorFlag = true;
 
-    _videoUtils.logEvent( params );
+    _videoUtils.logEvent( logParams );
     showError( errorMessage );
   }
 
