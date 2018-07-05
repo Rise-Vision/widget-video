@@ -34,6 +34,72 @@
 
     var videoUtils = RiseVision.VideoUtils;
 
+    suite( "getStorageSingleFilePath", function() {
+
+      teardown( function() {
+        videoUtils.setParams( null );
+      } );
+
+      test( "should provide single file path (bucket only)", function() {
+        videoUtils.setParams( {
+          storage: {
+            companyId: "abc123",
+            fileName: "test-file.jpg"
+          }
+        } );
+
+        assert.equal( videoUtils.getStorageSingleFilePath(), "risemedialibrary-abc123/test-file.jpg" );
+      } );
+
+      test( "should provide single file path (with subfolder)", function() {
+        videoUtils.setParams( {
+          storage: {
+            companyId: "abc123",
+            fileName: "test-file.jpg",
+            folder: "test-folder/nested-folder/"
+          }
+        } );
+
+        assert.equal( videoUtils.getStorageSingleFilePath(), "risemedialibrary-abc123/test-folder/nested-folder/test-file.jpg" );
+      } );
+
+    } );
+
+    suite( "getStorageFolderPath", function() {
+
+      teardown( function() {
+        videoUtils.setParams( null );
+      } );
+
+      test( "should provide folder path", function() {
+        videoUtils.setParams( {
+          storage: {
+            companyId: "abc123",
+            folder: "test-folder/"
+          }
+        } );
+
+        assert.equal( videoUtils.getStorageFolderPath(), "risemedialibrary-abc123/test-folder/" );
+      } );
+
+    } );
+
+    suite( "isValidDisplayId", function() {
+      test( "should return false when not a valid display id", function() {
+        videoUtils.setDisplayId( "preview" );
+        assert( !videoUtils.isValidDisplayId() );
+        videoUtils.setDisplayId( "display_id" );
+        assert( !videoUtils.isValidDisplayId() );
+        videoUtils.setDisplayId( "'displayId'" );
+        assert( !videoUtils.isValidDisplayId() );
+      } );
+
+      test( "should return true when is a valid display id", function() {
+        videoUtils.setDisplayId( "abc123" );
+        assert( videoUtils.isValidDisplayId( "abc123" ) );
+      } );
+    } );
+
     suite( "startErrorTimer", function() {
 
       test( "should after 5 seconds send done to Viewer", function() {
