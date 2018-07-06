@@ -107,7 +107,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
 
   function _handleFileNoExist() {
     var data = {
-      "event": "error",
+      "event": "warning",
       "event_details": "file does not exist",
       "file_url": filePath
     };
