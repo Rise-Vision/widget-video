@@ -148,7 +148,6 @@ suite( "errors", function() {
       } );
     } );
 
-    params.event = "error";
     params.event_details = "file does not exist";
 
     assert( logSpy.calledOnce );
@@ -168,6 +167,7 @@ suite( "errors", function() {
       } );
     } );
 
+    params.event = "error";
     params.event_details = "File's host server could not be reached | error details";
 
     assert( logSpy.calledOnce );
