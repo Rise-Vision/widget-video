@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>Video Widget</title>
+
+  <script src="../../../src/components/web-component-tester/browser.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="../../../src/components/videojs/dist/video-js.css">
+  <link rel="stylesheet" type="text/css" href="../../../src/widget/css/video.css">
+  <link rel="stylesheet" href="../../../src/components/widget-common/dist/css/message.css">
+</head>
+<body>
+
+<div id="container">
+  <video id="player" class="video-js" preload="auto"></video>
+</div>
+
+<div id="messageContainer"></div>
+
+<script src="../../../node_modules/widget-tester/mocks/gadget-mocks.js"></script>
+<script src="../../../node_modules/widget-tester/mocks/logger-mock.js"></script>
+
+<script src="../../../src/components/videojs/dist/video.min.js"></script>
+<script src="../../../src/components/underscore/underscore-min.js"></script>
+
+<script src="../../../src/components/widget-common/dist/config.js"></script>
+<script src="../../../src/components/widget-common/dist/common.js"></script>
+<script src="../../../src/common-modules/local-messaging.js"></script>
+<script src="../../../src/common-modules/player-local-storage.js"></script>
+<script src="../../../src/common-modules/player-local-storage-licensing.js"></script>
+<script src="../../../src/components/widget-common/dist/message.js"></script>
+<script src="../../../src/config/version.js"></script>
+<script src="../../../src/config/test.js"></script>
+<script src="../../../src/widget/video-utils.js"></script>
+<script src="../../../src/widget/video-rls.js"></script>
+<script src="../../../src/widget/player-utils.js"></script>
+<script src="../../../src/widget/player-vjs.js"></script>
+<script src="../../../src/widget/player-local-storage-folder.js"></script>
+
+<script type="text/javascript">
+  config.COMPONENTS_PATH = "../../../src/components/";
+</script>
+
+<script src="../../data/storage-folder.js"></script>
+<script src="../js/player-local-storage-folder-one-file.js"></script>
+<script src="../js/player-local-storage-stubs.js"></script>
+<script src="../../../src/widget/main.js"></script>
+
+</body>
+</html>
