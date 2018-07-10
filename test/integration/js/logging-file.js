@@ -9,7 +9,8 @@ var spy,
   table = "video_v2_events",
   params = {
     "event": "storage file not found",
-    "file_url": null,
+    "file_url": "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
+    "file_format": "webm",
     /* eslint-disable quotes */
     "company_id": '"companyId"',
     "display_id": '"displayId"',
@@ -49,6 +50,7 @@ suite( "configuration", function() {
       "event": "configuration",
       "event_details": "storage file",
       "file_url": params.file_url,
+      "file_format": params.file_format,
       "company_id": params.company_id,
       "display_id": params.display_id,
       "version": params.version
@@ -67,6 +69,8 @@ suite( "storage file not found", function() {
     } ) );
 
     params.event_details = "/Fish_Tank_Project.webm";
+    delete params.file_url;
+    delete params.file_format;
 
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params ) );
@@ -177,7 +181,7 @@ suite( "storage subscription expired", function() {
     storage.dispatchEvent( new CustomEvent( "rise-storage-subscription-expired" ) );
 
     params.event = "storage subscription expired";
-    params.file_url = null;
+    delete params.file_url;
     delete params.file_format;
 
     assert( spy.calledOnce );

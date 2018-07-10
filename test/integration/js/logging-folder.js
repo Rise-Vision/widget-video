@@ -11,7 +11,8 @@ var playStub,
   table = "video_v2_events",
   params = {
     "event": "storage folder empty",
-    "file_url": null,
+    "file_url": "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/",
+    "file_format": "WEBM|MP4|OGV|OGG",
     /* eslint-disable quotes */
     "company_id": '"companyId"',
     "display_id": '"displayId"',
@@ -57,6 +58,7 @@ suite( "configuration", function() {
       "event": "configuration",
       "event_details": "storage folder",
       "file_url": params.file_url,
+      "file_format": params.file_format,
       "company_id": params.company_id,
       "display_id": params.display_id,
       "version": params.version
@@ -73,6 +75,9 @@ suite( "storage folder empty", function() {
       "detail": null,
       "bubbles": true
     } ) );
+
+    delete params.file_url;
+    delete params.file_format;
 
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params ) );
