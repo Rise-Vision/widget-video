@@ -97,12 +97,21 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
 
     if ( initialLoad ) {
       initialLoad = false;
-      RiseVision.VideoRLS.onFileInit( data.fileUrl );
+
+      RiseVision.VideoRLS.onFileInit( {
+        filePath: filePath,
+        url: data.fileUrl,
+        name: videoUtils.getStorageFileName( filePath )
+      } );
 
       return;
     }
 
-    RiseVision.VideoRLS.onFileRefresh( data.fileUrl );
+    RiseVision.VideoRLS.onFileRefresh( {
+      filePath: filePath,
+      url: data.fileUrl,
+      name: videoUtils.getStorageFileName( filePath )
+    } );
   }
 
   function _handleFileNoExist( data ) {

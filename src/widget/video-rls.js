@@ -14,7 +14,6 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     _player = null,
     _configurationLogged = false,
     _viewerPaused = true,
-    _configurationType = null,
     _storage = null,
     _resume = true,
     _errorFlag = false,
@@ -41,13 +40,13 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       _message.show( "Please wait while your video is downloaded." );
 
       if ( _videoUtils.getMode() === "file" ) {
-        _configurationType = "storage file (rls)";
+        _videoUtils.setConfigurationType( "storage file (rls)" );
 
         // create and initialize the Storage file instance
         _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile();
         _storage.init();
       } else if ( _videoUtils.getMode() === "folder" ) {
-        _configurationType = "storage folder (rls)";
+        _videoUtils.setConfigurationType( "storage folder (rls)" );
 
         // create and initialize the Storage folder instance
         _storage = new RiseVision.VideoRLS.PlayerLocalStorageFolder();
@@ -119,7 +118,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     var params = _videoUtils.getParams(),
       configParams = {
         "event": "configuration",
-        "event_details": _configurationType
+        "event_details": _videoUtils.getConfigurationType()
       },
       mode = _videoUtils.getMode(),
       currentFiles;

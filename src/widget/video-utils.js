@@ -10,6 +10,7 @@ RiseVision.VideoUtils = ( function() {
     _currentFiles = [],
     _companyId = null,
     _displayId = null,
+    _configurationType = null,
     _usingRLS = false,
     _params = null,
     _mode = null,
@@ -38,6 +39,10 @@ RiseVision.VideoUtils = ( function() {
 
   function getCompanyId() {
     return _companyId;
+  }
+
+  function getConfigurationType() {
+    return _configurationType;
   }
 
   function getDisplayId() {
@@ -114,15 +119,19 @@ RiseVision.VideoUtils = ( function() {
       return;
     }
 
-    if ( typeof urls === "string" ) {
-      _currentFiles[ 0 ] = urls;
-    } else if ( Array.isArray( urls ) && urls.length > 0 ) {
+    if ( Array.isArray( urls ) && urls.length > 0 ) {
       _currentFiles = urls;
+    } else {
+      _currentFiles[ 0 ] = urls;
     }
   }
 
   function setCompanyId( companyId ) {
     _companyId = companyId;
+  }
+
+  function setConfigurationType( type ) {
+    _configurationType = type;
   }
 
   function setDisplayId( displayId ) {
@@ -145,6 +154,7 @@ RiseVision.VideoUtils = ( function() {
     "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
     "getCompanyId": getCompanyId,
+    "getConfigurationType": getConfigurationType,
     "getDisplayId": getDisplayId,
     "getMode": getMode,
     "getParams": getParams,
@@ -158,6 +168,7 @@ RiseVision.VideoUtils = ( function() {
     "playerEnded": playerEnded,
     "sendDoneToViewer": sendDoneToViewer,
     "sendReadyToViewer": sendReadyToViewer,
+    "setConfigurationType": setConfigurationType,
     "setCurrentFiles": setCurrentFiles,
     "setDisplayId": setDisplayId,
     "setCompanyId": setCompanyId,

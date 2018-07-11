@@ -8,7 +8,6 @@ RiseVision.Video = ( function( window, gadgets ) {
   "use strict";
 
   var _configurationLogged = false,
-    _configDetails = null,
     _videoUtils = RiseVision.VideoUtils,
     _prefs = new gadgets.Prefs(),
     _storage = null,
@@ -54,19 +53,19 @@ RiseVision.Video = ( function( window, gadgets ) {
         isStorageFile = ( Object.keys( params.storage ).length !== 0 );
 
         if ( !isStorageFile ) {
-          _configDetails = "custom";
+          _videoUtils.setConfigurationType( "custom" );
 
           _nonStorage = new RiseVision.Video.NonStorage( params );
           _nonStorage.init();
         } else {
-          _configDetails = "storage file";
+          _videoUtils.setConfigurationType( "storage file" );
 
           // create and initialize the Storage file instance
           _storage = new RiseVision.Video.StorageFile( params, _videoUtils.getDisplayId() );
           _storage.init();
         }
       } else if ( _videoUtils.getMode() === "folder" ) {
-        _configDetails = "storage folder";
+        _videoUtils.setConfigurationType( "storage folder" );
 
         // create and initialize the Storage folder instance
         _storage = new RiseVision.Video.StorageFolder( params, _videoUtils.getDisplayId() );
@@ -142,14 +141,14 @@ RiseVision.Video = ( function( window, gadgets ) {
     var params = _videoUtils.getParams(),
       configParams = {
         "event": "configuration",
-        "event_details": _configDetails
+        "event_details": _videoUtils.getConfigurationType()
       },
       mode = _videoUtils.getMode(),
       currentFiles;
 
     if ( !_configurationLogged ) {
       if ( mode === "file" ) {
-        if ( _configDetails !== "custom" ) {
+        if ( _videoUtils.getConfigurationType() !== "custom" ) {
           configParams.file_url = _videoUtils.getStorageSingleFilePath();
         } else {
           configParams.file_url = ( params.url && params.url !== "" ) ? params.url : params.selector.url;
@@ -248,7 +247,7 @@ RiseVision.Video = ( function( window, gadgets ) {
     logParams.event_details = type + " - " + errorMessage;
 
     if ( mode === "file" ) {
-      if ( _configDetails !== "custom" ) {
+      if ( _videoUtils.getConfigurationType() !== "custom" ) {
         logParams.file_url = _videoUtils.getStorageSingleFilePath();
       } else {
         logParams.file_url = ( params.url && params.url !== "" ) ? params.url : params.selector.url;
