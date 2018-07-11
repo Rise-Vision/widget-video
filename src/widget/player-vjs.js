@@ -83,8 +83,8 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
       } )
     };
 
-    if ( _videoUtils.isRLSSingleFile() ) {
-      data.file_url = _videoUtils.getStorageSingleFilePath();
+    if ( _videoUtils.getUsingRLS() ) {
+      data.file_url = ( _videoUtils.getMode() === "file" ) ? _videoUtils.getStorageSingleFilePath() : _videoUtils.getStorageFolderPath();
       data.local_url = _playerInstance.currentSrc();
     } else {
       data.file_url = _playerInstance.currentSrc();

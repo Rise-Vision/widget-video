@@ -10,6 +10,7 @@ RiseVision.VideoUtils = ( function() {
     _currentFiles = [],
     _companyId = null,
     _displayId = null,
+    _usingRLS = false,
     _params = null,
     _mode = null,
     _errorTimer = null;
@@ -69,6 +70,10 @@ RiseVision.VideoUtils = ( function() {
     path += _params.storage.folder + ( _params.storage.folder.slice( -1 ) !== "/" ? "/" : "" );
 
     return "risemedialibrary-" + _params.storage.companyId + "/" + path;
+  }
+
+  function getUsingRLS() {
+    return _usingRLS;
   }
 
   function isValidDisplayId() {
@@ -132,6 +137,10 @@ RiseVision.VideoUtils = ( function() {
     _params = params;
   }
 
+  function setUsingRLS() {
+    _usingRLS = true;
+  }
+
   return {
     "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
@@ -143,6 +152,7 @@ RiseVision.VideoUtils = ( function() {
     "getStorageFileName": getStorageFileName,
     "getStorageSingleFilePath": getStorageSingleFilePath,
     "getStorageFolderPath": getStorageFolderPath,
+    "getUsingRLS": getUsingRLS,
     "isValidDisplayId": isValidDisplayId,
     "logEvent": logEvent,
     "playerEnded": playerEnded,
@@ -153,6 +163,7 @@ RiseVision.VideoUtils = ( function() {
     "setCompanyId": setCompanyId,
     "setMode": setMode,
     "setParams": setParams,
+    "setUsingRLS": setUsingRLS,
     "startErrorTimer": startErrorTimer,
   };
 

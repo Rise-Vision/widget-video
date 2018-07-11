@@ -216,6 +216,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     var data = _.clone( params );
 
     _videoUtils.setMode( mode );
+    _videoUtils.setUsingRLS();
     _videoUtils.setCompanyId( companyId );
     _videoUtils.setDisplayId( displayId );
 
