@@ -164,7 +164,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     }
   }
 
-  function playerError( error ) {
+  function playerError( error, localUrl, filePath ) {
     var mode = _videoUtils.getMode(),
       logParams = {},
       type = "MEDIA_ERR_UNKNOWN",
@@ -187,11 +187,17 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     logParams.event_details = type + " - " + errorMessage;
 
     if ( mode === "file" ) {
-      logParams.file_url = _videoUtils.getStorageSingleFilePath();
-      logParams.local_url = _videoUtils.getCurrentFiles()[ 0 ];
+      logParams.file_url = filePath || _videoUtils.getStorageSingleFilePath();
+      logParams.local_url = localUrl || _videoUtils.getCurrentFiles()[ 0 ];
     } else if ( mode === "folder" ) {
-      logParams.file_url = _videoUtils.getStorageFolderPath();
-      logParams.file_format = "WEBM|MP4|OGV|OGG";
+      logParams.file_url = filePath;
+
+      if ( !logParams.file_url ) {
+        logParams.file_url = _videoUtils.getStorageFolderPath();
+        logParams.file_format = "WEBM|MP4|OGV|OGG";
+      }
+
+      logParams.local_url = localUrl || "";
     }
 
     _videoUtils.logEvent( logParams );

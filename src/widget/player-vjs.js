@@ -36,6 +36,22 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     };
   }
 
+  function _getFilePathFromSrc( url ) {
+    var filePath = "",
+      i;
+
+    if ( _videoUtils.getUsingRLS() && _files && _files.length && _files.length > 0 ) {
+      for ( i = 0; i < _files.length; i++ ) {
+        if ( _files[ i ].url === url ) {
+          filePath = _files[ i ].filePath;
+          break;
+        }
+      }
+    }
+
+    return filePath;
+  }
+
   function _onPause() {
     if ( !_isPaused ) {
       clearTimeout( _pauseTimer );
@@ -66,7 +82,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
 
   function _onError() {
 
-    videoRef.playerError( _playerInstance.error() );
+    videoRef.playerError( _playerInstance.error(), _playerInstance.currentSrc(), _getFilePathFromSrc( _playerInstance.currentSrc() ) );
   }
 
   function _onLoadedMetaData() {
@@ -91,8 +107,12 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
       }
 
     } else if ( mode === "folder" ) {
-      data.file_url = _videoUtils.getStorageFolderPath();
-      data.file_format = "WEBM|MP4|OGV|OGG";
+      data.file_url = _getFilePathFromSrc( _playerInstance.currentSrc() );
+
+      if ( !data.file_url ) {
+        data.file_url = _videoUtils.getStorageFolderPath();
+        data.file_format = "WEBM|MP4|OGV|OGG";
+      }
     }
 
     data.local_url = _playerInstance.currentSrc();

@@ -223,7 +223,7 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   // An error occurred with Player.
-  function playerError( error ) {
+  function playerError( error, localUrl ) {
     var params = _videoUtils.getParams(),
       mode = _videoUtils.getMode(),
       logParams = {},
@@ -253,11 +253,12 @@ RiseVision.Video = ( function( window, gadgets ) {
         logParams.file_url = ( params.url && params.url !== "" ) ? params.url : params.selector.url;
       }
 
-      logParams.local_url = _videoUtils.getCurrentFiles()[ 0 ];
+      logParams.local_url = localUrl || _videoUtils.getCurrentFiles()[ 0 ];
 
     } else if ( mode === "folder" ) {
       logParams.file_url = _videoUtils.getStorageFolderPath();
       logParams.file_format = "WEBM|MP4|OGV|OGG";
+      logParams.local_url = localUrl || "";
     }
 
     _playerErrorFlag = true;
