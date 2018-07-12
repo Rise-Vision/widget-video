@@ -27,7 +27,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
   function _startInitialProcessingTimer() {
     initialProcessingTimer = setTimeout( function() {
       // file is still processing/downloading
-      RiseVision.VideoRLS.onFileUnavailable( "File is downloading" );
+      RiseVision.VideoRLS.onFileUnavailable( "File is downloading." );
     }, INITIAL_PROCESSING_DELAY );
   }
 
@@ -40,7 +40,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "event": "error",
       "event_details": "no connection",
       "file_url": filePath
-    }, true );
+    } );
 
     RiseVision.VideoRLS.showError( "There was a problem retrieving the file." );
   }
@@ -50,7 +50,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "event": "error",
       "event_details": "required modules unavailable",
       "file_url": filePath
-    }, true );
+    } );
 
     RiseVision.VideoRLS.showError( "There was a problem retrieving the file." );
   }
@@ -60,7 +60,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "event": "warning",
       "event_details": "unauthorized",
       "file_url": filePath
-    }, true );
+    } );
 
     RiseVision.VideoRLS.showError( "Rise Storage subscription is not active." );
   }
@@ -97,30 +97,39 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
 
     if ( initialLoad ) {
       initialLoad = false;
-      RiseVision.VideoRLS.onFileInit( data.fileUrl );
+
+      RiseVision.VideoRLS.onFileInit( {
+        filePath: filePath,
+        url: data.fileUrl,
+        name: videoUtils.getStorageFileName( filePath )
+      } );
 
       return;
     }
 
-    RiseVision.VideoRLS.onFileRefresh( data.fileUrl );
+    RiseVision.VideoRLS.onFileRefresh( {
+      filePath: filePath,
+      url: data.fileUrl,
+      name: videoUtils.getStorageFileName( filePath )
+    } );
   }
 
-  function _handleFileNoExist() {
-    var data = {
+  function _handleFileNoExist( data ) {
+    var params = {
       "event": "warning",
       "event_details": "file does not exist",
-      "file_url": filePath
+      "file_url": data.filePath
     };
 
-    videoUtils.logEvent( data, true );
+    videoUtils.logEvent( params );
 
     RiseVision.VideoRLS.showError( "The selected video does not exist or has been moved to Trash." );
   }
 
-  function _handleFileDeleted() {
+  function _handleFileDeleted( data ) {
     videoUtils.logEvent( {
       "event": "file deleted",
-      "file_url": filePath
+      "file_url": data.filePath
     } );
   }
 
@@ -130,7 +139,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       params = {
         "event": "error",
         "event_details": msg + ( detail ? " | " + detail : "" ),
-        "file_url": filePath
+        "file_url": data.filePath
       };
 
     // prevent repetitive logging when widget is receiving messages from other potential widget instances watching same file
@@ -139,7 +148,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
     }
 
     fileErrorLogParams = _.clone( params );
-    videoUtils.logEvent( params, true );
+    videoUtils.logEvent( params );
 
     /*** Possible error messages from Local Storage ***/
     /*
@@ -186,10 +195,10 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       _handleFileProcessing();
       break;
     case "FILE-NO-EXIST":
-      _handleFileNoExist();
+      _handleFileNoExist( data );
       break;
     case "FILE-DELETED":
-      _handleFileDeleted();
+      _handleFileDeleted( data );
       break;
     case "FILE-ERROR":
       _handleFileError( data );

@@ -10,6 +10,16 @@ describe( "getTableName", function() {
   } );
 } );
 
+describe( "getStorageFileName", function() {
+  it( "should provide file name from storage file path (bucket only)", function() {
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test-file.jpg" ) ).to.equal( "test-file.jpg" );
+  } );
+
+  it( "should provide file name from storage file path (with subfolder)", function() {
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test-folder/nested-folder/test-file.jpg" ) ).to.equal( "test-file.jpg" );
+  } );
+} );
+
 describe( "logEvent", function() {
   var logSpy;
 
@@ -44,8 +54,7 @@ describe( "logEvent", function() {
     var params = {
       "event": "test",
       "company_id": "",
-      "display_id": "",
-      "file_url": null
+      "display_id": ""
     };
 
     RiseVision.VideoUtils.logEvent( { "event": "test" } );

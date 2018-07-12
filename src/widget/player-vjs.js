@@ -36,6 +36,22 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     };
   }
 
+  function _getFilePathFromSrc( url ) {
+    var filePath = "",
+      i;
+
+    if ( _videoUtils.getUsingRLS() && _files && _files.length && _files.length > 0 ) {
+      for ( i = 0; i < _files.length; i++ ) {
+        if ( _files[ i ].url === url ) {
+          filePath = _files[ i ].filePath;
+          break;
+        }
+      }
+    }
+
+    return filePath;
+  }
+
   function _onPause() {
     if ( !_isPaused ) {
       clearTimeout( _pauseTimer );
@@ -66,7 +82,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
 
   function _onError() {
 
-    videoRef.playerError( _playerInstance.error() );
+    videoRef.playerError( _playerInstance.error(), _playerInstance.currentSrc(), _getFilePathFromSrc( _playerInstance.currentSrc() ) );
   }
 
   function _onLoadedMetaData() {
@@ -83,19 +99,31 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
       } )
     };
 
-    if ( _videoUtils.isRLSSingleFile() ) {
-      data.file_url = _videoUtils.getStorageSingleFilePath();
-      data.local_url = _playerInstance.currentSrc();
-    } else {
-      data.file_url = _playerInstance.currentSrc();
+    if ( mode === "file" ) {
+      if ( _videoUtils.getConfigurationType() !== "custom" ) {
+        data.file_url = _videoUtils.getStorageSingleFilePath();
+      } else {
+        data.file_url = ( params.url && params.url !== "" ) ? params.url : params.selector.url;
+      }
+
+    } else if ( mode === "folder" ) {
+      data.file_url = _getFilePathFromSrc( _playerInstance.currentSrc() );
+
+      if ( !data.file_url ) {
+        data.file_url = _videoUtils.getStorageFolderPath();
+        data.file_format = "WEBM|MP4|OGV|OGG";
+      }
     }
 
+    data.local_url = _playerInstance.currentSrc();
+
     // Log aspect event
-    _videoUtils.logEvent( data, false );
+    _videoUtils.logEvent( data );
   }
 
   function _initPlaylist() {
-    var playlist = [],
+    var usingRLS = _videoUtils.getUsingRLS(),
+      playlist = [],
       playlistItem,
       sources,
       source;
@@ -103,8 +131,8 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _files.forEach( function addPlaylistItem( file ) {
       sources = [];
       source = {
-        src: file,
-        type: _utils.getVideoFileType( file )
+        src: usingRLS ? file.url : file,
+        type: _utils.getVideoFileType( ( usingRLS ? file.name : file ) )
       };
 
       sources.push( source );
@@ -147,9 +175,16 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   }
 
   function _ready() {
+    var usingRLS = _videoUtils.getUsingRLS(),
+      fileType,
+      fileURl;
+
     if ( _files && _files.length && _files.length > 0 ) {
       if ( mode === "file" ) {
-        _playerInstance.src( { type: _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+        fileType = _utils.getVideoFileType( ( usingRLS ? _files[ 0 ].name : _files[ 0 ] ) );
+        fileURl = usingRLS ? _files[ 0 ].url : _files[ 0 ];
+
+        _playerInstance.src( { type: fileType, src: fileURl } );
       } else if ( mode === "folder" ) {
         _initPlaylist();
       }
@@ -207,6 +242,10 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   }
 
   function play() {
+    var usingRLS = _videoUtils.getUsingRLS(),
+      fileType,
+      fileURl;
+
     _isPaused = false;
 
     if ( _updateWaiting ) {
@@ -215,7 +254,10 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
       // set a new source
       if ( _files && _files.length && _files.length > 0 ) {
         if ( mode === "file" ) {
-          _playerInstance.src( { type: _utils.getVideoFileType( _files[ 0 ] ), src: _files[ 0 ] } );
+          fileType = _utils.getVideoFileType( ( usingRLS ? _files[ 0 ].name : _files[ 0 ] ) );
+          fileURl = usingRLS ? _files[ 0 ].url : _files[ 0 ];
+
+          _playerInstance.src( { type: fileType, src: fileURl } );
         } else if ( mode === "folder" ) {
           _initPlaylist();
         }

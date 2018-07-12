@@ -8,22 +8,13 @@ RiseVision.VideoUtils = ( function() {
   var ERROR_TIMER_DELAY = 5000,
     _prefs = new gadgets.Prefs(),
     _currentFiles = [],
-    _useRLSSingleFile = false,
     _companyId = null,
     _displayId = null,
+    _configurationType = null,
+    _usingRLS = false,
     _params = null,
     _mode = null,
     _errorTimer = null;
-
-  function _getCurrentFile() {
-    if ( _currentFiles && _currentFiles.length > 0 ) {
-      if ( _mode === "file" ) {
-        return _currentFiles[ 0 ];
-      }
-    }
-
-    return null;
-  }
 
   /*
    *  Public  Methods
@@ -34,12 +25,24 @@ RiseVision.VideoUtils = ( function() {
     _errorTimer = null;
   }
 
+  function getStorageFileName( filePath ) {
+    if ( !filePath || typeof filePath !== "string" ) {
+      return "";
+    }
+
+    return filePath.split( "#" ).shift().split( "?" ).shift().split( "/" ).pop();
+  }
+
   function getCurrentFiles() {
     return _currentFiles;
   }
 
   function getCompanyId() {
     return _companyId;
+  }
+
+  function getConfigurationType() {
+    return _configurationType;
   }
 
   function getDisplayId() {
@@ -66,12 +69,20 @@ RiseVision.VideoUtils = ( function() {
     return "risemedialibrary-" + _params.storage.companyId + "/" + path;
   }
 
-  function isValidDisplayId() {
-    return _displayId && _displayId !== "preview" && _displayId !== "display_id" && _displayId.indexOf( "displayId" ) === -1;
+  function getStorageFolderPath() {
+    var path = "";
+
+    path += _params.storage.folder + ( _params.storage.folder.slice( -1 ) !== "/" ? "/" : "" );
+
+    return "risemedialibrary-" + _params.storage.companyId + "/" + path;
   }
 
-  function isRLSSingleFile() {
-    return _mode === "file" && _useRLSSingleFile;
+  function getUsingRLS() {
+    return _usingRLS;
+  }
+
+  function isValidDisplayId() {
+    return _displayId && _displayId !== "preview" && _displayId !== "display_id" && _displayId.indexOf( "displayId" ) === -1;
   }
 
   function startErrorTimer() {
@@ -87,15 +98,6 @@ RiseVision.VideoUtils = ( function() {
   }
 
   function logEvent( data ) {
-    if ( RiseVision.VideoUtils.isRLSSingleFile() ) {
-      data.file_url = RiseVision.VideoUtils.getStorageSingleFilePath();
-      data.local_url = _getCurrentFile();
-    } else {
-      if ( !data.file_url ) {
-        data.file_url = _getCurrentFile();
-      }
-    }
-
     RiseVision.Common.LoggerUtils.logEvent( getTableName(), data );
   }
 
@@ -117,15 +119,19 @@ RiseVision.VideoUtils = ( function() {
       return;
     }
 
-    if ( typeof urls === "string" ) {
-      _currentFiles[ 0 ] = urls;
-    } else if ( Array.isArray( urls ) && urls.length > 0 ) {
+    if ( Array.isArray( urls ) && urls.length > 0 ) {
       _currentFiles = urls;
+    } else {
+      _currentFiles[ 0 ] = urls;
     }
   }
 
   function setCompanyId( companyId ) {
     _companyId = companyId;
+  }
+
+  function setConfigurationType( type ) {
+    _configurationType = type;
   }
 
   function setDisplayId( displayId ) {
@@ -140,31 +146,35 @@ RiseVision.VideoUtils = ( function() {
     _params = params;
   }
 
-  function setUseRLSSingleFile() {
-    _useRLSSingleFile = true;
+  function setUsingRLS() {
+    _usingRLS = true;
   }
 
   return {
     "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
     "getCompanyId": getCompanyId,
+    "getConfigurationType": getConfigurationType,
     "getDisplayId": getDisplayId,
     "getMode": getMode,
     "getParams": getParams,
     "getTableName": getTableName,
+    "getStorageFileName": getStorageFileName,
     "getStorageSingleFilePath": getStorageSingleFilePath,
+    "getStorageFolderPath": getStorageFolderPath,
+    "getUsingRLS": getUsingRLS,
     "isValidDisplayId": isValidDisplayId,
-    "isRLSSingleFile": isRLSSingleFile,
     "logEvent": logEvent,
     "playerEnded": playerEnded,
     "sendDoneToViewer": sendDoneToViewer,
     "sendReadyToViewer": sendReadyToViewer,
+    "setConfigurationType": setConfigurationType,
     "setCurrentFiles": setCurrentFiles,
     "setDisplayId": setDisplayId,
     "setCompanyId": setCompanyId,
     "setMode": setMode,
     "setParams": setParams,
-    "setUseRLSSingleFile": setUseRLSSingleFile,
+    "setUsingRLS": setUsingRLS,
     "startErrorTimer": startErrorTimer,
   };
 

@@ -55,7 +55,11 @@ suite( "file added", function() {
 
   test( "should be able to set single video with correct url", function() {
     assert( onFileInitSpy.calledOnce, "onFileInit() called once" );
-    assert( onFileInitSpy.calledWith( "file:///path/to/file/abc123" ), "onFileInit() called with correct url" );
+    assert( onFileInitSpy.calledWith( {
+      filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
+      name: "a_food_show.webm",
+      url: "file:///path/to/file/abc123"
+    } ), "onFileInit() called with correct data" );
   } );
 } );
 
@@ -92,6 +96,10 @@ suite( "file changed", function() {
     } );
 
     assert( refreshSpy.calledOnce );
-    assert( refreshSpy.calledWith( "file:///path/to/file/def456" ), "onFileRefresh() called with correct url" );
+    assert( refreshSpy.calledWith( {
+      filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
+      name: "a_food_show.webm",
+      url: "file:///path/to/file/def456"
+    } ), "onFileRefresh() called with correct data" );
   } );
 } );

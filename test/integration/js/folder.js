@@ -290,7 +290,7 @@ suite( "storage errors", function() {
     }
 
     assert( onLogEventStub.calledOnce, "logEvent() called once" );
-    assert( onLogEventStub.calledWith( params, true ), "logEvent() called with correct params" );
+    assert( onLogEventStub.calledWith( params ), "logEvent() called with correct params" );
 
   } );
 } );

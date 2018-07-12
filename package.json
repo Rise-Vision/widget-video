@@ -24,7 +24,7 @@
     "bower": "^1.5.3",
     "chai": "^2.1.2",
     "chai-as-promised": "^4.3.0",
-    "common-component": "git://github.com/Rise-Vision/common-component.git#v1.14.0",
+    "common-component": "git://github.com/Rise-Vision/common-component.git#v1.14.1",
     "del": "~1.1.1",
     "eslint": "^3.8.1",
     "eslint-config-idiomatic": "^2.1.0",
@@ -49,7 +49,7 @@
     "run-sequence": "^0.3.2",
     "uglify-js": "^2.6.0",
     "web-component-tester": "5.0.0",
-    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#1.7.3"
+    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#v1.8.1"
   },
   "optionalDependencies": {
     "wct-local": "<2.0.16"

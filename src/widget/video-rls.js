@@ -14,7 +14,6 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     _player = null,
     _configurationLogged = false,
     _viewerPaused = true,
-    _configurationType = null,
     _storage = null,
     _resume = true,
     _errorFlag = false,
@@ -41,13 +40,17 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       _message.show( "Please wait while your video is downloaded." );
 
       if ( _videoUtils.getMode() === "file" ) {
-        _configurationType = "storage file (rls)";
+        _videoUtils.setConfigurationType( "storage file (rls)" );
 
         // create and initialize the Storage file instance
         _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile();
         _storage.init();
       } else if ( _videoUtils.getMode() === "folder" ) {
-        // TODO: coming soon
+        _videoUtils.setConfigurationType( "storage folder (rls)" );
+
+        // create and initialize the Storage folder instance
+        _storage = new RiseVision.VideoRLS.PlayerLocalStorageFolder();
+        _storage.init();
       }
     }
 
@@ -113,16 +116,24 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
 
   function play() {
     var params = _videoUtils.getParams(),
+      configParams = {
+        "event": "configuration",
+        "event_details": _videoUtils.getConfigurationType()
+      },
+      mode = _videoUtils.getMode(),
       currentFiles;
 
     if ( !_configurationLogged ) {
+      if ( mode === "file" ) {
+        configParams.file_url = _videoUtils.getStorageSingleFilePath();
+      } else if ( mode === "folder" ) {
+        configParams.file_url = _videoUtils.getStorageFolderPath();
+        configParams.file_format = "WEBM|MP4|OGV|OGG";
+      }
+
       _configurationLogged = true;
 
-      // Log configuration event.
-      _videoUtils.logEvent( {
-        event: "configuration",
-        event_details: _configurationType
-      }, false );
+      _videoUtils.logEvent( configParams );
     }
 
     _viewerPaused = false;
@@ -153,8 +164,9 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     }
   }
 
-  function playerError( error ) {
-    var params = {},
+  function playerError( error, localUrl, filePath ) {
+    var mode = _videoUtils.getMode(),
+      logParams = {},
       type = "MEDIA_ERR_UNKNOWN",
       errorMessage = "Sorry, there was a problem playing the video.",
       errorTypes = [
@@ -171,10 +183,24 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       errorMessage = error.message || errorMessage;
     }
 
-    params.event = "player error";
-    params.event_details = type + " - " + errorMessage;
+    logParams.event = "player error";
+    logParams.event_details = type + " - " + errorMessage;
 
-    _videoUtils.logEvent( params, true );
+    if ( mode === "file" ) {
+      logParams.file_url = filePath || _videoUtils.getStorageSingleFilePath();
+      logParams.local_url = localUrl || _videoUtils.getCurrentFiles()[ 0 ];
+    } else if ( mode === "folder" ) {
+      logParams.file_url = filePath;
+
+      if ( !logParams.file_url ) {
+        logParams.file_url = _videoUtils.getStorageFolderPath();
+        logParams.file_format = "WEBM|MP4|OGV|OGG";
+      }
+
+      logParams.local_url = localUrl || "";
+    }
+
+    _videoUtils.logEvent( logParams );
     showError( errorMessage );
   }
 
@@ -195,9 +221,9 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     var data = _.clone( params );
 
     _videoUtils.setMode( mode );
+    _videoUtils.setUsingRLS();
     _videoUtils.setCompanyId( companyId );
     _videoUtils.setDisplayId( displayId );
-    _videoUtils.setUseRLSSingleFile();
 
     document.getElementById( "container" ).style.width = _prefs.getInt( "rsW" ) + "px";
     document.getElementById( "container" ).style.height = _prefs.getInt( "rsH" ) + "px";
