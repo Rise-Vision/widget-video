@@ -22,6 +22,27 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   /*
    *  Private Methods
    */
+  function _logConfiguration( type ) {
+    var configParams = {
+        "event": "configuration",
+        "event_details": type
+      },
+      mode = _videoUtils.getMode();
+
+    if ( !_configurationLogged ) {
+      if ( mode === "file" ) {
+        configParams.file_url = _videoUtils.getStorageSingleFilePath();
+      } else if ( mode === "folder" ) {
+        configParams.file_url = _videoUtils.getStorageFolderPath();
+        configParams.file_format = "WEBM|MP4|OGV|OGG";
+      }
+
+      _configurationLogged = true;
+
+      _videoUtils.logEvent( configParams );
+    }
+  }
+
   function _init() {
     var params = _videoUtils.getParams();
 
@@ -44,16 +65,16 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
 
         // create and initialize the Storage file instance
         _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile();
-        _storage.init();
       } else if ( _videoUtils.getMode() === "folder" ) {
         _videoUtils.setConfigurationType( "storage folder (rls)" );
 
         // create and initialize the Storage folder instance
         _storage = new RiseVision.VideoRLS.PlayerLocalStorageFolder();
-        _storage.init();
       }
     }
 
+    _storage.init();
+    _logConfiguration( _videoUtils.getConfigurationType() );
     _videoUtils.sendReadyToViewer();
   }
 
@@ -115,26 +136,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   }
 
   function play() {
-    var params = _videoUtils.getParams(),
-      configParams = {
-        "event": "configuration",
-        "event_details": _videoUtils.getConfigurationType()
-      },
-      mode = _videoUtils.getMode(),
-      currentFiles;
-
-    if ( !_configurationLogged ) {
-      if ( mode === "file" ) {
-        configParams.file_url = _videoUtils.getStorageSingleFilePath();
-      } else if ( mode === "folder" ) {
-        configParams.file_url = _videoUtils.getStorageFolderPath();
-        configParams.file_format = "WEBM|MP4|OGV|OGG";
-      }
-
-      _configurationLogged = true;
-
-      _videoUtils.logEvent( configParams );
-    }
+    var currentFiles;
 
     _viewerPaused = false;
 
@@ -158,7 +160,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       currentFiles = _videoUtils.getCurrentFiles();
 
       if ( currentFiles && currentFiles.length > 0 ) {
-        _player = new RiseVision.PlayerVJS( params, _videoUtils.getMode(), RiseVision.VideoRLS );
+        _player = new RiseVision.PlayerVJS( _videoUtils.getParams(), _videoUtils.getMode(), RiseVision.VideoRLS );
         _player.init( currentFiles );
       }
     }

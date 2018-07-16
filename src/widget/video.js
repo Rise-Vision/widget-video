@@ -31,6 +31,32 @@ RiseVision.Video = ( function( window, gadgets ) {
     _unavailableFlag = false;
   }
 
+  function _logConfiguration( type ) {
+    var params = _videoUtils.getParams(),
+      configParams = {
+        "event": "configuration",
+        "event_details": type
+      },
+      mode = _videoUtils.getMode();
+
+    if ( !_configurationLogged ) {
+      if ( mode === "file" ) {
+        if ( type !== "custom" ) {
+          configParams.file_url = _videoUtils.getStorageSingleFilePath();
+        } else {
+          configParams.file_url = ( params.url && params.url !== "" ) ? params.url : params.selector.url;
+        }
+
+      } else if ( mode === "folder" ) {
+        configParams.file_url = _videoUtils.getStorageFolderPath();
+        configParams.file_format = "WEBM|MP4|OGV|OGG";
+      }
+
+      _videoUtils.logEvent( configParams );
+      _configurationLogged = true;
+    }
+  }
+
   function _init() {
     var params = _videoUtils.getParams(),
       isStorageFile;
@@ -73,6 +99,7 @@ RiseVision.Video = ( function( window, gadgets ) {
       }
     }
 
+    _logConfiguration( _videoUtils.getConfigurationType() );
     _videoUtils.sendReadyToViewer();
   }
 
@@ -138,30 +165,7 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   function play() {
-    var params = _videoUtils.getParams(),
-      configParams = {
-        "event": "configuration",
-        "event_details": _videoUtils.getConfigurationType()
-      },
-      mode = _videoUtils.getMode(),
-      currentFiles;
-
-    if ( !_configurationLogged ) {
-      if ( mode === "file" ) {
-        if ( _videoUtils.getConfigurationType() !== "custom" ) {
-          configParams.file_url = _videoUtils.getStorageSingleFilePath();
-        } else {
-          configParams.file_url = ( params.url && params.url !== "" ) ? params.url : params.selector.url;
-        }
-
-      } else if ( mode === "folder" ) {
-        configParams.file_url = _videoUtils.getStorageFolderPath();
-        configParams.file_format = "WEBM|MP4|OGV|OGG";
-      }
-
-      _videoUtils.logEvent( configParams );
-      _configurationLogged = true;
-    }
+    var currentFiles;
 
     _viewerPaused = false;
 
@@ -189,7 +193,7 @@ RiseVision.Video = ( function( window, gadgets ) {
       currentFiles = _videoUtils.getCurrentFiles();
 
       if ( currentFiles && currentFiles.length > 0 ) {
-        _player = new RiseVision.PlayerVJS( params, _videoUtils.getMode(), RiseVision.Video );
+        _player = new RiseVision.PlayerVJS( _videoUtils.getParams(), _videoUtils.getMode(), RiseVision.Video );
         _player.init( currentFiles );
       }
     }
