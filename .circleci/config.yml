@@ -284,7 +284,6 @@ workflows:
           requires:
             - build
             - aws-setup
-            - gcloud-setup
           filters:
             branches:
               only:
@@ -292,7 +291,6 @@ workflows:
       - stage-gcs-dev:
           requires:
             - build
-            - aws-setup
             - gcloud-setup
           filters:
             branches:
@@ -320,10 +318,17 @@ workflows:
             branches:
               only:
                 - /^(feature|fix|chore)[/].*/
-      - deploy-stable:
+      - deploy-aws-stable:
           requires:
             - build
             - aws-setup
+          filters:
+            branches:
+              only:
+                - master
+      - deploy-gcs-stable:
+          requires:
+            - build
             - gcloud-setup
           filters:
             branches:
