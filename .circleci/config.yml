@@ -58,8 +58,6 @@ jobs:
           root: ~/.config
           paths:
             - gcloud
-      - run: ssh-keyscan -H 104.197.26.57 >> ~/.ssh/known_hosts
-      - run: ssh widget-memory-tester@104.197.26.57 'cd widget-memory-tester; DISPLAY=:10 DISPLAY_ID=MGAU442Y3CV9 RUNNING_TIME=3600000 gulp test > /dev/null &'
 
   aws-setup:
     docker: *BUILDIMAGE
@@ -225,7 +223,6 @@ jobs:
       - run: echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME
       - run: $awscli s3 ls s3://$BUCKET_NAME || ($awscli s3 mb s3://$BUCKET_NAME && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
       - run: $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
-      - run: ssh widget-memory-tester@104.197.26.57 'cd widget-memory-tester; DISPLAY=:10 DISPLAY_ID=MGAU442Y3CV9 RUNNING_TIME=3600000 gulp test > /dev/null &'
 
   deploy-gcs-stable:
     shell: /bin/bash --login
@@ -241,6 +238,14 @@ jobs:
       - run: gsutil -m setmeta -r -h "Cache-Control:private, max-age=0" gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
       - run: gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
       - run: ./upload-dist.sh
+
+  test-memory:
+    shell: /bin/bash --login
+    docker: *GCSIMAGE
+    steps:
+      - run: mkdir -p ~/.ssh
+      - run: ssh-keyscan -H 104.197.26.57 >> ~/.ssh/known_hosts
+      - run: ssh widget-memory-tester@104.197.26.57 'cd widget-memory-tester; DISPLAY=:10 DISPLAY_ID=MGAU442Y3CV9 RUNNING_TIME=3600000 gulp test > /dev/null &'
 
   generate-artifacts:
     shell: /bin/bash --login
@@ -324,3 +329,10 @@ workflows:
       - generate-artifacts:
           requires:
             - build
+      - test-memory:
+          requires:
+            - deploy-aws-stable
+          filters:
+            branches:
+              only:
+                - master
