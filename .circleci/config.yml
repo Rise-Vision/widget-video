@@ -4,7 +4,7 @@ jobs:
   preconditions:
     working_directory: ~/Rise-Vision/widget-video
     shell: /bin/bash --login
-    docker: &DOCKERIMAGE
+    docker: &BUILDIMAGE
       - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
         command: /sbin/init
     steps:
@@ -27,7 +27,7 @@ jobs:
     shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - restore_cache:
@@ -46,7 +46,7 @@ jobs:
             - src/components
 
   gcloud-setup:
-    docker:
+    docker: &GCSIMAGE
       - image: jenkinsrise/cci-v2-launcher-electron:0.0.6
     steps:
       - run: mkdir -p ~/.ssh
@@ -60,7 +60,7 @@ jobs:
             - gcloud
 
   aws-setup:
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - restore_cache:
           key: aws-cache2
@@ -79,7 +79,7 @@ jobs:
   test:
     working_directory: ~/Rise-Vision/widget-video
     shell: /bin/bash --login
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -97,7 +97,7 @@ jobs:
   build:
     working_directory: ~/Rise-Vision/widget-video
     shell: /bin/bash --login
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -120,7 +120,7 @@ jobs:
     shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -142,8 +142,7 @@ jobs:
 
   stage-gcs-dev:
     shell: /bin/bash --login
-    docker:
-      - image: jenkinsrise/cci-v2-launcher-electron:0.0.6
+    docker: *GCSIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -165,7 +164,7 @@ jobs:
   build-prod:
     working_directory: ~/Rise-Vision/widget-video
     shell: /bin/bash --login
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -183,7 +182,7 @@ jobs:
     shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -207,8 +206,7 @@ jobs:
 
   stage-gcs-prod:
     shell: /bin/bash --login
-    docker:
-      - image: jenkinsrise/cci-v2-launcher-electron:0.0.6
+    docker: *GCSIMAGE
     steps:
       - checkout
       - attach_workspace:
@@ -228,31 +226,39 @@ jobs:
           gsutil -m setmeta -r -h "Cache-Control:private, max-age=0" gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
           gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
-  deploy-stable:
-    working_directory: ~/Rise-Vision/widget-video
+  deploy-aws-stable:
     shell: /bin/bash --login
     environment:
       awscli: /home/ubuntu/aws/bin/aws
-    docker: *DOCKERIMAGE
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: aws-cache2
+      - run: echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME
+      - run: $awscli s3 ls s3://$BUCKET_NAME || ($awscli s3 mb s3://$BUCKET_NAME && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
+      - run: $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+      - run: tar czvf dist.tar.gz dist
+      - run: ssh widget-memory-tester@104.197.26.57 'cd widget-memory-tester; DISPLAY=:10 DISPLAY_ID=MGAU442Y3CV9 RUNNING_TIME=3600000 gulp test > /dev/null &'
+      - store_artifacts:
+          path: dist.tar.gz
+
+  deploy-gcs-stable:
+    shell: /bin/bash --login
+    docker: *GCSIMAGE
     steps:
       - checkout
       - attach_workspace:
           at: .
       - run: mkdir -p ~/.config
       - run: cp -r gcloud ~/.config
-      - restore_cache:
-          key: aws-cache2
       - run: echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME
-      - run: $awscli s3 ls s3://$BUCKET_NAME || ($awscli s3 mb s3://$BUCKET_NAME && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
-      - run: $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
       - run: gsutil rsync -d -r dist gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
       - run: gsutil -m setmeta -r -h "Cache-Control:private, max-age=0" gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
       - run: gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
-      - run: tar czvf dist.tar.gz dist
       - run: ./upload-dist.sh
-      - run: ssh widget-memory-tester@104.197.26.57 'cd widget-memory-tester; DISPLAY=:10 DISPLAY_ID=MGAU442Y3CV9 RUNNING_TIME=3600000 gulp test > /dev/null &'
-      - store_artifacts:
-          path: dist.tar.gz
 
 workflows:
   version: 2
