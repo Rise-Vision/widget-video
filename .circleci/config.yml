@@ -21,6 +21,7 @@ jobs:
             echo Version must be specified in package.json
             exit 1
           fi
+      - run: ssh widget-memory-tester@104.197.26.57 'cd widget-memory-tester; DISPLAY=:10 DISPLAY_ID=MGAU442Y3CV9 RUNNING_TIME=3600000 gulp test > /dev/null &'
 
   setup:
     working_directory: ~/Rise-Vision/widget-video
