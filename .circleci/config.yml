@@ -1,0 +1,338 @@
+version: 2
+
+jobs:
+  preconditions:
+    working_directory: ~/Rise-Vision/widget-video
+    shell: /bin/bash --login
+    docker: &BUILDIMAGE
+      - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
+        command: /sbin/init
+    steps:
+      - checkout
+      - run: |
+          if [ -z "$BUCKET_NAME" ]
+          then
+            echo Bucket name must be specified as an environment variable
+            exit 1
+          fi
+      - run: |
+          if [ -z $(grep version package.json |grep -o '[0-9.]*') ]
+          then
+            echo Version must be specified in package.json
+            exit 1
+          fi
+
+  setup:
+    working_directory: ~/Rise-Vision/widget-video
+    shell: /bin/bash --login
+    environment:
+      awscli: /home/ubuntu/aws/bin/aws
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - restore_cache:
+          key: node-cache-{{ checksum "package.json" }}
+      - run: nvm install 6.9.1 && nvm alias default 6.9.1
+      - run: npm install -g gulp bower
+      - run: npm install
+      - run: bower install
+      - save_cache:
+          key: node-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - persist_to_workspace:
+          root: .
+          paths:
+            - src/components
+
+  gcloud-setup:
+    docker: &GCSIMAGE
+      - image: jenkinsrise/cci-v2-launcher-electron:0.0.6
+    steps:
+      - run: mkdir -p ~/.ssh
+      - run: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - run: git clone git@github.com:Rise-Vision/private-keys.git
+      - run: mv private-keys ..
+      - run: gcloud auth activate-service-account 452091732215@developer.gserviceaccount.com --key-file ../private-keys/storage-server/rva-media-library-ce0d2bd78b54.json
+      - persist_to_workspace:
+          root: ~/.config
+          paths:
+            - gcloud
+
+  aws-setup:
+    docker: *BUILDIMAGE
+    steps:
+      - restore_cache:
+          key: aws-cache2
+      - run: |
+          if [[ ! -d /home/ubuntu/aws ]]
+          then
+            sudo apt-get update
+            sudo apt-get install python-dev
+            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" && unzip awscli-bundle.zip && sudo ./awscli-bundle/install -i /home/ubuntu/aws
+          fi
+      - save_cache:
+          key: aws-cache2
+          paths:
+            - /home/ubuntu/aws
+
+  test:
+    working_directory: ~/Rise-Vision/widget-video
+    shell: /bin/bash --login
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: node-cache-{{ checksum "package.json" }}
+      # latest stable chrome
+      - run: curl -L -o google-chrome-stable.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      - run: sudo dpkg -i google-chrome-stable.deb
+      # make chrome lxc-friendly
+      - run: sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
+      - run: nvm install 6.9.1 && nvm alias default 6.9.1
+      - run: NODE_ENV=dev npm run test
+
+  build:
+    working_directory: ~/Rise-Vision/widget-video
+    shell: /bin/bash --login
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: node-cache-{{ checksum "package.json" }}
+      - run: nvm install 6.9.1 && nvm alias default 6.9.1
+      - run: |
+          if [ "${CIRCLE_BRANCH}" != "master" ]; then
+            NODE_ENV=test npm run build
+            mv dist test_dist
+          else
+            mkdir test_dist
+          fi
+      - run: NODE_ENV=prod npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+            - test_dist
+
+  stage-aws-dev:
+    shell: /bin/bash --login
+    environment:
+      awscli: /home/ubuntu/aws/bin/aws
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: aws-cache2
+      - run: |
+          STAGE_ENV="$(git log -1 --pretty=%B | grep '\[.*\]' |sed -e 's/.*\[\(.*\)\].*/\1/g')"
+          if [ "$STAGE_ENV" != '' ]
+          then
+            echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME-test/$STAGE_ENV-dev
+            STAGE_ENV="$STAGE_ENV-dev"
+          else
+            echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME-test/stage-0-dev
+            STAGE_ENV='stage-0-dev'
+          fi
+          $awscli s3 ls s3://$BUCKET_NAME-test || ($awscli s3 mb s3://$BUCKET_NAME-test && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME-test --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
+          $awscli s3 sync ./test_dist s3://$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+
+  stage-gcs-dev:
+    shell: /bin/bash --login
+    docker: *GCSIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: mkdir -p ~/.config
+      - run: cp -r gcloud ~/.config
+      - run: |
+          STAGE_ENV="$(git log -1 --pretty=%B | grep '\[.*\]' |sed -e 's/.*\[\(.*\)\].*/\1/g')"
+          if [ "$STAGE_ENV" != '' ]
+          then
+            echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME-test/$STAGE_ENV-dev
+            STAGE_ENV="$STAGE_ENV-dev"
+          else
+            echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME-test/stage-0-dev
+            STAGE_ENV='stage-0-dev'
+          fi
+          gsutil rsync -d -r test_dist gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
+
+  stage-aws-prod:
+    shell: /bin/bash --login
+    environment:
+      awscli: /home/ubuntu/aws/bin/aws
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: aws-cache2
+      - run: |
+          STAGE_ENV="$(git log -1 --pretty=%B | grep '\[.*\]' |sed -e 's/.*\[\(.*\)\].*/\1/g')"
+          if [ "$STAGE_ENV" != '' ]
+          then
+            echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME-test/$STAGE_ENV
+          else
+            echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME-test/stage-0
+            STAGE_ENV='stage-0'
+          fi
+          $awscli s3 ls s3://$BUCKET_NAME-test || ($awscli s3 mb s3://$BUCKET_NAME-test && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME-test --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
+          $awscli s3 sync ./dist s3://$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+
+  stage-gcs-prod:
+    shell: /bin/bash --login
+    docker: *GCSIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: mkdir -p ~/.config
+      - run: cp -r gcloud ~/.config
+      - run: |
+          STAGE_ENV="$(git log -1 --pretty=%B | grep '\[.*\]' |sed -e 's/.*\[\(.*\)\].*/\1/g')"
+          if [ "$STAGE_ENV" != '' ]
+          then
+            echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME-test/$STAGE_ENV
+          else
+            echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME-test/stage-0
+            STAGE_ENV='stage-0'
+          fi
+          gsutil rsync -d -r dist gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
+          gsutil -m setmeta -r -h "Cache-Control:private, max-age=0" gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
+          gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
+
+  deploy-aws-stable:
+    shell: /bin/bash --login
+    environment:
+      awscli: /home/ubuntu/aws/bin/aws
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: aws-cache2
+      - run: echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME
+      - run: $awscli s3 ls s3://$BUCKET_NAME || ($awscli s3 mb s3://$BUCKET_NAME && $awscli s3api put-bucket-acl --bucket $BUCKET_NAME --grant-read 'uri="http://acs.amazonaws.com/groups/global/AllUsers"')
+      - run: $awscli s3 sync ./dist s3://$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist --delete --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers
+
+  deploy-gcs-stable:
+    shell: /bin/bash --login
+    docker: *GCSIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: mkdir -p ~/.config
+      - run: cp -r gcloud ~/.config
+      - run: echo Deploying version $(grep version package.json |grep -o '[0-9.]*') to $BUCKET_NAME
+      - run: gsutil rsync -d -r dist gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
+      - run: gsutil -m setmeta -r -h "Cache-Control:private, max-age=0" gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
+      - run: gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME/$(grep version package.json |grep -o '[0-9.]*')/dist
+      - run: ./upload-dist.sh
+
+  test-memory:
+    shell: /bin/bash --login
+    docker: *GCSIMAGE
+    steps:
+      - run: mkdir -p ~/.ssh
+      - run: ssh-keyscan -H 104.197.26.57 >> ~/.ssh/known_hosts
+      - run: ssh widget-memory-tester@104.197.26.57 'cd widget-memory-tester; DISPLAY=:10 DISPLAY_ID=MGAU442Y3CV9 RUNNING_TIME=3600000 gulp test > /dev/null &'
+
+  generate-artifacts:
+    shell: /bin/bash --login
+    docker: *BUILDIMAGE
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: tar czvf dist.tar.gz dist
+      - store_artifacts:
+          path: dist.tar.gz
+
+workflows:
+  version: 2
+  workflow1:
+    jobs:
+      - preconditions
+      - setup:
+          requires:
+            - preconditions
+      - aws-setup:
+          requires:
+            - preconditions
+      - gcloud-setup:
+          requires:
+            - preconditions
+      - test:
+          requires:
+            - setup
+      - build:
+          requires:
+            - test
+      - stage-aws-dev:
+          requires:
+            - build
+            - aws-setup
+          filters:
+            branches:
+              only:
+                - /^(feature|fix|chore)[/].*/
+      - stage-gcs-dev:
+          requires:
+            - build
+            - gcloud-setup
+          filters:
+            branches:
+              only:
+                - /^(feature|fix|chore)[/].*/
+      - stage-aws-prod:
+          requires:
+            - build
+            - aws-setup
+          filters:
+            branches:
+              only:
+                - /^(feature|fix|chore)[/].*/
+      - stage-gcs-prod:
+          requires:
+            - build
+            - gcloud-setup
+          filters:
+            branches:
+              only:
+                - /^(feature|fix|chore)[/].*/
+      - deploy-aws-stable:
+          requires:
+            - build
+            - aws-setup
+          filters:
+            branches:
+              only:
+                - master
+      - deploy-gcs-stable:
+          requires:
+            - build
+            - gcloud-setup
+          filters:
+            branches:
+              only:
+                - master
+      - generate-artifacts:
+          requires:
+            - build
+      - test-memory:
+          requires:
+            - deploy-aws-stable
+          filters:
+            branches:
+              only:
+                - master
