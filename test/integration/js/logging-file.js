@@ -11,6 +11,7 @@ var spy,
     "event": "storage file not found",
     "file_url": "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
     "file_format": "webm",
+    "configuration": "storage file",
     /* eslint-disable quotes */
     "company_id": '"companyId"',
     "display_id": '"displayId"',
@@ -48,9 +49,10 @@ suite( "configuration", function() {
 
     assert( spy.calledWith( table, {
       "event": "configuration",
-      "event_details": "storage file",
+      "event_details": params.configuration,
       "file_url": params.file_url,
       "file_format": params.file_format,
+      "configuration": params.configuration,
       "company_id": params.company_id,
       "display_id": params.display_id,
       "version": params.version

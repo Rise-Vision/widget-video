@@ -98,6 +98,7 @@ RiseVision.VideoUtils = ( function() {
   }
 
   function logEvent( data ) {
+    data.configuration = getConfigurationType() || "";
     RiseVision.Common.LoggerUtils.logEvent( getTableName(), data );
   }
 

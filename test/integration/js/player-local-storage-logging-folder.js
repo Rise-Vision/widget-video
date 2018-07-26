@@ -9,6 +9,7 @@ var table = "video_v2_events",
     "event_details": "",
     "file_url": "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/",
     "file_format": "unknown",
+    "configuration": "storage folder (rls)",
     "company_id": "\"companyId\"",
     "display_id": "\"displayId\"",
     "version": "1.1.0"
@@ -41,9 +42,10 @@ suite( "configuration", function() {
 
     assert( logSpy.calledWith( table, {
       "event": "configuration",
-      "event_details": "storage folder (rls)",
+      "event_details": params.configuration,
       "file_url": params.file_url,
       "file_format": "WEBM|MP4|OGV|OGG",
+      "configuration": params.configuration,
       "company_id": params.company_id,
       "display_id": params.display_id,
       "version": params.version
@@ -318,6 +320,7 @@ suite( "folder file deleted", function() {
       event_details: "No files to display",
       file_url: params.file_url,
       file_format: "unknown",
+      configuration: params.configuration,
       company_id: params.company_id,
       display_id: params.display_id,
       version: params.version
