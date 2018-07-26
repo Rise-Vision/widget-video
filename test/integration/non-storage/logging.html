@@ -50,6 +50,7 @@
         "event": "play",
         "file_url": "http://s3.amazonaws.com/stu-testing/sample_videos/big-buck-bunny_trailer.webm",
         "file_format": "webm",
+        "configuration": "custom",
         "company_id": '"companyId"',
         "display_id": '"displayId"',
         "version": "1.1.0"
@@ -96,9 +97,10 @@
 
         assert(spy.calledWith(table, {
           "event": "configuration",
-          "event_details": "custom",
+          "event_details": params.configuration,
           "file_format": params.file_format,
           "file_url": params.file_url,
+          "configuration": params.configuration,
           "company_id": params.company_id,
           "display_id": params.display_id,
           "version": params.version

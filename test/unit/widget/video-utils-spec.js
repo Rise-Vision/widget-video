@@ -37,6 +37,7 @@ describe( "logEvent", function() {
       "event_details": "test details",
       "file_url": "http://www.test.com/file.webm",
       "file_format": "webm",
+      "configuration": "",
       "company_id": "",
       "display_id": ""
     };
@@ -53,6 +54,7 @@ describe( "logEvent", function() {
   it( "should call spy with correct parameters when only the event parameter is set", function() {
     var params = {
       "event": "test",
+      "configuration": "",
       "company_id": "",
       "display_id": ""
     };
