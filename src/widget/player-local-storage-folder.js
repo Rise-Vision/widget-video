@@ -143,7 +143,6 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
         return;
       }
 
-      // settling with 1 file in case the folder only has 1 file
       initialLoad = false;
       RiseVision.VideoRLS.onFileInit( files );
     }, INITIAL_PROCESSING_DELAY );
@@ -211,16 +210,23 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
     _manageFile( data, "available" );
     _manageFileInError( data, true );
 
-    if ( initialLoad ) {
-      /* Try to wait for at least 2 files to load before initializing the slider. Otherwise, the
-         revolution.slide.onchange event will never fire, and this event is used to check whether or not the slider should refresh.
-         If there's only 1 file in the folder, the initialProcessingTimer will ensure the slider does get initialized anyway
-      */
-      if ( files.length > 1 ) {
-        _clearInitialProcessingTimer();
-        initialLoad = false;
+    function ready() {
+      _clearInitialProcessingTimer();
+      initialLoad = false;
 
-        RiseVision.VideoRLS.onFileInit( files );
+      RiseVision.VideoRLS.onFileInit( files );
+    }
+
+    if ( initialLoad ) {
+      if ( files.length > 1 ) {
+        ready();
+      } else if ( files.length === 1 ) {
+        // delay 2 seconds to allow for potentially one more file that's available
+        setTimeout( function() {
+          if ( files.length === 1 && initialLoad ) {
+            ready();
+          }
+        }, 2000 );
       }
 
       return;

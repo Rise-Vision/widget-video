@@ -247,7 +247,7 @@ suite( "errors", function() {
     } );
 
     // force initialLoad to complete and be set to false
-    clock.tick( 15000 );
+    clock.tick( 2000 );
 
     // file has an error again on a later update, should be able to log error again since it was previously removed from filesInError list
     messageHandlers.forEach( function( handler ) {
