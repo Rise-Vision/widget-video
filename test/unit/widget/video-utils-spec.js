@@ -18,6 +18,20 @@ describe( "getStorageFileName", function() {
   it( "should provide file name from storage file path (with subfolder)", function() {
     expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test-folder/nested-folder/test-file.jpg" ) ).to.equal( "test-file.jpg" );
   } );
+
+  it( "should provide file name from storage file path (bucket only) when name has special characters", function() {
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/([!@?,#$])=1+2-A | <>.webm" ) ).to.equal( "([!@?,#$])=1+2-A | <>.webm" );
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test %.webm" ) ).to.equal( "test %.webm" );
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test *.webm" ) ).to.equal( "test *.webm" );
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test Ü.webm" ) ).to.equal( "test Ü.webm" );
+  } );
+
+  it( "should provide file name from storage file path (with subfolder) when name has special characters", function() {
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test-folder/nested-folder/([!@?,#$])=1+2-A | <>.webm" ) ).to.equal( "([!@?,#$])=1+2-A | <>.webm" );
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test-folder/nested-folder/test %.webm" ) ).to.equal( "test %.webm" );
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test-folder/nested-folder/test *.webm" ) ).to.equal( "test *.webm" );
+    expect( RiseVision.VideoUtils.getStorageFileName( "risemedialibrary-abc123/test-folder/nested-folder/test Ü.webm" ) ).to.equal( "test Ü.webm" );
+  } );
 } );
 
 describe( "logEvent", function() {
