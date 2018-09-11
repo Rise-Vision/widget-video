@@ -103,3 +103,29 @@ suite( "file changed", function() {
     } ), "onFileRefresh() called with correct data" );
   } );
 } );
+
+suite( "file deleted", function() {
+  setup( function() {
+    sinon.spy( RiseVision.VideoRLS, "onFileDeleted" );
+  } );
+
+  teardown( function() {
+    RiseVision.VideoRLS.onFileDeleted.restore();
+  } );
+
+  test( "should dispose of the video player", function() {
+    assert.equal( document.getElementsByTagName( "video" ).length, 1, "video player is showing" );
+
+    // mock receiving file-update to notify file is downloading
+    messageHandlers.forEach( function( handler ) {
+      handler( {
+        topic: "FILE-UPDATE",
+        filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
+        status: "DELETED"
+      } );
+    } );
+
+    assert.equal( document.getElementsByTagName( "video" ).length, 0, "video player is not showing" );
+
+  } );
+} );

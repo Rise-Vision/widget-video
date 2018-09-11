@@ -187,6 +187,8 @@ suite( "errors", function() {
   } );
 
   test( "file deleted", function() {
+    var onDeleteStub = sinon.stub( RiseVision.VideoRLS, "onFileDeleted" );
+
     logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
 
     messageHandlers.forEach( function( handler ) {
@@ -202,6 +204,8 @@ suite( "errors", function() {
 
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params ) );
+
+    onDeleteStub.restore();
   } );
 
 } );
