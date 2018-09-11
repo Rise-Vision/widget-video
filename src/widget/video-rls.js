@@ -123,6 +123,10 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     }
   }
 
+  function onFolderFilesRemoved() {
+    _player.dispose();
+  }
+
   function pause() {
     _viewerPaused = true;
 
@@ -173,7 +177,13 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   function playerDisposed() {
     _player = null;
     _videoUtils.setCurrentFiles( [] );
-    showError( "The selected video has been moved to Trash." );
+
+    if ( _videoUtils.getMode() === "file" ) {
+      showError( "The selected video has been moved to Trash." );
+    } else if ( _videoUtils.getMode() === "folder" ) {
+      showError( "The selected folder does not contain any videos that can be played." );
+    }
+
   }
 
   function playerError( error, localUrl, filePath ) {
@@ -265,6 +275,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     "onFileRefresh": onFileRefresh,
     "onFileUnavailable": onFileUnavailable,
     "onFileDeleted": onFileDeleted,
+    "onFolderFilesRemoved": onFolderFilesRemoved,
     "pause": pause,
     "play": play,
     "playerDisposed": playerDisposed,
