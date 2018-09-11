@@ -131,6 +131,8 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "event": "file deleted",
       "file_url": data.filePath
     } );
+
+    RiseVision.VideoRLS.onFileDeleted( data.filePath );
   }
 
   function _handleFileError( data ) {

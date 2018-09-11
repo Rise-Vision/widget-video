@@ -120,7 +120,7 @@ RiseVision.VideoUtils = ( function() {
       return;
     }
 
-    if ( Array.isArray( urls ) && urls.length > 0 ) {
+    if ( Array.isArray( urls ) ) {
       _currentFiles = urls;
     } else {
       _currentFiles[ 0 ] = urls;

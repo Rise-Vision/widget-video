@@ -86,6 +86,10 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   /*
    *  Public Methods
    */
+  function onFileDeleted() {
+    _player.dispose();
+  }
+
   function onFileInit( urls ) {
     _videoUtils.setCurrentFiles( urls );
 
@@ -164,6 +168,12 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
         _player.init( currentFiles );
       }
     }
+  }
+
+  function playerDisposed() {
+    _player = null;
+    _videoUtils.setCurrentFiles( [] );
+    showError( "The selected video has been moved to Trash." );
   }
 
   function playerError( error, localUrl, filePath ) {
@@ -254,8 +264,10 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     "onFileInit": onFileInit,
     "onFileRefresh": onFileRefresh,
     "onFileUnavailable": onFileUnavailable,
+    "onFileDeleted": onFileDeleted,
     "pause": pause,
     "play": play,
+    "playerDisposed": playerDisposed,
     "playerError": playerError,
     "playerReady": playerReady,
     "setAdditionalParams": setAdditionalParams,

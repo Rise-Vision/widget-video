@@ -64,6 +64,21 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     }
   }
 
+  function _onDispose() {
+    _autoPlay = false;
+    _playerInstance = null;
+    _files = null;
+    _fileCount = 0;
+    _utils = null;
+    _videoUtils = null;
+    _updateWaiting = false;
+    _isPaused = false;
+    _pauseTimer = null;
+    _pause = null;
+
+    videoRef.playerDisposed();
+  }
+
   function _onEnded() {
     if ( mode === "file" ) {
       _videoUtils.playerEnded();
@@ -151,6 +166,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _playerInstance.on( "ended", _onEnded );
     _playerInstance.on( "error", _onError );
     _playerInstance.on( "loadedmetadata", _onLoadedMetaData );
+    _playerInstance.on( "dispose", _onDispose );
   }
 
   function _muteVideo() {
@@ -200,6 +216,11 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   /*
    *  Public Methods
    */
+  function dispose() {
+    clearTimeout( _pauseTimer );
+    _playerInstance.dispose();
+  }
+
   function init( files ) {
     _files = files;
     _autoPlay = ( !params.video.controls ) ? true : params.video.autoplay;
@@ -220,7 +241,6 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _removeLoadingSpinner();
 
   }
-
 
   /*
     Remove the loading spinner using video js api
@@ -284,6 +304,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   }
 
   return {
+    "dispose": dispose,
     "init": init,
     "pause": pause,
     "play": play,
