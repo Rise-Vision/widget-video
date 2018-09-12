@@ -166,7 +166,6 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _playerInstance.on( "ended", _onEnded );
     _playerInstance.on( "error", _onError );
     _playerInstance.on( "loadedmetadata", _onLoadedMetaData );
-    _playerInstance.on( "dispose", _onDispose );
   }
 
   function _muteVideo() {
@@ -219,6 +218,10 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   function dispose() {
     clearTimeout( _pauseTimer );
     _playerInstance.dispose();
+
+    setTimeout( function() {
+      _onDispose();
+    }, 500 );
   }
 
   function init( files ) {

@@ -105,16 +105,20 @@ suite( "file changed", function() {
 } );
 
 suite( "file deleted", function() {
+  var clock;
+
   setup( function() {
+    clock = sinon.useFakeTimers();
     sinon.spy( RiseVision.VideoRLS, "onFileDeleted" );
   } );
 
   teardown( function() {
     RiseVision.VideoRLS.onFileDeleted.restore();
+    clock.restore();
   } );
 
   test( "should dispose of the video player", function() {
-    assert.equal( document.getElementsByTagName( "video" ).length, 1, "video player is showing" );
+    assert.isNotNull( document.querySelector( "video#player_html5_api" ), "video player is showing" );
 
     // mock receiving file-update to notify file is downloading
     messageHandlers.forEach( function( handler ) {
@@ -125,7 +129,10 @@ suite( "file deleted", function() {
       } );
     } );
 
-    assert.equal( document.getElementsByTagName( "video" ).length, 0, "video player is not showing" );
+    clock.tick( 500 );
+
+    assert.isNotNull( document.querySelector( "video#player" ), "video element is showing" );
+    assert.isNull( document.querySelector( "video#player_html5_api" ), "video player is not showing" );
 
   } );
 } );

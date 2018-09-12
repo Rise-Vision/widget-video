@@ -177,13 +177,13 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   function playerDisposed() {
     _player = null;
     _videoUtils.setCurrentFiles( [] );
+    _videoUtils.resetVideoElement();
 
     if ( _videoUtils.getMode() === "file" ) {
       showError( "The selected video has been moved to Trash." );
     } else if ( _videoUtils.getMode() === "folder" ) {
       showError( "The selected folder does not contain any videos that can be played." );
     }
-
   }
 
   function playerError( error, localUrl, filePath ) {
