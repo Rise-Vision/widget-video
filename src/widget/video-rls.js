@@ -87,7 +87,9 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
    *  Public Methods
    */
   function onFileDeleted() {
-    _player.dispose();
+    if ( _player ) {
+      _player.dispose();
+    }
   }
 
   function onFileInit( urls ) {
@@ -124,7 +126,9 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   }
 
   function onFolderFilesRemoved() {
-    _player.dispose();
+    if ( _player ) {
+      _player.dispose();
+    }
   }
 
   function pause() {
@@ -230,7 +234,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     // Ensures loading messaging is hidden and video gets shown
     _message.hide();
 
-    if ( !_viewerPaused ) {
+    if ( !_viewerPaused && _player ) {
       _player.play();
     }
   }
