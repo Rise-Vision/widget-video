@@ -135,6 +135,17 @@ suite( "errors", function() {
 } );
 
 suite( "file deleted", function() {
+
+  setup( function() {
+    sinon.stub( RiseVision.VideoRLS, "onFileDeleted", function() {
+      RiseVision.VideoRLS.playerDisposed();
+    } );
+  } );
+
+  teardown( function() {
+    RiseVision.VideoRLS.onFileDeleted.restore();
+  } );
+
   test( "file deleted", function() {
     // mock receiving file-update to notify file is downloading
     messageHandlers.forEach( function( handler ) {
@@ -165,7 +176,6 @@ suite( "file deleted", function() {
       } );
     } );
 
-    assert.isTrue( ( document.getElementById( "container" ).style.display === "block" ), "video container is showing" );
-    assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "none" ), "message container is hidden" );
+    assert.equal( document.querySelector( ".message" ).innerHTML, "The selected video has been moved to Trash." );
   } );
 } );

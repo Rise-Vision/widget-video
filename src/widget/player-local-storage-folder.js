@@ -108,7 +108,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
         "file_format": "unknown"
       } );
 
-      RiseVision.VideoRLS.showError( "Unable to display any files." );
+      RiseVision.VideoRLS.onFolderFilesRemoved();
     } else {
       RiseVision.VideoRLS.onFileRefresh( files );
     }

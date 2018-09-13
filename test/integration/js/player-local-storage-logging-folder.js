@@ -273,7 +273,8 @@ suite( "errors", function() {
 
 suite( "folder file deleted", function() {
   test( "should log when a file in folder is deleted", function() {
-    var logParams = JSON.parse( JSON.stringify( params ) );
+    var logParams = JSON.parse( JSON.stringify( params ) ),
+      onFilesRemovedStub = sinon.stub( RiseVision.VideoRLS, "onFolderFilesRemoved" );
 
     logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
 
@@ -325,6 +326,8 @@ suite( "folder file deleted", function() {
       display_id: params.display_id,
       version: params.version
     } ) );
+
+    onFilesRemovedStub.restore();
 
   } );
 } );

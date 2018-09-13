@@ -106,6 +106,19 @@ RiseVision.VideoUtils = ( function() {
     RiseVision.VideoUtils.sendDoneToViewer();
   }
 
+  function resetVideoElement() {
+    var container = document.getElementById( "container" ),
+      fragment = document.createDocumentFragment(),
+      el = document.createElement( "video" );
+
+    el.setAttribute( "id", "player" );
+    el.setAttribute( "preload", "auto" );
+    el.className = "video-js";
+
+    fragment.appendChild( el );
+    container.appendChild( fragment );
+  }
+
   function sendDoneToViewer() {
     gadgets.rpc.call( "", "rsevent_done", null, _prefs.getString( "id" ) );
   }
@@ -120,7 +133,7 @@ RiseVision.VideoUtils = ( function() {
       return;
     }
 
-    if ( Array.isArray( urls ) && urls.length > 0 ) {
+    if ( Array.isArray( urls ) ) {
       _currentFiles = urls;
     } else {
       _currentFiles[ 0 ] = urls;
@@ -167,6 +180,7 @@ RiseVision.VideoUtils = ( function() {
     "isValidDisplayId": isValidDisplayId,
     "logEvent": logEvent,
     "playerEnded": playerEnded,
+    "resetVideoElement": resetVideoElement,
     "sendDoneToViewer": sendDoneToViewer,
     "sendReadyToViewer": sendReadyToViewer,
     "setConfigurationType": setConfigurationType,

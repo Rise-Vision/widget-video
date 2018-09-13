@@ -161,12 +161,16 @@ suite( "file error", function() {
   setup( function() {
     sinon.stub( RiseVision.VideoRLS, "onFileInit" );
     sinon.stub( RiseVision.VideoRLS, "onFileRefresh" );
+    sinon.stub( RiseVision.VideoRLS, "onFolderFilesRemoved", function() {
+      RiseVision.VideoRLS.playerDisposed();
+    } );
     clock = sinon.useFakeTimers();
   } );
 
   teardown( function() {
     RiseVision.VideoRLS.onFileInit.restore();
     RiseVision.VideoRLS.onFileRefresh.restore();
+    RiseVision.VideoRLS.onFolderFilesRemoved.restore();
     clock.restore();
   } );
 
@@ -212,7 +216,7 @@ suite( "file error", function() {
       } );
     } );
 
-    assert.equal( document.querySelector( ".message" ).innerHTML, "Unable to display any files." );
+    assert.equal( document.querySelector( ".message" ).innerHTML, "The selected folder does not contain any videos that can be played." );
 
     clock.tick( 4500 );
     assert( spy.notCalled );
