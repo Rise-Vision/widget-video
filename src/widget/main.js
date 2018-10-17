@@ -177,6 +177,8 @@
     if ( !useRLS ) {
       RiseVision.Video.pause();
     } else {
+      playOnceDependenciesAreLoaded = false;
+
       RiseVision.VideoRLS.pause();
     }
 
@@ -186,6 +188,8 @@
     if ( !useRLS ) {
       RiseVision.Video.stop();
     } else {
+      playOnceDependenciesAreLoaded = false;
+
       RiseVision.VideoRLS.stop();
     }
   }
@@ -200,5 +204,3 @@
   }
 
 } )( window, gadgets );
-
-
