@@ -4,26 +4,12 @@
   "use strict";
 
   var id = new gadgets.Prefs().getString( "id" ),
-    isWaitingForScriptDependencies = false,
-    playOnceDependenciesAreLoaded = false,
     useRLS = false;
 
   // Disable context menu (right click menu)
   window.oncontextmenu = function() {
     return false;
   };
-
-  function _playlistDependencyLoaded() {
-    if ( isWaitingForScriptDependencies ) {
-      isWaitingForScriptDependencies = false;
-
-      if ( playOnceDependenciesAreLoaded ) {
-        playOnceDependenciesAreLoaded = false;
-
-        RiseVision.VideoRLS.play();
-      }
-    }
-  }
 
   function canUseRLSSingleFile() {
     try {
@@ -47,20 +33,6 @@
     }
 
     return false;
-  }
-
-
-  function _loadPlaylistPluginScript() {
-    var src = config.COMPONENTS_PATH + "videojs-playlist/dist/videojs-playlist.min.js",
-      script = document.createElement( "script" );
-
-    isWaitingForScriptDependencies = true;
-
-    script.async = false;
-    script.addEventListener( "load", _playlistDependencyLoaded );
-    script.src = src;
-
-    document.body.appendChild( script );
   }
 
   function configure( names, values ) {
@@ -93,7 +65,7 @@
           if ( !additionalParams.storage.fileName ) {
             // folder was selected
             mode = "folder";
-            _loadPlaylistPluginScript();
+            RiseVision.Common.Utilities.loadScript( config.COMPONENTS_PATH + "videojs-playlist/dist/videojs-playlist.min.js" );
 
             // TODO: trigger test coverage for RLS with folder
             useRLS = config.TEST_USE_RLS || canUseRLSFolder();
@@ -164,11 +136,7 @@
     if ( !useRLS ) {
       RiseVision.Video.play();
     } else {
-      if ( config.STORAGE_ENV === "test" || !isWaitingForScriptDependencies ) {
-        RiseVision.VideoRLS.play();
-      } else {
-        playOnceDependenciesAreLoaded = true;
-      }
+      RiseVision.VideoRLS.play();
     }
 
   }
@@ -177,8 +145,6 @@
     if ( !useRLS ) {
       RiseVision.Video.pause();
     } else {
-      playOnceDependenciesAreLoaded = false;
-
       RiseVision.VideoRLS.pause();
     }
 
@@ -188,8 +154,6 @@
     if ( !useRLS ) {
       RiseVision.Video.stop();
     } else {
-      playOnceDependenciesAreLoaded = false;
-
       RiseVision.VideoRLS.stop();
     }
   }
@@ -204,3 +168,5 @@
   }
 
 } )( window, gadgets );
+
+
