@@ -155,6 +155,13 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
       playlist.push( playlistItem );
     } );
 
+    if ( !_playerInstance.playlist ) {
+      _videoUtils.logEvent( {
+        "event": "error",
+        "event_details": "Playlist plugin did not load"
+      } );
+    }
+
     _playerInstance.playlist( playlist );
   }
 
