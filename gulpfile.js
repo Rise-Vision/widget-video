@@ -31,6 +31,11 @@
       "./node_modules/common-component/local-messaging.js",
       "./node_modules/common-component/player-local-storage.js",
       "./node_modules/common-component/player-local-storage-licensing.js"
+    ],
+    videoJSFiles = [
+      "./node_modules/video.js/dist/video.min.js",
+      "./node_modules/video.js/dist/video-js.css",
+      "./node_modules/videojs-playlist/dist/videojs-playlist.min.js"
     ];
 
   gulp.task("clean-bower", function(cb){
@@ -129,14 +134,14 @@
       .pipe(gulp.dest("dist/"));
   });
 
-  gulp.task("videojs", function() {
-    return gulp.src("src/components/videojs/dist/video.min.js")
-      .pipe(gulp.dest("dist/components/videojs/dist"));
+  gulp.task("videojs-test", function() {
+    return gulp.src(videoJSFiles)
+      .pipe(gulp.dest("src/vendor/videojs/dist"));
   });
 
-  gulp.task("videojs-playlist", function() {
-    return gulp.src("src/components/videojs-playlist/dist/videojs-playlist.min.js")
-      .pipe(gulp.dest("dist/components/videojs-playlist/dist"));
+  gulp.task("videojs", function() {
+    return gulp.src(videoJSFiles)
+      .pipe(gulp.dest("dist/vendor/videojs/dist"));
   });
 
   gulp.task("version", function () {
@@ -256,17 +261,17 @@
 
   gulp.task("build-dev", function (cb) {
     runSequence(["clean", "config", "version"],
-      ["es6-modules", "source", "videojs",  "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
+      ["es6-modules", "source", "videojs", "fonts", "images", "i18n", "rise-storage"],
       ["unminify"], cb);
   });
 
   gulp.task("test", function(cb) {
-    runSequence("version", "es6-modules", "test:unit", "test:integration", "test:e2e", cb);
+    runSequence("version", "es6-modules", "videojs-test", "test:unit", "test:integration", "test:e2e", cb);
   });
 
   gulp.task("build", function (cb) {
     runSequence(["clean", "config", "bower-update", "version"],
-      ["es6-modules", "source", "videojs", "videojs-playlist", "fonts", "images", "i18n", "rise-storage"],
+      ["es6-modules", "source", "videojs", "fonts", "images", "i18n", "rise-storage"],
       ["unminify"], cb);
   });
 
