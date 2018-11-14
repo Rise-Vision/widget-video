@@ -44,8 +44,8 @@ suite( "Storage Initialization - file added", function() {
   } );
 
   test( "should load playlist script", function() {
-    assert.isNotNull( document.querySelector( "script[src='" + config.COMPONENTS_PATH +
-      "videojs-playlist/dist/videojs-playlist.min.js']" ) );
+    assert.isNotNull( document.querySelector( "script[src='" + config.VENDOR_PATH +
+      "videojs/dist/videojs-playlist.min.js']" ) );
   } );
 
   test( "should set fileType attribute of storage component", function() {
