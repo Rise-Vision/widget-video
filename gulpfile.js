@@ -76,7 +76,7 @@
       .pipe(gulp.dest("src/common-modules/"));
   });
 
-  gulp.task("source", ["lint"], function () {
+  gulp.task("source", ["lint", "videojs-src"], function () {
     var isProd = (env === "prod");
 
     return gulp.src(htmlFiles)
@@ -134,7 +134,7 @@
       .pipe(gulp.dest("dist/"));
   });
 
-  gulp.task("videojs-test", function() {
+  gulp.task("videojs-src", function() {
     return gulp.src(videoJSFiles)
       .pipe(gulp.dest("src/vendor/videojs/dist"));
   });
@@ -266,7 +266,7 @@
   });
 
   gulp.task("test", function(cb) {
-    runSequence("version", "es6-modules", "videojs-test", "test:unit", "test:integration", "test:e2e", cb);
+    runSequence("version", "es6-modules", "videojs-src", "test:unit", "test:integration", "test:e2e", cb);
   });
 
   gulp.task("build", function (cb) {
