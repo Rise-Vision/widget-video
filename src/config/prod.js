@@ -7,5 +7,6 @@ if ( typeof angular !== "undefined" ) {
 
 const config = {
   STORAGE_ENV: "prod",
-  COMPONENTS_PATH: "components/"
+  COMPONENTS_PATH: "components/",
+  VENDOR_PATH: "vendor/"
 };

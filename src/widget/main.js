@@ -51,7 +51,7 @@
 
 
   function _loadPlaylistPluginScript() {
-    var src = config.COMPONENTS_PATH + "videojs-playlist/dist/videojs-playlist.min.js",
+    var src = config.VENDOR_PATH + "videojs/dist/videojs-playlist.min.js",
       script = document.createElement( "script" );
 
     isWaitingForScriptDependencies = true;
