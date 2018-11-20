@@ -40,11 +40,11 @@
     "rise-storage-v2": "https://github.com/Rise-Vision/rise-storage.git#2.1.0",
     "videojs": "5.11.9",
     "widget-common": "https://github.com/Rise-Vision/widget-common.git#3.6.2",
-    "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#v3.4.0",
+    "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#v3.5.0",
     "widget-settings-ui-core": "https://github.com/Rise-Vision/widget-settings-ui-core.git#0.4.2",
     "underscore": "~1.8.3",
     "videojs-playlist": "3.1.1",
-    "common-header": "https://github.com/Rise-Vision/common-header.git#v2.4.3",
+    "common-header": "https://github.com/Rise-Vision/common-header.git#v3.2.8",
     "webcomponentsjs": "v1.1.0"
   },
   "resolutions": {
