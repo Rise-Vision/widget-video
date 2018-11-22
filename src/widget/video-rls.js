@@ -17,7 +17,8 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     _storage = null,
     _resume = true,
     _errorFlag = false,
-    _unavailableFlag = false;
+    _unavailableFlag = false,
+    _folderUnavailableFlag = false;
 
   /*
    *  Private Methods
@@ -81,6 +82,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   function _resetErrorFlags() {
     _errorFlag = false;
     _unavailableFlag = false;
+    _folderUnavailableFlag = false;
   }
 
   /*
@@ -131,6 +133,17 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     }
   }
 
+  function onFolderUnavailable() {
+    _folderUnavailableFlag = true;
+
+    // set to a blank message so the image container gets hidden and nothing is displayed on screen
+    _message.show( "" );
+
+    if ( !_viewerPaused ) {
+      _videoUtils.sendDoneToViewer();
+    }
+  }
+
   function pause() {
     _viewerPaused = true;
 
@@ -163,6 +176,12 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       return;
     }
 
+    if ( _folderUnavailableFlag ) {
+      _videoUtils.sendDoneToViewer();
+
+      return;
+    }
+
     if ( _player ) {
       // Ensures possible error messaging gets hidden and video gets shown
       _message.hide();
@@ -186,7 +205,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     if ( _videoUtils.getMode() === "file" ) {
       showError( "The selected video has been moved to Trash." );
     } else if ( _videoUtils.getMode() === "folder" ) {
-      showError( "The selected folder does not contain any videos that can be played." );
+      onFolderUnavailable();
     }
   }
 
@@ -280,6 +299,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     "onFileUnavailable": onFileUnavailable,
     "onFileDeleted": onFileDeleted,
     "onFolderFilesRemoved": onFolderFilesRemoved,
+    "onFolderUnavailable": onFolderUnavailable,
     "pause": pause,
     "play": play,
     "playerDisposed": playerDisposed,
