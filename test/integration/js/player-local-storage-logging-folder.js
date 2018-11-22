@@ -120,7 +120,9 @@ suite( "errors", function() {
 
   } );
 
-  test( "folder does not exist", function() {
+  test( "file error", function() {
+    var logParams;
+
     logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
 
     // mock receiving storage-licensing message
@@ -134,27 +136,6 @@ suite( "errors", function() {
 
     messageHandlers.forEach( function( handler ) {
       handler( {
-        topic: "file-update",
-        filePath: params.file_url,
-        status: "NOEXIST"
-      } );
-    } );
-
-    params.event = "error";
-    params.event_details = "folder does not exist";
-
-    assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
-
-  } );
-
-  test( "file error", function() {
-    var logParams;
-
-    logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
-
-    messageHandlers.forEach( function( handler ) {
-      handler( {
         topic: "file-error",
         filePath: params.file_url + "test-file-in-error.webm",
         msg: "Could not retrieve signed URL",
@@ -165,6 +146,7 @@ suite( "errors", function() {
     logParams = JSON.parse( JSON.stringify( params ) );
     logParams.file_url = params.file_url + "test-file-in-error.webm";
     logParams.file_format = "webm";
+    logParams.event = "error";
     logParams.event_details = "Could not retrieve signed URL | error details";
 
     assert( logSpy.calledOnce );
@@ -259,7 +241,7 @@ suite( "errors", function() {
       } );
     } );
 
-    logParams.event = params.event;
+    logParams.event = "error";
     logParams.file_url = params.file_url + "test-file-in-error-2.webm";
     logParams.file_format = "webm";
     logParams.event_details = "Could not retrieve signed URL | error details";
@@ -333,6 +315,25 @@ suite( "folder file deleted", function() {
 } );
 
 suite( "folder is empty", function() {
+
+  test( "should log a warning when folder does not exist", function() {
+    logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
+
+    messageHandlers.forEach( function( handler ) {
+      handler( {
+        topic: "file-update",
+        filePath: params.file_url,
+        status: "NOEXIST"
+      } );
+    } );
+
+    params.event = "warning";
+    params.event_details = "folder does not exist";
+
+    assert( logSpy.calledOnce );
+    assert( logSpy.calledWith( table, params ) );
+
+  } );
 
   test( "should log a warning when a folder is empty", function() {
     var logParams = JSON.parse( JSON.stringify( params ) );
