@@ -237,7 +237,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
 
   function _handleFolderNoExist() {
     var params = {
-      "event": "error",
+      "event": "warning",
       "event_details": "folder does not exist",
       "file_url": folderPath,
       "file_format": defaultFileFormat
@@ -245,7 +245,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
 
     videoUtils.logEvent( params );
 
-    RiseVision.VideoRLS.showError( "The selected folder does not exist or has been moved to Trash." );
+    RiseVision.VideoRLS.onFolderUnavailable();
   }
 
   function _handleFolderEmpty() {
@@ -258,7 +258,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
 
     videoUtils.logEvent( params );
 
-    RiseVision.VideoRLS.showError( "The selected folder does not contain any videos." );
+    RiseVision.VideoRLS.onFolderUnavailable();
   }
 
   function _handleFileDeleted( data ) {
