@@ -1,4 +1,5 @@
 /* global videojs */
+/* eslint-disable no-console */
 
 var RiseVision = RiseVision || {};
 
@@ -9,6 +10,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _playerInstance = null,
     _files = null,
     _fileCount = 0,
+    _decodeRetryCount = 0,
     _utils = RiseVision.PlayerUtils,
     _videoUtils = RiseVision.VideoUtils,
     _updateWaiting = false,
@@ -96,8 +98,32 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   }
 
   function _onError() {
+    var error = _playerInstance.error();
+
+    if ( mode === "file" && error && error.code === 3 ) {
+      console.log( "DECODE error retry count", _decodeRetryCount );
+      if ( _decodeRetryCount <= 5 ) {
+        _decodeRetryCount += 1;
+        _updateWaiting = true;
+
+        if ( !_isPaused ) {
+          // delay 1 second and then force a play()
+          setTimeout( function() {
+            console.log( "DECODE error, not paused, retry play() " );
+            play();
+          }, 1000 );
+        }
+
+        return;
+      }
+    }
 
     videoRef.playerError( _playerInstance.error(), _playerInstance.currentSrc(), _getFilePathFromSrc( _playerInstance.currentSrc() ) );
+  }
+
+  function _onPlay() {
+    // reset count since this event is evidence of successful play
+    _decodeRetryCount = 0;
   }
 
   function _onLoadedMetaData() {
@@ -172,6 +198,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
 
     _playerInstance.on( "ended", _onEnded );
     _playerInstance.on( "error", _onError );
+    _playerInstance.on( "play", _onPlay );
     _playerInstance.on( "loadedmetadata", _onLoadedMetaData );
   }
 
