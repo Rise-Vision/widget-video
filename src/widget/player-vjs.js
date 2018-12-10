@@ -106,13 +106,13 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
         _decodeRetryCount += 1;
         _updateWaiting = true;
 
-        if ( !_isPaused ) {
-          // delay 1 second and then force a play()
-          setTimeout( function() {
+        // delay 1 second and then force a play()
+        setTimeout( function() {
+          if ( !_isPaused ) {
             console.log( "DECODE error, not paused, retry play() " );
             play();
-          }, 1000 );
-        }
+          }
+        }, 1000 );
 
         return;
       }
