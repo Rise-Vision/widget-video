@@ -9,7 +9,6 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   var _autoPlay = false,
     _playerInstance = null,
     _files = null,
-    _fileCount = 0,
     _decodeRetryCount = 0,
     _utils = RiseVision.PlayerUtils,
     _videoUtils = RiseVision.VideoUtils,
@@ -70,7 +69,6 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _autoPlay = false;
     _playerInstance = null;
     _files = null;
-    _fileCount = 0;
     _utils = null;
     _videoUtils = null;
     _updateWaiting = false;
@@ -85,10 +83,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     if ( mode === "file" ) {
       _videoUtils.playerEnded();
     } else if ( mode === "folder" ) {
-      _fileCount++;
-
-      if ( ( _fileCount >= _playerInstance.playlist().length ) ) {
-        _fileCount = 0;
+      if ( _playerInstance.playlist.currentItem() >= ( _playerInstance.playlist().length - 1 ) ) {
         _playerInstance.playlist.currentItem( 0 );
         _videoUtils.playerEnded();
       } else {
