@@ -89,6 +89,7 @@ jobs:
             - test_dist
 
   stage-aws-dev:
+    shell: /bin/bash --login
     environment:
       awscli: /usr/local/bin/aws
     docker: *BUILDIMAGE
@@ -130,6 +131,7 @@ jobs:
           gsutil rsync -d -r test_dist gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   stage-aws-prod:
+    shell: /bin/bash --login
     environment:
       awscli: /usr/local/bin/aws
     docker: *BUILDIMAGE
@@ -171,6 +173,7 @@ jobs:
           gsutil acl -r ch -u AllUsers:R gs://widgets.risevision.com/$BUCKET_NAME-test/$STAGE_ENV/$(grep version package.json |grep -o '[0-9.]*')/dist
 
   deploy-aws-stable:
+    shell: /bin/bash --login
     environment:
       awscli: /usr/local/bin/aws
     docker: *BUILDIMAGE
