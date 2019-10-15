@@ -210,8 +210,17 @@
     ]}
   ));
 
+  gulp.task("test:unit:video-rls", factory.testUnitAngular(
+    {testFiles: [
+      "node_modules/widget-tester/mocks/gadget-mocks.js",
+      "src/widget/video-utils.js",
+      "src/widget/video-rls.js",
+      "test/unit/widget/video-rls-spec.js"
+    ]}
+  ));
+
   gulp.task("test:unit:player", function(cb) {
-    runSequence("test:unit:player-utils", "test:unit:player-main", cb);
+    runSequence("test:unit:player-utils", "test:unit:player-main", "test:unit:video-rls", cb);
   });
 
   gulp.task("test:unit:widget", factory.testUnitAngular(

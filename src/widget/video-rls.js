@@ -115,6 +115,10 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
 
     // in case refreshed file fixes an error with previous file, ensure flag is removed so playback is attempted again
     _resetErrorFlags();
+
+    if ( !_viewerPaused && !_player && _videoUtils.getCurrentFiles().length > 0 ) {
+      play();
+    }
   }
 
   function onFileUnavailable( message ) {
