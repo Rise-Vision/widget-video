@@ -1,4 +1,4 @@
-/* global describe, before, after, it, expect, sinon, RiseVision */
+/* global describe, beforeEach, afterEach, it, expect, sinon, RiseVision */
 
 /* eslint-disable func-names */
 
@@ -24,24 +24,24 @@ describe( "onFileRefresh", function() {
   } );
 
   it( "should not play if viewer is paused", function() {
-    RiseVision.VideoRLS.onFileRefresh([ "url1" ]);
+    RiseVision.VideoRLS.onFileRefresh( [ "url1" ] );
 
     expect( player.init ).to.not.have.been.called;
   } );
 
   it( "should play if a file is added after player disposal if viewer is not paused", function() {
-    RiseVision.VideoUtils.setCurrentFiles([ "url1" ]);
+    RiseVision.VideoUtils.setCurrentFiles( [ "url1" ] );
 
     RiseVision.VideoRLS.play();
-    expect( player.init ).to.have.been.calledWith([ "url1" ]);
+    expect( player.init ).to.have.been.calledWith( [ "url1" ] );
     expect( player.init ).to.have.been.called.once;
 
     // this is called after folder is emptied
     RiseVision.VideoRLS.playerDisposed();
 
     // notify the folder has files again
-    RiseVision.VideoRLS.onFileRefresh([ "url2" ]);
-    expect( player.init ).to.have.been.calledWith([ "url2" ]);
+    RiseVision.VideoRLS.onFileRefresh( [ "url2" ] );
+    expect( player.init ).to.have.been.calledWith( [ "url2" ] );
     expect( player.init ).to.have.been.called.twice;
 
     // Cleanup
@@ -49,17 +49,17 @@ describe( "onFileRefresh", function() {
   } );
 
   it( "should not play no files are added after player disposal even if viewer is not paused", function() {
-    RiseVision.VideoUtils.setCurrentFiles([ "url1" ]);
+    RiseVision.VideoUtils.setCurrentFiles( [ "url1" ] );
 
     RiseVision.VideoRLS.play();
-    expect( player.init ).to.have.been.calledWith([ "url1" ]);
+    expect( player.init ).to.have.been.calledWith( [ "url1" ] );
     expect( player.init ).to.have.been.called.once;
 
     // this is called after folder is emptied
     RiseVision.VideoRLS.playerDisposed();
 
     // notify the folder still has no files
-    RiseVision.VideoRLS.onFileRefresh([]);
+    RiseVision.VideoRLS.onFileRefresh( [] );
     expect( player.init ).to.have.been.called.once;
   } );
 
