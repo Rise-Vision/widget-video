@@ -21,7 +21,7 @@
     "babel-core": "^6.26.0",
     "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
     "babel-env": "^2.4.1",
-    "bower": "^1.5.3",
+    "bower": "^1.8.8",
     "chai": "^2.1.2",
     "chai-as-promised": "^4.3.0",
     "common-component": "git://github.com/Rise-Vision/common-component.git#v1.14.1",
