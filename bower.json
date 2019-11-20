@@ -53,14 +53,9 @@
     "angular": "~1.7.0",
     "angular-bootstrap": "~0.13.4",
     "angular-mocks": "~1.7.0",
-    "angular-sanitize": "~1.7.0",
-    "angular-translate": "~2.18.1",
-    "angular-translate-loader-static-files": "~2.18.1",
-    "common-header": "~4.0.0",
     "font-awesome": "~4.7.0",
     "lodash": "~4.17.4",
     "jquery": "~3.3.1",
-    "webcomponentsjs": "v1.1.0",
-    "widget-common": "a283c4c"
+    "webcomponentsjs": "v1.1.0"
   }
 }
