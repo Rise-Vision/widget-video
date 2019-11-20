@@ -22,8 +22,6 @@ jobs:
 
   setup:
     working_directory: ~/Rise-Vision/widget-video
-    environment:
-      awscli: /home/ubuntu/aws/bin/aws
     docker: *BUILDIMAGE
     steps:
       - checkout
