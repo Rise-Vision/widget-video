@@ -43,7 +43,7 @@
     "videojs": "5.11.9",
     "widget-common": "https://github.com/Rise-Vision/widget-common.git#a283c4c",
     "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#v3.5.0",
-    "widget-settings-ui-core": "https://github.com/Rise-Vision/widget-settings-ui-core.git#d61fc4a",
+    "widget-settings-ui-core": "https://github.com/Rise-Vision/widget-settings-ui-core.git#0.4.2",
     "underscore": "~1.8.3",
     "videojs-playlist": "3.1.1",
     "common-header": "https://github.com/Rise-Vision/common-header.git#v4.0.0",
