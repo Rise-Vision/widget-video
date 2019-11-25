@@ -26,7 +26,7 @@
     "chai-as-promised": "^4.3.0",
     "common-component": "git://github.com/Rise-Vision/common-component.git#v1.14.1",
     "del": "~1.1.1",
-    "eslint": "^3.8.1",
+    "eslint": "^4.18.2",
     "eslint-config-idiomatic": "^2.1.0",
     "growl": "1.10.5",
     "gulp": "^3.9.0",
