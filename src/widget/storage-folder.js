@@ -55,9 +55,19 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
    *  Public Methods
    */
   function init() {
-    var storage = document.getElementById( "videoStorage" );
+    var storage = document.getElementById( "videoStorage" ),
+      self = this;
 
     if ( !storage ) {
+      return;
+    }
+
+    if ( !storage.go ) {
+      setTimeout( function() {
+        self.init();
+      }, 100 );
+
+      console.log( "rise-storage component still not initialized; retrying" ); // eslint-disable-line no-console
       return;
     }
 
