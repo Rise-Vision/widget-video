@@ -132,7 +132,7 @@
             init();
           }
 
-          webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-loader.js";
+          webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents.js";
 
           // add the webcomponents polyfill source to the document head
           document.getElementsByTagName( "head" )[ 0 ].appendChild( webcomponents );

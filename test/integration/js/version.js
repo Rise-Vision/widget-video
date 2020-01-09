@@ -41,5 +41,5 @@ test( "rise-storage element should be added to body", function() {
 test( "polyfill added to document head", function() {
   var head = document.getElementsByTagName( "head" )[ 0 ];
 
-  assert.isNotNull( head.querySelector( "script[src='" + config.COMPONENTS_PATH + "webcomponentsjs/webcomponents-loader.js'" ) );
+  assert.isNotNull( head.querySelector( "script[src='" + config.COMPONENTS_PATH + "webcomponentsjs/webcomponents.js'" ) );
 } );

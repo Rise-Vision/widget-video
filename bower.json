@@ -48,7 +48,7 @@
     "underscore": "~1.8.3",
     "videojs-playlist": "3.1.1",
     "common-header": "https://github.com/Rise-Vision/common-header.git#v4.0.0",
-    "webcomponentsjs": "v1.1.0"
+    "webcomponentsjs": "v0.7.24"
   },
   "resolutions": {
     "angular": "~1.7.0",
@@ -57,6 +57,6 @@
     "font-awesome": "~4.7.0",
     "lodash": "~4.17.4",
     "jquery": "~3.3.1",
-    "webcomponentsjs": "v1.1.0"
+    "webcomponentsjs": "v0.7.24"
   }
 }
