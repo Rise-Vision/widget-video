@@ -11,3 +11,4 @@ tmp
 *.log
 .idea
 widget-video.iml
+.project
