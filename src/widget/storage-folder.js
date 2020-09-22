@@ -56,7 +56,8 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
    */
   function init() {
     var storage = document.getElementById( "videoStorage" ),
-      self = this;
+      self = this,
+      envVerifierParams = utils.getEnvVerifierParams();
 
     if ( !storage ) {
       return;
@@ -225,6 +226,10 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
     storage.setAttribute( "displayId", displayId );
     storage.setAttribute( "folder", data.storage.folder );
     storage.setAttribute( "env", config.STORAGE_ENV );
+
+    envVerifierParams && storage.setAttribute( "endpointType", envVerifierParams.env );
+    envVerifierParams && storage.setAttribute( "viewerId", envVerifierParams.viewer_id );
+
     storage.go();
   }
 
