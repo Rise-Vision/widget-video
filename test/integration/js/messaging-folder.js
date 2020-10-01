@@ -173,7 +173,7 @@ suite( "rise cache error", function() {
       } ) );
 
       assert.equal( document.querySelector( ".message" ).innerHTML,
-        "There was a problem retrieving the file.", "message text" );
+        "There was a problem retrieving the file from Rise Cache.", "message text" );
     } else {
       storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
         "detail": {
@@ -197,7 +197,7 @@ suite( "rise cache error", function() {
       storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
         "detail": {
           "error": {
-            "message": "The request failed with status code: 534"
+            "message": "The request failed with status code: 404"
           }
         },
         "bubbles": true
