@@ -17,11 +17,6 @@ var ready = false,
   };
 
 suiteSetup( function( done ) {
-  if ( isV2Running ) {
-    requests[ 0 ].respond( 404 );
-    requests[ 1 ].respond( 200 );
-  }
-
   check( done );
 } );
 
@@ -244,7 +239,9 @@ suite( "Storage Errors", function() {
         "bubbles": true
       } ) );
 
-      assert( onShowErrorStub.calledWith( "There was a problem retrieving the file." ),
+      console.log(onShowErrorStub.args);
+
+      assert( onShowErrorStub.calledWith( "There was a problem retrieving the file from Rise Cache." ),
         "showError() called with correct message" );
     } else {
       params.event_details = "The request failed with status code: 500";
