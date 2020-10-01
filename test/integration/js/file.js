@@ -1,4 +1,4 @@
-/* global requests, suiteSetup, suite, suiteTeardown, setup, teardown, test, assert,
+/* global suiteSetup, suite, suiteTeardown, setup, teardown, test, assert,
   RiseVision, sinon, config */
 
 /* eslint-disable func-names */
@@ -238,8 +238,6 @@ suite( "Storage Errors", function() {
         },
         "bubbles": true
       } ) );
-
-      console.log(onShowErrorStub.args);
 
       assert( onShowErrorStub.calledWith( "There was a problem retrieving the file from Rise Cache." ),
         "showError() called with correct message" );
