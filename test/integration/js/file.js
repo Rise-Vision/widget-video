@@ -1,4 +1,4 @@
-/* global requests, suiteSetup, suite, suiteTeardown, setup, teardown, test, assert,
+/* global suiteSetup, suite, suiteTeardown, setup, teardown, test, assert,
   RiseVision, sinon, config */
 
 /* eslint-disable func-names */
@@ -17,11 +17,6 @@ var ready = false,
   };
 
 suiteSetup( function( done ) {
-  if ( isV2Running ) {
-    requests[ 0 ].respond( 404 );
-    requests[ 1 ].respond( 200 );
-  }
-
   check( done );
 } );
 
@@ -244,7 +239,7 @@ suite( "Storage Errors", function() {
         "bubbles": true
       } ) );
 
-      assert( onShowErrorStub.calledWith( "There was a problem retrieving the file." ),
+      assert( onShowErrorStub.calledWith( "There was a problem retrieving the file from Rise Cache." ),
         "showError() called with correct message" );
     } else {
       params.event_details = "The request failed with status code: 500";

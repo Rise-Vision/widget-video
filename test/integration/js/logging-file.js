@@ -1,4 +1,4 @@
-/* global requests, suiteSetup, suite, teardown, test, assert, RiseVision, sinon */
+/* global suiteSetup, suite, teardown, test, assert, RiseVision, sinon */
 
 /* eslint-disable func-names */
 
@@ -31,11 +31,6 @@ var spy,
   };
 
 suiteSetup( function( done ) {
-  if ( isV2Running ) {
-    requests[ 0 ].respond( 404 );
-    requests[ 1 ].respond( 200 );
-  }
-
   check( done );
 } );
 

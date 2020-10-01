@@ -1,4 +1,4 @@
-/* global requests, suiteSetup, suiteTeardown, suite, test, assert, RiseVision, sinon */
+/* global suiteSetup, suiteTeardown, suite, test, assert, RiseVision, sinon */
 
 /* eslint-disable func-names */
 
@@ -16,11 +16,6 @@ var ready = false,
   };
 
 suiteSetup( function( done ) {
-  if ( isV2Running ) {
-    requests[ 0 ].respond( 404 );
-    requests[ 1 ].respond( 200 );
-  }
-
   check( done );
 } );
 
@@ -178,7 +173,7 @@ suite( "rise cache error", function() {
       } ) );
 
       assert.equal( document.querySelector( ".message" ).innerHTML,
-        "There was a problem retrieving the file.", "message text" );
+        "There was a problem retrieving the file from Rise Cache.", "message text" );
     } else {
       storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
         "detail": {
@@ -202,7 +197,7 @@ suite( "rise cache error", function() {
       storage.dispatchEvent( new CustomEvent( "rise-cache-error", {
         "detail": {
           "error": {
-            "message": "The request failed with status code: 534"
+            "message": "The request failed with status code: 404"
           }
         },
         "bubbles": true

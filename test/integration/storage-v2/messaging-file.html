@@ -47,13 +47,6 @@
   isV2Running = true;
 
   sinon.stub(RiseVision.Common.RiseCache, "isV2Running", function (callback) {
-    requests = [];
-    xhr = sinon.useFakeXMLHttpRequest();
-
-    xhr.onCreate = function (xhr) {
-      requests.push(xhr);
-    };
-
     RiseVision.Common.RiseCache.isV2Running.restore();
     RiseVision.Common.RiseCache.isRCV2Player(callback);
   });

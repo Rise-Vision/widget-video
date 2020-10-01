@@ -1,4 +1,4 @@
-/* global requests, suiteSetup, suite, suiteTeardown, teardown, test, assert, RiseVision, sinon */
+/* global suiteSetup, suite, suiteTeardown, teardown, test, assert, RiseVision, sinon */
 
 /* eslint-disable func-names */
 
@@ -34,11 +34,6 @@ var playStub,
   };
 
 suiteSetup( function( done ) {
-  if ( isV2Running ) {
-    requests[ 0 ].respond( 404 );
-    requests[ 1 ].respond( 200 );
-  }
-
   check( done );
 } );
 
