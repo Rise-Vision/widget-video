@@ -69,8 +69,12 @@ RiseVision.Video = ( function( window, gadgets ) {
       document.getElementById( "messageContainer" ) );
 
     if ( RiseVision.Common.Utilities.isLegacy() ) {
-      showError( "This version of Video Widget is not supported on this version of Rise Player. " +
-        "Please use the latest Rise Player version available at https://help.risevision.com/user/create-a-display" );
+      _videoUtils.logEvent( {
+        event: "legacy rise player",
+        event_details: "Video Widget is not supported on legacy rise player",
+      } );
+
+      _errorFlag = true;
     } else {
       // show wait message while Storage initializes
       _message.show( "Please wait while your video is downloaded." );
@@ -127,6 +131,11 @@ RiseVision.Video = ( function( window, gadgets ) {
   }
 
   function onFileRefresh( urls ) {
+    if ( _unavailableFlag ) {
+      // remove the message previously shown
+      _message.hide();
+    }
+
     _videoUtils.setCurrentFiles( urls );
 
     if ( _player ) {
@@ -144,7 +153,7 @@ RiseVision.Video = ( function( window, gadgets ) {
 
     // if Widget is playing right now, run the timer
     if ( !_viewerPaused ) {
-      _videoUtils.startErrorTimer();
+      _videoUtils.sendDoneToViewer();
     }
   }
 
@@ -170,7 +179,7 @@ RiseVision.Video = ( function( window, gadgets ) {
     _viewerPaused = false;
 
     if ( _errorFlag ) {
-      _videoUtils.startErrorTimer();
+      _videoUtils.sendDoneToViewer();
       return;
     }
 
@@ -268,18 +277,20 @@ RiseVision.Video = ( function( window, gadgets ) {
     _playerErrorFlag = true;
 
     _videoUtils.logEvent( logParams );
-    showError( errorMessage );
+    handleError();
   }
 
-  function showError( message, isStorageError ) {
+  function handleError( isStorageError ) {
     _errorFlag = true;
     _storageErrorFlag = typeof isStorageError !== "undefined";
 
-    _message.show( message );
+    // 30/10/2020 requirement to stop displaying error messages
+    // set to a blank message so the video container gets hidden and nothing is displayed on screen
+    _message.show( "" );
 
     // if Widget is playing right now, run the timer
     if ( !_viewerPaused ) {
-      _videoUtils.startErrorTimer();
+      _videoUtils.sendDoneToViewer();
     }
   }
 
@@ -299,7 +310,7 @@ RiseVision.Video = ( function( window, gadgets ) {
     "setAdditionalParams": setAdditionalParams,
     "playerReady": playerReady,
     "playerError": playerError,
-    "showError": showError,
+    "handleError": handleError,
     "stop": stop
   };
 

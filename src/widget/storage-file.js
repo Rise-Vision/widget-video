@@ -9,8 +9,7 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
 
   var _initialLoad = true,
     utils = RiseVision.Common.Utilities,
-    videoUtils = RiseVision.VideoUtils,
-    riseCache = RiseVision.Common.RiseCache;
+    videoUtils = RiseVision.VideoUtils;
 
   /*
    *  Public Methods
@@ -64,28 +63,28 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
       };
 
       videoUtils.logEvent( params );
-      RiseVision.Video.showError( "Sorry, there was a problem communicating with Rise Storage." );
+      RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-no-file", function( e ) {
       var params = { "event": "storage file not found", "event_details": e.detail };
 
       videoUtils.logEvent( params );
-      RiseVision.Video.showError( "The selected video does not exist or has been moved to Trash." );
+      RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-file-throttled", function( e ) {
       var params = { "event": "storage file throttled", "file_url": e.detail };
 
       videoUtils.logEvent( params );
-      RiseVision.Video.showError( "The selected video is temporarily unavailable." );
+      RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-subscription-expired", function() {
       var params = { "event": "storage subscription expired" };
 
       videoUtils.logEvent( params );
-      RiseVision.Video.showError( "Rise Storage subscription is not active." );
+      RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-subscription-error", function( e ) {
@@ -104,35 +103,20 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
       };
 
       videoUtils.logEvent( params );
-      RiseVision.Video.showError( "Sorry, there was a problem communicating with Rise Storage.", true );
+      RiseVision.Video.handleError( true );
     } );
 
     storage.addEventListener( "rise-cache-error", function( e ) {
       var params = {
-          "event": "rise cache error",
-          "event_details": e.detail.error.message
-        },
-        statusCode = 0,
-        errorMessage = "";
+        "event": "rise cache error",
+        "event_details": e.detail.error.message
+      };
 
       // log the error
       videoUtils.logEvent( params );
 
-      riseCache.isV2Running( function showError( isV2 ) {
-        if ( e.detail.error.message ) {
-          statusCode = +e.detail.error.message.substring( e.detail.error.message.indexOf( ":" ) + 2 );
-        }
-
-        if ( isV2 ) {
-          errorMessage = riseCache.getErrorMessage( statusCode );
-        // Show a different message if there is a 404 coming from rise cache
-        } else {
-          errorMessage = utils.getRiseCacheErrorMessage( statusCode );
-        }
-
-        // show the error
-        RiseVision.Video.showError( errorMessage );
-      } );
+      // handle the error
+      RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-cache-not-running", function( e ) {
@@ -155,7 +139,7 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
       videoUtils.logEvent( params );
 
       if ( e.detail && e.detail.isPlayerRunning ) {
-        RiseVision.Video.showError( "Waiting for Rise Cache", true );
+        RiseVision.Video.handleError( true );
       }
     } );
 

@@ -5,25 +5,18 @@ var RiseVision = RiseVision || {};
 RiseVision.VideoUtils = ( function() {
   "use strict";
 
-  var ERROR_TIMER_DELAY = 5000,
-    _prefs = new gadgets.Prefs(),
+  var _prefs = new gadgets.Prefs(),
     _currentFiles = [],
     _companyId = null,
     _displayId = null,
     _configurationType = null,
     _usingRLS = false,
     _params = null,
-    _mode = null,
-    _errorTimer = null;
+    _mode = null;
 
   /*
    *  Public  Methods
    */
-
-  function clearErrorTimer() {
-    clearTimeout( _errorTimer );
-    _errorTimer = null;
-  }
 
   function getStorageFileName( filePath ) {
     if ( !filePath || typeof filePath !== "string" ) {
@@ -83,14 +76,6 @@ RiseVision.VideoUtils = ( function() {
 
   function isValidDisplayId() {
     return _displayId && _displayId !== "preview" && _displayId !== "display_id" && _displayId.indexOf( "displayId" ) === -1;
-  }
-
-  function startErrorTimer() {
-    clearErrorTimer();
-
-    _errorTimer = setTimeout( function() {
-      RiseVision.VideoUtils.sendDoneToViewer();
-    }, ERROR_TIMER_DELAY );
   }
 
   function getTableName() {
@@ -165,7 +150,6 @@ RiseVision.VideoUtils = ( function() {
   }
 
   return {
-    "clearErrorTimer": clearErrorTimer,
     "getCurrentFiles": getCurrentFiles,
     "getCompanyId": getCompanyId,
     "getConfigurationType": getConfigurationType,
@@ -189,8 +173,7 @@ RiseVision.VideoUtils = ( function() {
     "setCompanyId": setCompanyId,
     "setMode": setMode,
     "setParams": setParams,
-    "setUsingRLS": setUsingRLS,
-    "startErrorTimer": startErrorTimer,
+    "setUsingRLS": setUsingRLS
   };
 
 } )();

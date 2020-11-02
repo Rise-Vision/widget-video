@@ -42,7 +42,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "file_url": filePath
     } );
 
-    RiseVision.VideoRLS.showError( "There was a problem retrieving the file." );
+    RiseVision.VideoRLS.handleError();
   }
 
   function _handleRequiredModulesUnavailable() {
@@ -52,7 +52,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "file_url": filePath
     } );
 
-    RiseVision.VideoRLS.showError( "There was a problem retrieving the file." );
+    RiseVision.VideoRLS.handleError();
   }
 
   function _handleUnauthorized() {
@@ -62,7 +62,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "file_url": filePath
     } );
 
-    RiseVision.VideoRLS.showError( "Rise Storage subscription is not active." );
+    RiseVision.VideoRLS.handleError();
   }
 
   function _handleAuthorized() {
@@ -123,7 +123,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
 
     videoUtils.logEvent( params );
 
-    RiseVision.VideoRLS.showError( "The selected video does not exist or has been moved to Trash." );
+    RiseVision.VideoRLS.handleError();
   }
 
   function _handleFileDeleted( data ) {
@@ -166,7 +166,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
      */
 
     // Widget will display generic message
-    RiseVision.VideoRLS.showError( "Unable to download the file." );
+    RiseVision.VideoRLS.handleError();
   }
 
   function _handleEvents( data ) {
