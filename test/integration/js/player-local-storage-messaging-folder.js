@@ -1,4 +1,4 @@
-/* global suiteSetup, suite, setup, teardown, test, assert, sinon */
+/* global suiteSetup, suite, setup, teardown, test, assert, sinon, RiseVision */
 
 /* eslint-disable func-names */
 
@@ -26,40 +26,20 @@ suite( "waiting", function() {
   } );
 } );
 
-suite( "errors", function() {
-  var clock;
+suite( "files downloading", function() {
 
   setup( function() {
     clock = sinon.useFakeTimers();
+    sinon.stub( RiseVision.VideoRLS, "play" );
   } );
 
   teardown( function() {
     clock.restore();
+    RiseVision.VideoRLS.play.restore();
   } );
 
-  test( "required modules unavailable", function() {
-    var i;
+  test( "should show message after 15 seconds of processing", function() {
 
-    function receiveClientList() {
-      // mock receiving client-list message
-      messageHandlers.forEach( function( handler ) {
-        handler( {
-          topic: "client-list",
-          clients: [ "local-messaging" ]
-        } );
-      } );
-    }
-
-    // mock 30 more client-list messages sent/received
-    for ( i = 30; i >= 0; i-- ) {
-      receiveClientList();
-      clock.tick( 1000 );
-    }
-
-    assert.equal( document.querySelector( ".message" ).innerHTML, "There was a problem retrieving the files." );
-  } );
-
-  test( "unauthorized", function() {
     // mock receiving client-list message
     messageHandlers.forEach( function( handler ) {
       handler( {
@@ -67,31 +47,6 @@ suite( "errors", function() {
         clients: [ "local-storage", "licensing" ]
       } );
     } );
-
-    // mock receiving storage-licensing message
-    messageHandlers.forEach( function( handler ) {
-      handler( {
-        topic: "storage-licensing-update",
-        isAuthorized: false,
-        userFriendlyStatus: "unauthorized"
-      } );
-    } );
-
-    assert.equal( document.querySelector( ".message" ).innerHTML, "Rise Storage subscription is not active." );
-  } );
-} );
-
-suite( "files downloading", function() {
-
-  setup( function() {
-    clock = sinon.useFakeTimers();
-  } );
-
-  teardown( function() {
-    clock.restore();
-  } );
-
-  test( "should show message after 15 seconds of processing", function() {
 
     // mock receiving storage-licensing message
     messageHandlers.forEach( function( handler ) {
@@ -134,4 +89,30 @@ suite( "files downloading", function() {
 
   } );
 
+} );
+
+suite( "errors", function() {
+  setup( function() {
+    clock = sinon.useFakeTimers();
+    sinon.stub( RiseVision.VideoRLS, "play" );
+  } );
+
+  teardown( function() {
+    clock.restore();
+    RiseVision.VideoRLS.play.restore();
+  } );
+
+  test( "nothing is displayed", function() {
+    messageHandlers.forEach( function( handler ) {
+      handler( {
+        topic: "FILE-UPDATE",
+        filePath: folderPath,
+        status: "EMPTYFOLDER"
+      } );
+    } );
+
+    assert.isTrue( ( document.getElementById( "container" ).style.display === "none" ), "video container is hidden" );
+    assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "block" ), "message container is visible" );
+    assert.equal( document.querySelector( ".message" ).innerHTML, "", "message is empty" );
+  } );
 } );

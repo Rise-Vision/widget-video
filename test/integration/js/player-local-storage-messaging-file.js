@@ -25,61 +25,20 @@ suite( "waiting", function() {
   } );
 } );
 
-suite( "errors", function() {
+suite( "file downloading", function() {
   var clock;
 
   setup( function() {
     clock = sinon.useFakeTimers();
+    sinon.stub( RiseVision.VideoRLS, "play" );
   } );
 
   teardown( function() {
     clock.restore();
+    RiseVision.VideoRLS.play.restore();
   } );
 
-  test( "required modules unavailable", function() {
-    var i;
-
-    function receiveClientList() {
-      // mock receiving client-list message
-      messageHandlers.forEach( function( handler ) {
-        handler( {
-          topic: "client-list",
-          clients: [ "local-messaging" ]
-        } );
-      } );
-    }
-
-    // mock 30 more client-list messages sent/received
-    for ( i = 30; i >= 0; i-- ) {
-      receiveClientList();
-      clock.tick( 1000 );
-    }
-
-    assert.equal( document.querySelector( ".message" ).innerHTML, "There was a problem retrieving the file." );
-  } );
-
-  test( "unauthorized", function() {
-    // mock receiving client-list message
-    messageHandlers.forEach( function( handler ) {
-      handler( {
-        topic: "client-list",
-        clients: [ "local-storage", "licensing" ]
-      } );
-    } );
-
-    // mock receiving storage-licensing message
-    messageHandlers.forEach( function( handler ) {
-      handler( {
-        topic: "storage-licensing-update",
-        isAuthorized: false,
-        userFriendlyStatus: "unauthorized"
-      } );
-    } );
-
-    assert.equal( document.querySelector( ".message" ).innerHTML, "Rise Storage subscription is not active." );
-  } );
-
-  test( "file does not exist", function() {
+  test( "should show message after 15 seconds of processing", function() {
     // mock receiving client-list message
     messageHandlers.forEach( function( handler ) {
       handler( {
@@ -97,57 +56,8 @@ suite( "errors", function() {
       } );
     } );
 
-    messageHandlers.forEach( function( handler ) {
-      handler( {
-        topic: "file-update",
-        filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
-        status: "NOEXIST"
-      } );
-    } );
 
-    assert.equal( document.querySelector( ".message" ).innerHTML, "The selected video does not exist or has been moved to Trash." );
-  } );
-
-  test( "file error", function() {
-    var clock = sinon.useFakeTimers(),
-      spy = sinon.spy( RiseVision.VideoRLS, "play" );
-
-    messageHandlers.forEach( function( handler ) {
-      handler( {
-        topic: "file-error",
-        filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
-        msg: "File's host server could not be reached",
-        detail: "error details"
-      } );
-    } );
-
-    assert.equal( document.querySelector( ".message" ).innerHTML, "Unable to download the file." );
-
-    clock.tick( 4500 );
-    assert( spy.notCalled );
-    clock.tick( 500 );
-    assert( spy.calledOnce );
-
-    clock.restore();
-    RiseVision.VideoRLS.play.restore();
-  } );
-
-} );
-
-suite( "file deleted", function() {
-
-  setup( function() {
-    sinon.stub( RiseVision.VideoRLS, "onFileDeleted", function() {
-      RiseVision.VideoRLS.playerDisposed();
-    } );
-  } );
-
-  teardown( function() {
-    RiseVision.VideoRLS.onFileDeleted.restore();
-  } );
-
-  test( "file deleted", function() {
-    // mock receiving file-update to notify file is downloading
+    // file is getting processed, starts the initial processing timer
     messageHandlers.forEach( function( handler ) {
       handler( {
         topic: "FILE-UPDATE",
@@ -156,26 +66,35 @@ suite( "file deleted", function() {
       } );
     } );
 
-    // mock receiving file-update to notify file is available
-    messageHandlers.forEach( function( handler ) {
-      handler( {
-        topic: "FILE-UPDATE",
-        filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
-        status: "CURRENT",
-        ospath: "path/to/file/abc123",
-        osurl: "file:///path/to/file/abc123"
-      } );
-    } );
+    // expire initial processing timer
+    clock.tick( 15000 );
 
-    // mock receiving file-update to notify file is deleted
+    assert.equal( document.querySelector( ".message" ).innerHTML, "File is downloading." );
+
+  } );
+
+} );
+
+suite( "errors", function() {
+  setup( function() {
+    sinon.stub( RiseVision.VideoRLS, "play" );
+  } );
+
+  teardown( function() {
+    RiseVision.VideoRLS.play.restore();
+  } );
+
+  test( "nothing is displayed", function() {
     messageHandlers.forEach( function( handler ) {
       handler( {
         topic: "file-update",
         filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
-        status: "deleted"
+        status: "NOEXIST"
       } );
     } );
 
-    assert.equal( document.querySelector( ".message" ).innerHTML, "The selected video has been moved to Trash." );
+    assert.isTrue( ( document.getElementById( "container" ).style.display === "none" ), "video container is hidden" );
+    assert.isTrue( ( document.getElementById( "messageContainer" ).style.display === "block" ), "message container is visible" );
+    assert.equal( document.querySelector( ".message" ).innerHTML, "", "message is empty" );
   } );
 } );

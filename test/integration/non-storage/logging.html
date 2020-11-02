@@ -211,7 +211,12 @@
 
         riseCache.ping(function(){});
         requests[0].respond(200);
+        sinon.stub(RiseVision.Video, "play");
       });
+
+      teardown(function(){
+        RiseVision.Video.play.restore();
+      })
 
       test("should log a non-storage error", function() {
         spy = sinon.spy(RiseVision.Common.LoggerUtils, "logEvent");

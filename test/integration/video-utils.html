@@ -100,24 +100,6 @@
       } );
     } );
 
-    suite( "startErrorTimer", function() {
-
-      test( "should after 5 seconds send done to Viewer", function() {
-        var sendStub = sinon.stub(videoUtils, "sendDoneToViewer"),
-          clock = sinon.useFakeTimers();
-
-        videoUtils.startErrorTimer( "test-bucket/widget-testing/video-widget/video.webm" );
-
-        clock.tick(5000);
-
-        expect( sendStub.calledOnce ).to.be.true;
-
-        videoUtils.sendDoneToViewer.restore();
-        clock.restore();
-      } );
-
-    } );
-
     suite( "setCurrentFiles", function() {
 
       test( "should handle string type (non RLS single file)", function() {

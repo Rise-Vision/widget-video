@@ -110,10 +110,12 @@ suite( "file deleted", function() {
   setup( function() {
     clock = sinon.useFakeTimers();
     sinon.spy( RiseVision.VideoRLS, "onFileDeleted" );
+    sinon.stub(RiseVision.VideoRLS, "play");
   } );
 
   teardown( function() {
     RiseVision.VideoRLS.onFileDeleted.restore();
+    RiseVision.VideoRLS.play.restore();
     clock.restore();
   } );
 
