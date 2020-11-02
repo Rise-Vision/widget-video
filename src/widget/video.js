@@ -160,9 +160,6 @@ RiseVision.Video = ( function( window, gadgets ) {
   function pause() {
     _viewerPaused = true;
 
-    // in case error timer still running (no conditional check on errorFlag, it may have been reset in onFileRefresh)
-    _videoUtils.clearErrorTimer();
-
     if ( _player ) {
       if ( !_resume ) {
         _player.reset();
@@ -170,7 +167,6 @@ RiseVision.Video = ( function( window, gadgets ) {
         _player.pause();
       }
     }
-
   }
 
   function play() {
