@@ -90,84 +90,7 @@
       });
     });
 
-    suite("player error message", function() {
-       var errorTypes = [
-           'MEDIA_ERR_CUSTOM',
-           'MEDIA_ERR_ABORTED',
-           'MEDIA_ERR_NETWORK',
-           'MEDIA_ERR_DECODE',
-           'MEDIA_ERR_SRC_NOT_SUPPORTED',
-           'MEDIA_ERR_ENCRYPTED'
-         ],
-         defaultMessages = {
-           1: 'You aborted the media playback',
-           2: 'A network error caused the media download to fail part-way.',
-           3: 'The media playback was aborted due to a corruption problem or because the media used features your browser did not support.',
-           4: 'The media could not be loaded, either because the server or network failed or because the format is not supported.',
-           5: 'The media is encrypted and we do not have the keys to decrypt it.'
-         };
-
-      test("should show playback default error message", function() {
-        RiseVision.Video.playerError();
-
-        assert.equal(document.querySelector(".message").innerHTML, "Sorry, there was a problem playing the video.", "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-      test("should show MEDIA_ERR_ABORTED error message when file could not be played", function() {
-        RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_ABORTED ], message:  defaultMessages[ MediaError.MEDIA_ERR_ABORTED ] });
-
-        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ MediaError.MEDIA_ERR_ABORTED ], "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-      test("should show MEDIA_ERR_NETWORK error message when file could not be played", function() {
-        RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_NETWORK ], message:  defaultMessages[ MediaError.MEDIA_ERR_NETWORK ] });
-
-        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ MediaError.MEDIA_ERR_NETWORK ], "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-
-      test("should show MEDIA_ERR_DECODE error message when file could not be played", function() {
-        RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_DECODE ], message:  defaultMessages[ MediaError.MEDIA_ERR_DECODE ] });
-
-        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ MediaError.MEDIA_ERR_DECODE ], "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-      test("should show MEDIA_ERR_SRC_NOT_SUPPORTED error message when file could not be played", function() {
-        RiseVision.Video.playerError({ type: errorTypes[ MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED ], message:  defaultMessages[ MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED ] });
-
-        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED], "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-      test("should show MEDIA_ERR_ENCRYPTED error message when file could not be played", function() {
-        // Used digit 5 here because of a bug on the MediaError. It is not prototyping the MEDIA_ERR_ENCRYPTED type.
-        RiseVision.Video.playerError({ type: errorTypes[ 5 ], message:  defaultMessages[ 5 ] });
-
-        assert.equal(document.querySelector(".message").innerHTML, defaultMessages[ 5 ], "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-      test("should call play function 5 seconds after a player error", function() {
-        var clock = sinon.useFakeTimers(),
-          spy = sinon.spy(RiseVision.Video, "play");
-
-        RiseVision.Video.playerError();
-
-        clock.tick(4500);
-        assert(spy.notCalled);
-        clock.tick(500);
-        assert(spy.calledOnce);
-
-        clock.restore();
-        RiseVision.Video.play.restore();
-      });
-    });
-
-    suite("non-storage error message", function() {
+    suite("file unavailable message", function() {
       var nonStorage = new RiseVision.Video.NonStorage({ "url": "http://www.test.com/test.jpg" }),
         riseCache = RiseVision.Common.RiseCache,
         xhr, clock, requests, spy;
@@ -200,43 +123,11 @@
         spy.restore();
       });
 
-      test("should show non-storage error message", function() {
-        requests[1].respond(0); // HEAD request
-        requests[2].respond(0); // GET request
-        assert.equal(document.querySelector(".message").innerHTML, "There was a problem retrieving the file from Rise Cache.", "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-      test("should show non-storage error message for 404", function() {
-        requests[1].respond(404); // HEAD request
-        requests[2].respond(404); // GET request
-        assert.equal(document.querySelector(".message").innerHTML, "The file does not exist or cannot be accessed.", "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-      test("should show non-storage error message for 404", function() {
-        requests[1].respond(507); // HEAD request
-        requests[2].respond(507); // GET request
-        assert.equal(document.querySelector(".message").innerHTML, "There is not enough disk space to save the file on Rise Cache.", "message text");
-        assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-      });
-
-      test("should call play function 5 seconds after a non-storage error", function() {
-        requests[1].respond(0); // HEAD request
-        requests[2].respond(0); // GET request
-        clock.tick(4500);
-        assert(spy.notCalled);
-        clock.tick(500);
-        assert(spy.calledOnce);
-      });
-
       test("should show File is downloaidng message when RC responds with a 202 for 3 consecutive times", function() {
         requests[1].respond(202); // HEAD request
         clock.tick(3000);
-        assert.equal(document.querySelector(".message").innerHTML, "There was a problem retrieving the file from Rise Cache.", "file is downloading message text");
         requests[2].respond(202); // HEAD request
         clock.tick(3000);
-        assert.equal(document.querySelector(".message").innerHTML, "There was a problem retrieving the file from Rise Cache.", "file is downloading message text");
         requests[3].respond(202); // HEAD request
         assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "file is downloading message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
@@ -250,9 +141,6 @@
         requests[3].respond(202); // HEAD request
         assert.equal(document.querySelector(".message").innerHTML, "File is downloading", "file is downloading message text");
         assert.isTrue((document.getElementById("messageContainer").style.display === "block"), "message visibility");
-
-        // bypass error timer
-        clock.tick(5000);
 
         // error flags are set so play() call won't execute non-storage retry(), force it instead
         nonStorage.retry();

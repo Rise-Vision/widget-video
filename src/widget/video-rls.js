@@ -55,8 +55,12 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       document.getElementById( "messageContainer" ) );
 
     if ( RiseVision.Common.Utilities.isLegacy() ) {
-      showError( "This version of Video Widget is not supported on this version of Rise Player. " +
-        "Please use the latest Rise Player version available at https://help.risevision.com/user/create-a-display" );
+      _videoUtils.logEvent( {
+        event: "legacy rise player",
+        event_details: "Video Widget is not supported on legacy rise player",
+      } );
+
+      _errorFlag = true;
     } else {
       // show wait message while Storage initializes
       _message.show( "Please wait while your video is downloaded." );
@@ -72,9 +76,9 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
         // create and initialize the Storage folder instance
         _storage = new RiseVision.VideoRLS.PlayerLocalStorageFolder();
       }
+      _storage.init();
     }
 
-    _storage.init();
     _logConfiguration( _videoUtils.getConfigurationType() );
     _videoUtils.sendReadyToViewer();
   }
@@ -151,9 +155,6 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   function pause() {
     _viewerPaused = true;
 
-    // in case error timer still running (no conditional check on errorFlag, it may have been reset in onFileRefresh)
-    _videoUtils.clearErrorTimer();
-
     if ( _player ) {
       if ( !_resume ) {
         _player.reset();
@@ -170,7 +171,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     _viewerPaused = false;
 
     if ( _errorFlag ) {
-      _videoUtils.startErrorTimer();
+      _videoUtils.sendDoneToViewer();
       return;
     }
 
@@ -207,7 +208,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     _videoUtils.resetVideoElement();
 
     if ( _videoUtils.getMode() === "file" ) {
-      showError( "The selected video has been moved to Trash." );
+      handleError();
     } else if ( _videoUtils.getMode() === "folder" ) {
       onFolderUnavailable();
     }
@@ -250,7 +251,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     }
 
     _videoUtils.logEvent( logParams );
-    showError( errorMessage );
+    handleError();
   }
 
   function playerReady() {
@@ -285,14 +286,16 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     _init();
   }
 
-  function showError( message ) {
+  function handleError() {
     _errorFlag = true;
 
-    _message.show( message );
+    // 30/10/2020 requirement to stop displaying error messages
+    // set to a blank message so the video container gets hidden and nothing is displayed on screen
+    _message.show( "" );
 
     // if Widget is playing right now, run the timer
     if ( !_viewerPaused ) {
-      _videoUtils.startErrorTimer();
+      _videoUtils.sendDoneToViewer();
     }
 
   }
@@ -310,7 +313,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     "playerError": playerError,
     "playerReady": playerReady,
     "setAdditionalParams": setAdditionalParams,
-    "showError": showError,
+    "handleError": handleError,
     "stop": stop
   };
 

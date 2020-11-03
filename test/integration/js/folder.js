@@ -199,10 +199,17 @@ suite( "Storage Refresh - JW Player error", function() {
 } );
 
 suite( "Network Recovery", function() {
+  setup( function() {
+    sinon.stub( RiseVision.Video, "play" );
+    sinon.stub( RiseVision.Video, "onFileRefresh" );
+  } )
+
+  teardown( function() {
+    RiseVision.Video.onFileRefresh.restore();
+    RiseVision.Video.play.restore();
+  } );
 
   test( "should call onFileRefresh() if in state of storage error and network recovered", function() {
-    var onRefreshStub = sinon.stub( RiseVision.Video, "onFileRefresh", function() {} );
-
     // force a storage error in the scenario of a network failure
     storage.dispatchEvent( new CustomEvent( "rise-storage-error", {
       "detail": {
@@ -225,20 +232,18 @@ suite( "Network Recovery", function() {
       "bubbles": true
     } ) );
 
-    assert( onRefreshStub.calledOnce );
-
-    RiseVision.Video.onFileRefresh.restore();
+    assert( RiseVision.Video.onFileRefresh.calledOnce );
   } );
 
 } );
 
 suite( "storage errors", function() {
   var params = { "event": "" },
-    onShowErrorStub,
+    onHandleErrorStub,
     onLogEventStub;
 
   setup( function() {
-    onShowErrorStub = sinon.stub( RiseVision.Video, "showError", function() {} );
+    onHandleErrorStub = sinon.stub( RiseVision.Video, "handleError", function() {} );
     onLogEventStub = sinon.stub( RiseVision.VideoUtils, "logEvent", function() {} );
   } );
 
@@ -246,7 +251,7 @@ suite( "storage errors", function() {
     delete params.url;
     delete params.event_details;
 
-    RiseVision.Video.showError.restore();
+    RiseVision.Video.handleError.restore();
     RiseVision.VideoUtils.logEvent.restore();
   } );
 
@@ -268,10 +273,7 @@ suite( "storage errors", function() {
         },
         "bubbles": true
       } ) );
-
-      assert( onShowErrorStub.calledOnce, "showError() called once" );
-      assert( onShowErrorStub.calledWith( "Waiting for Rise Cache" ),
-        "showError() called with correct message" );
+      assert( onHandleErrorStub.calledOnce, "handleError() called once" );
 
     } else {
       storage.dispatchEvent( new CustomEvent( "rise-cache-not-running", {

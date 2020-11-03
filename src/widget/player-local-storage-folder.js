@@ -134,7 +134,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
             "file_format": "unknown"
           } );
 
-          RiseVision.VideoRLS.showError( "Unable to download any files." );
+          RiseVision.VideoRLS.handleError();
           return;
         }
 
@@ -156,7 +156,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "file_format": defaultFileFormat
     } );
 
-    RiseVision.VideoRLS.showError( "There was a problem retrieving the files." );
+    RiseVision.VideoRLS.handleError();
   }
 
   function _handleRequiredModulesUnavailable() {
@@ -167,7 +167,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "file_format": defaultFileFormat
     } );
 
-    RiseVision.VideoRLS.showError( "There was a problem retrieving the files." );
+    RiseVision.VideoRLS.handleError();
   }
 
   function _handleUnauthorized() {
@@ -178,7 +178,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "file_format": defaultFileFormat
     } );
 
-    RiseVision.VideoRLS.showError( "Rise Storage subscription is not active." );
+    RiseVision.VideoRLS.handleError();
   }
 
   function _handleAuthorized() {
