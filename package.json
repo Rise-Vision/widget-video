@@ -46,10 +46,11 @@
     "gulp-util": "~2.2.17",
     "gulp-watch": "^0.6.8",
     "hoek": "5.0.3",
+    "promisify-node": "^0.5.0",
     "run-sequence": "^0.3.2",
     "uglify-js": "^2.6.0",
     "web-component-tester": "5.0.0",
-    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#v1.8.1"
+    "widget-tester": "git://github.com/Rise-Vision/widget-tester.git#v1.13.0"
   },
   "optionalDependencies": {
     "wct-local": "<2.0.16"
