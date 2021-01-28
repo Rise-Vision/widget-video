@@ -40,7 +40,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "event": "error",
       "event_details": "no connection",
       "file_url": filePath
-    } );
+    }, { severity: "error", errorCode: "E000000065", debugInfo: JSON.stringify( { file_url: filePath } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
@@ -50,7 +50,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "event": "error",
       "event_details": "required modules unavailable",
       "file_url": filePath
-    } );
+    }, { severity: "error", errorCode: "E000000066", debugInfo: JSON.stringify( { file_url: filePath } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
@@ -60,7 +60,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "event": "warning",
       "event_details": "unauthorized",
       "file_url": filePath
-    } );
+    }, { severity: "warning", debugInfo: JSON.stringify( { file_url: filePath } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
@@ -80,7 +80,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "event": "error",
       "event_details": "authorization error - " + ( ( typeof detail === "string" ) ? detail : JSON.stringify( detail ) ),
       "file_url": filePath
-    } );
+    }, { severity: "error", errorCode: "E000000067", debugInfo: JSON.stringify( { file_url: filePath } ) } );
   }
 
   function _handleFileProcessing() {
@@ -121,16 +121,17 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "file_url": data.filePath
     };
 
-    videoUtils.logEvent( params );
+    videoUtils.logEvent( params, { severity: "warning", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
 
   function _handleFileDeleted( data ) {
     videoUtils.logEvent( {
-      "event": "file deleted",
+      "event": "info",
+      "event_details": "file deleted",
       "file_url": data.filePath
-    } );
+    }, { severity: "info", debugInfo: JSON.stringify( { file_url: data.filePath } ) } );
 
     RiseVision.VideoRLS.onFileDeleted( data.filePath );
   }
@@ -150,7 +151,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
     }
 
     fileErrorLogParams = _.clone( params );
-    videoUtils.logEvent( params );
+    videoUtils.logEvent( params, { severity: "error", errorCode: "E000000068", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
 
     /*** Possible error messages from Local Storage ***/
     /*

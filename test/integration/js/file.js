@@ -164,6 +164,7 @@ suite( "Storage Errors", function() {
 
   test( "should handle when 'file throttled' error occurs", function() {
     params.event = "storage file throttled";
+    params.event_details = "no details";
     params.file_url = window.gadget.settings.additionalParams.url;
 
     storage.dispatchEvent( new CustomEvent( "rise-storage-file-throttled", {

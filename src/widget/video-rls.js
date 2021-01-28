@@ -38,9 +38,8 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
         configParams.file_format = "WEBM|MP4|OGV|OGG";
       }
 
+      _videoUtils.logEvent( configParams, { severity: "info", debugInfo: JSON.stringify( configParams ) } );
       _configurationLogged = true;
-
-      _videoUtils.logEvent( configParams );
     }
   }
 
@@ -58,7 +57,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       _videoUtils.logEvent( {
         event: "legacy rise player",
         event_details: "Video Widget is not supported on legacy rise player",
-      } );
+      }, { severity: "warning" } );
 
       _errorFlag = true;
     } else {
@@ -250,7 +249,11 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       logParams.local_url = localUrl || "";
     }
 
-    _videoUtils.logEvent( logParams );
+    _videoUtils.logEvent( logParams, { severity: "error", errorCode: "E000000063", debugInfo: JSON.stringify( {
+      file_url: logParams.file_url,
+      local_url: logParams.local_url,
+      file_format: logParams.file_format
+    } ) } );
     handleError();
   }
 

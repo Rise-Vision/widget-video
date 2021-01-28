@@ -42,7 +42,7 @@
     "rise-storage": "https://github.com/Rise-Vision/web-component-rise-storage.git#1.15.1",
     "rise-storage-v2": "https://github.com/Rise-Vision/rise-storage.git#2.2.1",
     "videojs": "5.11.9",
-    "widget-common": "https://github.com/Rise-Vision/widget-common.git#v3.12.1",
+    "widget-common": "https://github.com/Rise-Vision/widget-common.git#v3.13.0",
     "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#v3.5.0",
     "widget-settings-ui-core": "https://github.com/Rise-Vision/widget-settings-ui-core.git#0.4.2",
     "underscore": "~1.8.3",
