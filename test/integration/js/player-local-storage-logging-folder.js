@@ -49,6 +49,15 @@ suite( "configuration", function() {
       "company_id": params.company_id,
       "display_id": params.display_id,
       "version": params.version
+    }, {
+      severity: "info",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "event": "configuration",
+        "event_details": params.configuration,
+        "file_url": params.file_url,
+        "file_format": "WEBM|MP4|OGV|OGG"
+      } )
     } ) );
 
   } );
@@ -89,7 +98,15 @@ suite( "errors", function() {
     params.event_details = "required modules unavailable";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
+    assert( logSpy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000066",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": params.file_url,
+        "file_format": "unknown"
+      } )
+    } ) );
   } );
 
   test( "unauthorized", function() {
@@ -116,7 +133,14 @@ suite( "errors", function() {
     params.event_details = "unauthorized";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
+    assert( logSpy.calledWith( table, params, {
+      severity: "warning",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": params.file_url,
+        "file_format": "unknown"
+      } )
+    } ) );
 
   } );
 
@@ -150,7 +174,14 @@ suite( "errors", function() {
     logParams.event_details = "Could not retrieve signed URL | error details";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, logParams ) );
+    assert( logSpy.calledWith( table, logParams, {
+      severity: "error",
+      errorCode: "E000000068",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": logParams.file_url
+      } )
+    } ) );
 
     // file is getting processed, starts the initial processing timer
     messageHandlers.forEach( function( handler ) {
@@ -289,14 +320,21 @@ suite( "folder file deleted", function() {
       } );
     } );
 
-    logParams.event = "file deleted";
+    logParams.event = "info";
+    logParams.event_details = "file deleted";
     logParams.file_url = params.file_url + "test-file-delete.webm";
     logParams.file_format = "webm";
     logParams.local_url = "file:///path/to/file/abc123";
-    delete logParams.event_details;
 
     assert( logSpy.calledTwice );
-    assert( logSpy.calledWith( table, logParams ) );
+    assert( logSpy.calledWith( table, logParams, {
+      severity: "info",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": logParams.file_url,
+        "local_url": logParams.local_url
+      } )
+    } ) );
     // no files left to display, should log a warning
     assert( logSpy.calledWith( table, {
       event: "warning",
@@ -307,6 +345,13 @@ suite( "folder file deleted", function() {
       company_id: params.company_id,
       display_id: params.display_id,
       version: params.version
+    }, {
+      severity: "warning",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        file_url: params.file_url,
+        file_format: "unknown"
+      } )
     } ) );
 
     onFilesRemovedStub.restore();
@@ -331,7 +376,14 @@ suite( "folder is empty", function() {
     params.event_details = "folder does not exist";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
+    assert( logSpy.calledWith( table, params, {
+      severity: "warning",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        file_url: params.file_url,
+        file_format: "unknown"
+      } )
+    } ) );
 
   } );
 
@@ -354,7 +406,14 @@ suite( "folder is empty", function() {
     logParams.file_format = "unknown";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, logParams ) );
+    assert( logSpy.calledWith( table, logParams, {
+      severity: "warning",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        file_url: params.file_url,
+        file_format: "unknown"
+      } )
+    } ) );
 
   } );
 

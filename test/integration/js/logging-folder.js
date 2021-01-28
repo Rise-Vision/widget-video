@@ -59,6 +59,15 @@ suite( "configuration", function() {
       "company_id": params.company_id,
       "display_id": params.display_id,
       "version": params.version
+    }, {
+      severity: "info",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "event": "configuration",
+        "event_details": params.configuration,
+        "file_url": params.file_url,
+        "file_format": params.file_format
+      } )
     } ) );
 
   } );
@@ -73,11 +82,17 @@ suite( "storage folder empty", function() {
       "bubbles": true
     } ) );
 
+    params.event_details = "no details";
+
     delete params.file_url;
     delete params.file_format;
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000078",
+      eventApp: "widget-video"
+    } ) );
   } );
 } );
 
@@ -100,7 +115,11 @@ suite( "rise storage error", function() {
     params.event_details = "The request failed with status code: 0";
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000075",
+      eventApp: "widget-video"
+    } ) );
   } );
 
   test( "should log a rise cache error", function() {
@@ -119,7 +138,11 @@ suite( "rise storage error", function() {
     params.event_details = "The request failed with status code: 500";
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000076",
+      eventApp: "widget-video"
+    } ) );
   } );
 
   test( "should log a rise cache not running when ping response is empty", function() {
@@ -138,10 +161,14 @@ suite( "rise storage error", function() {
     }
 
     params.event = "rise cache not running";
-    params.event_details = "";
+    params.event_details = "no details";
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000077",
+      eventApp: "widget-video"
+    } ) );
   } );
 
   test( "should log a rise cache not running when ping response is 404", function() {
@@ -174,7 +201,11 @@ suite( "rise storage error", function() {
     params.event_details = "The request failed with status code: 404";
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000077",
+      eventApp: "widget-video"
+    } ) );
   } );
 } );
 
@@ -194,7 +225,11 @@ suite( "storage folder doesn't exist", function() {
     params.event_details = filePath;
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000079",
+      eventApp: "widget-video"
+    } ) );
   } );
 } );
 
@@ -210,10 +245,14 @@ suite( "storage folder format(s) invalid", function() {
     } ) );
 
     params.event = "storage folder format(s) invalid";
-    delete params.event_details;
+    params.event_details = "no details";
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000080",
+      eventApp: "widget-video"
+    } ) );
   } );
 } );
 
@@ -234,7 +273,11 @@ suite( "storage subscription expired", function() {
     params.event = "storage subscription expired";
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000073",
+      eventApp: "widget-video"
+    } ) );
   } );
 
   test( "should log a storage subscription error", function() {
@@ -255,7 +298,11 @@ suite( "storage subscription expired", function() {
     params.event_details = "The request failed with status code: 0";
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000074",
+      eventApp: "widget-video"
+    } ) );
   } );
 } );
 
@@ -285,6 +332,10 @@ suite( "storage api error", function() {
     params.event_details = "Response code: 500, message: Could not retrieve Bucket Items";
 
     assert( spy.calledOnce );
-    assert( spy.calledWith( table, params ) );
+    assert( spy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000070",
+      eventApp: "widget-video"
+    } ) );
   } );
 } );

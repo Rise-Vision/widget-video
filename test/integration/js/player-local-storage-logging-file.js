@@ -49,6 +49,14 @@ suite( "configuration", function() {
       "company_id": params.company_id,
       "display_id": params.display_id,
       "version": params.version
+    }, {
+      severity: "info",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "event": "configuration",
+        "event_details": params.configuration,
+        "file_url": params.file_url
+      } )
     } ) );
 
   } );
@@ -89,7 +97,14 @@ suite( "errors", function() {
     params.event_details = "required modules unavailable";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
+    assert( logSpy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000066",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": params.file_url
+      } )
+    } ) );
   } );
 
   test( "unauthorized", function() {
@@ -116,7 +131,13 @@ suite( "errors", function() {
     params.event_details = "unauthorized";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
+    assert( logSpy.calledWith( table, params, {
+      severity: "warning",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": params.file_url
+      } )
+    } ) );
 
   } );
 
@@ -151,7 +172,13 @@ suite( "errors", function() {
     params.event_details = "file does not exist";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
+    assert( logSpy.calledWith( table, params, {
+      severity: "warning",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": params.file_url
+      } )
+    } ) );
 
   } );
 
@@ -171,7 +198,14 @@ suite( "errors", function() {
     params.event_details = "File's host server could not be reached | error details";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
+    assert( logSpy.calledWith( table, params, {
+      severity: "error",
+      errorCode: "E000000068",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": params.file_url
+      } )
+    } ) );
 
     messageHandlers.forEach( function( handler ) {
       handler( {
@@ -199,11 +233,17 @@ suite( "errors", function() {
       } );
     } );
 
-    params.event = "file deleted";
-    delete params.event_details;
+    params.event = "info";
+    params.event_details = "file deleted";
 
     assert( logSpy.calledOnce );
-    assert( logSpy.calledWith( table, params ) );
+    assert( logSpy.calledWith( table, params, {
+      severity: "info",
+      eventApp: "widget-video",
+      debugInfo: JSON.stringify( {
+        "file_url": params.file_url
+      } )
+    } ) );
 
     onDeleteStub.restore();
   } );

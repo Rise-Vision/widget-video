@@ -94,7 +94,6 @@
     suite("configuration", function () {
 
       test("should log the configuration event", function () {
-
         assert(spy.calledWith(table, {
           "event": "configuration",
           "event_details": params.configuration,
@@ -104,6 +103,14 @@
           "company_id": params.company_id,
           "display_id": params.display_id,
           "version": params.version
+        }, {
+          severity: "info",
+          eventApp: "widget-video",
+          debugInfo: JSON.stringify( {
+            "event": "configuration",
+            "event_details": params.configuration,
+            "file_url": params.file_url
+          } )
         }));
 
       });
@@ -152,7 +159,15 @@
         RiseVision.Video.playerError();
 
         assert(spy.calledOnce);
-        assert(spy.calledWith(table, params));
+        assert(spy.calledWith(table, params, {
+          severity: "error",
+          errorCode: "E000000063",
+          eventApp: "widget-video",
+          debugInfo: JSON.stringify( {
+            "file_url": params.file_url,
+            "local_url": params.local_url
+          } )
+        }));
       });
 
       test("should log a player error with an error type", function() {
@@ -163,7 +178,15 @@
         RiseVision.Video.playerError({ "code": 2 });
 
         assert(spy.calledOnce);
-        assert(spy.calledWith(table, params));
+        assert(spy.calledWith(table, params, {
+          severity: "error",
+          errorCode: "E000000063",
+          eventApp: "widget-video",
+          debugInfo: JSON.stringify( {
+            "file_url": params.file_url,
+            "local_url": params.local_url
+          } )
+        }));
       });
 
       test("should log a player error with an error message", function() {
@@ -174,7 +197,15 @@
         RiseVision.Video.playerError({ "message": "Any error message" });
 
         assert(spy.calledOnce);
-        assert(spy.calledWith(table, params));
+        assert(spy.calledWith(table, params, {
+          severity: "error",
+          errorCode: "E000000063",
+          eventApp: "widget-video",
+          debugInfo: JSON.stringify( {
+            "file_url": params.file_url,
+            "local_url": params.local_url
+          } )
+        }));
       });
 
       test("should log a player error with an error type and message", function() {
@@ -185,7 +216,15 @@
         RiseVision.Video.playerError({ "code": 2, "message": "A network error caused the media download to fail part-way." });
 
         assert(spy.calledOnce);
-        assert(spy.calledWith(table, params));
+        assert(spy.calledWith(table, params, {
+          severity: "error",
+          errorCode: "E000000063",
+          eventApp: "widget-video",
+          debugInfo: JSON.stringify( {
+            "file_url": params.file_url,
+            "local_url": params.local_url
+          } )
+        }));
       });
     });
 
@@ -231,7 +270,14 @@
         requests[2].respond(0); // GET request
 
         assert(spy.calledOnce);
-        assert(spy.calledWith(table, params));
+        assert(spy.calledWith(table, params,{
+          severity: "error",
+          errorCode: "E000000064",
+          eventApp: "widget-video",
+          debugInfo: JSON.stringify( {
+            "file_url": params.file_url
+          } )
+        }));
       });
     });
   });
