@@ -106,7 +106,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
         "event_details": "No files to display",
         "file_url": folderPath,
         "file_format": "unknown"
-      } );
+      }, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: "unknown" } ) } );
 
       RiseVision.VideoRLS.onFolderFilesRemoved();
     } else {
@@ -132,7 +132,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
             "event_details": "No files to display (startup)",
             "file_url": folderPath,
             "file_format": "unknown"
-          } );
+          }, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: "unknown" } ) } );
 
           RiseVision.VideoRLS.handleError();
           return;
@@ -154,7 +154,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "event_details": "no connection",
       "file_url": folderPath,
       "file_format": defaultFileFormat
-    } );
+    }, { severity: "error", errorCode: "E000000065", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
@@ -165,7 +165,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "event_details": "required modules unavailable",
       "file_url": folderPath,
       "file_format": defaultFileFormat
-    } );
+    }, { severity: "error", errorCode: "E000000066", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
@@ -176,7 +176,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "event_details": "unauthorized",
       "file_url": folderPath,
       "file_format": defaultFileFormat
-    } );
+    }, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
@@ -197,7 +197,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "event_details": "authorization error - " + ( ( typeof detail === "string" ) ? detail : JSON.stringify( detail ) ),
       "file_url": folderPath,
       "file_format": defaultFileFormat
-    } );
+    }, { severity: "error", errorCode: "E000000067", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
   }
 
   function _handleFileProcessing() {
@@ -243,7 +243,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "file_format": defaultFileFormat
     };
 
-    videoUtils.logEvent( params );
+    videoUtils.logEvent( params, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.onFolderUnavailable();
   }
@@ -256,7 +256,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "file_format": defaultFileFormat
     };
 
-    videoUtils.logEvent( params );
+    videoUtils.logEvent( params, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.onFolderUnavailable();
   }
@@ -264,7 +264,8 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
   function _handleFileDeleted( data ) {
     var file = _getFile( data.filePath ),
       params = {
-        "event": "file deleted",
+        "event": "info",
+        "event_details": "file deleted",
         "file_url": data.filePath,
         "local_url": ( file && file.url ) ? file.url : ""
       };
@@ -272,7 +273,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
     _manageFile( data, "deleted" );
     _manageFileInError( data, true );
 
-    videoUtils.logEvent( params );
+    videoUtils.logEvent( params, { severity: "info", debugInfo: JSON.stringify( { file_url: params.file_url, local_url: params.local_url } ) } );
 
     if ( !initialLoad && !initialProcessingTimer ) {
       _onFileRemoved();
@@ -312,7 +313,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "Invalid response with status code [CODE]"
      */
 
-    videoUtils.logEvent( params );
+    videoUtils.logEvent( params, { severity: "error", errorCode: "E000000068", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
 
     if ( !initialLoad && !initialProcessingTimer ) {
       if ( _getFile( data.filePath ) ) {

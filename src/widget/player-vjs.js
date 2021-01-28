@@ -154,7 +154,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     data.local_url = _playerInstance.currentSrc();
 
     // Log aspect event
-    _videoUtils.logEvent( data );
+    _videoUtils.logEvent( data, { severity: "info", debugInfo: JSON.stringify( { file_url: data.file_url, local_url: data.local_url } ) } );
   }
 
   function _initPlaylist() {
@@ -180,7 +180,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
       _videoUtils.logEvent( {
         "event": "error",
         "event_details": "Playlist plugin did not load"
-      } );
+      }, { severity: "error", errorCode: "E000000069" } );
     }
 
     _playerInstance.playlist( playlist );

@@ -43,7 +43,7 @@ RiseVision.Video.NonStorage = function( data ) {
             "event": "non-storage error",
             "event_details": error.message,
             "file_url": response.url
-          }, true );
+          }, { severity: "error", errorCode: "E000000064", debugInfo: JSON.stringify( { file_url: response.url } ) } );
 
           // handle the error
           RiseVision.Video.handleError();

@@ -82,9 +82,14 @@ RiseVision.VideoUtils = ( function() {
     return "video_v2_events";
   }
 
-  function logEvent( data ) {
+  function logEvent( data, endpointLoggingFields ) {
     data.configuration = getConfigurationType() || "";
-    RiseVision.Common.LoggerUtils.logEvent( getTableName(), data );
+
+    if ( endpointLoggingFields ) {
+      endpointLoggingFields.eventApp = "widget-video";
+    }
+
+    RiseVision.Common.LoggerUtils.logEvent( getTableName(), data, endpointLoggingFields );
   }
 
   function playerEnded() {
