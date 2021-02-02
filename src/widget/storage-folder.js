@@ -169,7 +169,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
     storage.addEventListener( "rise-cache-error", function( e ) {
       var params = {
         "event": "rise cache error",
-        "event_details": e.detail.error.message
+        "event_details": e.detail.error.message || "no detail"
       };
 
       videoUtils.logEvent( params, { severity: "error", errorCode: "E000000076" } );
@@ -185,10 +185,10 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
       };
 
       if ( e.detail ) {
-        if ( e.detail.error ) {
+        if ( e.detail.error && e.detail.error.message ) {
           // storage v1
           params.event_details = e.detail.error.message;
-        } else if ( e.detail.resp && e.detail.resp.error ) {
+        } else if ( e.detail.resp && e.detail.resp.error && e.detail.resp.error.message ) {
           // storage v2
           params.event_details = e.detail.resp.error.message;
         }
