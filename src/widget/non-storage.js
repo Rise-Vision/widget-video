@@ -14,8 +14,35 @@ RiseVision.Video.NonStorage = function( data ) {
     _isLoading = true,
     _url = "";
 
+  function _getRiseErrorCode( statusCode ) {
+    switch ( statusCode ) {
+    case 502:
+        // File's host server returned an invalid response
+      return "E000000209";
+    case 504:
+        // File's host server could not be reached
+      return "E000000207";
+    case 507:
+        // Insufficient disk space
+      return "E000000040";
+    case 534:
+        // File not found on the host server
+      return "E000000208";
+    default:
+        // 400 - Bad request, missing url parameter
+        // 500 - File streaming error
+        // 0 - Rise Cache not responding
+        // Unexpected status
+      return "E000000019";
+    }
+  }
+
   function _getFile( omitCacheBuster ) {
     riseCache.getFile( _url, function( response, error ) {
+      var statusCode,
+        errorMessage,
+        riseErrorCode;
+
       if ( !error ) {
 
         if ( _isLoading ) {
@@ -32,18 +59,22 @@ RiseVision.Video.NonStorage = function( data ) {
 
       } else {
 
-        if ( error.message && error.message === "File is downloading" ) {
+        errorMessage = error.message || null;
+
+        if ( errorMessage === "File is downloading" ) {
 
           RiseVision.Video.onFileUnavailable( error.message );
 
         } else {
+          // status code is provided in the error message, extract it
+          statusCode = errorMessage ? +errorMessage.substring( errorMessage.indexOf( ":" ) + 2 ) : 0;
+          riseErrorCode = _getRiseErrorCode( statusCode );
 
-          // error occurred
           videoUtils.logEvent( {
             "event": "non-storage error",
-            "event_details": error.message,
+            "event_details": errorMessage,
             "file_url": response.url
-          }, { severity: "error", errorCode: "E000000064", debugInfo: JSON.stringify( { file_url: response.url } ) } );
+          }, { severity: "error", errorCode: riseErrorCode, debugInfo: JSON.stringify( { file_url: response.url } ) } );
 
           // handle the error
           RiseVision.Video.handleError();

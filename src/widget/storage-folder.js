@@ -115,35 +115,35 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
         "event_details": "Response code: " + e.detail.code + ", message: " + e.detail.message
       };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000070" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000013" } );
       RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-empty-folder", function() {
       var params = { "event": "storage folder empty", "event_details": "no details" };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000078" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000021" } );
       RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-no-folder", function( e ) {
       var params = { "event": "storage folder doesn't exist", "event_details": e.detail };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000079" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000022" } );
       RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-folder-invalid", function() {
       var params = { "event": "storage folder format(s) invalid", "event_details": "no details" };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000080" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000021" } );
       RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-subscription-expired", function() {
       var params = { "event": "storage subscription expired", "event_details": "no details" };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000073" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000016" } );
       RiseVision.Video.handleError();
     } );
 
@@ -153,7 +153,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
         "event_details": "The request failed with status code: " + e.detail.error.currentTarget.status
       };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000074" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000016" } );
     } );
 
     storage.addEventListener( "rise-storage-error", function( e ) {
@@ -162,7 +162,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
         "event_details": "The request failed with status code: " + e.detail.error.currentTarget.status
       };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000075" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000011" } );
       RiseVision.Video.handleError( true );
     } );
 
@@ -172,7 +172,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
         "event_details": e.detail.error.message || "no detail"
       };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000076" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000019" } );
 
       RiseVision.Video.handleError();
     } );
@@ -184,6 +184,11 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
         "event_details": "no details"
       };
 
+      // only proceed to log and handle error if this is running on player with valid display id
+      if ( !displayId || displayId === "preview" || displayId === "display_id" || displayId === "displayId" ) {
+        return;
+      }
+
       if ( e.detail ) {
         if ( e.detail.error && e.detail.error.message ) {
           // storage v1
@@ -194,7 +199,7 @@ RiseVision.Video.StorageFolder = function( data, displayId ) {
         }
       }
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000077" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000019" } );
 
       if ( e.detail && e.detail.isPlayerRunning ) {
         RiseVision.Video.handleError( true );
