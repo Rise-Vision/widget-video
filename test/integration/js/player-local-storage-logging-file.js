@@ -99,7 +99,7 @@ suite( "errors", function() {
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000066",
+      errorCode: "E000000025",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         "file_url": params.file_url
@@ -127,12 +127,13 @@ suite( "errors", function() {
       } );
     } );
 
-    params.event = "warning";
+    params.event = "error";
     params.event_details = "unauthorized";
 
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params, {
-      severity: "warning",
+      severity: "error",
+      errorCode: "E000000016",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         "file_url": params.file_url
@@ -173,7 +174,8 @@ suite( "errors", function() {
 
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params, {
-      severity: "warning",
+      severity: "error",
+      errorCode: "E000000014",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         "file_url": params.file_url
@@ -200,7 +202,7 @@ suite( "errors", function() {
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000068",
+      errorCode: "E000000027",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         "file_url": params.file_url
