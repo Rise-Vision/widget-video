@@ -62,28 +62,28 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
         "event_details": "Response code: " + e.detail.code + ", message: " + e.detail.message
       };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000070" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000013" } );
       RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-no-file", function( e ) {
       var params = { "event": "storage file not found", "event_details": e.detail };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000071" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000014" } );
       RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-file-throttled", function( e ) {
       var params = { "event": "storage file throttled", "event_details": "no details", "file_url": e.detail };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000072", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000015", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
       RiseVision.Video.handleError();
     } );
 
     storage.addEventListener( "rise-storage-subscription-expired", function() {
       var params = { "event": "storage subscription expired", "event_details": "no details" };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000073" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000016" } );
       RiseVision.Video.handleError();
     } );
 
@@ -93,7 +93,7 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
         "event_details": "The request failed with status code: " + e.detail.error.currentTarget.status
       };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000074" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000016" } );
     } );
 
     storage.addEventListener( "rise-storage-error", function( e ) {
@@ -102,7 +102,7 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
         "event_details": "The request failed with status code: " + e.detail.error.currentTarget.status
       };
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000075" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000011" } );
       RiseVision.Video.handleError( true );
     } );
 
@@ -113,7 +113,7 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
       };
 
       // log the error
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000076" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000019" } );
 
       // handle the error
       RiseVision.Video.handleError();
@@ -126,6 +126,11 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
         "event_details": "no details"
       };
 
+      // only proceed to log and handle error if this is running on player with valid display id
+      if ( !displayId || displayId === "preview" || displayId === "display_id" || displayId === "displayId" ) {
+        return;
+      }
+
       if ( e.detail ) {
         if ( e.detail.error && e.detail.error.message ) {
           // storage v1
@@ -136,7 +141,7 @@ RiseVision.Video.StorageFile = function( data, displayId ) {
         }
       }
 
-      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000077" } );
+      videoUtils.logEvent( params, { severity: "error", errorCode: "E000000019" } );
 
       if ( e.detail && e.detail.isPlayerRunning ) {
         RiseVision.Video.handleError( true );

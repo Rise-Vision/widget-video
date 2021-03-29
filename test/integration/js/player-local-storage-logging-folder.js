@@ -100,7 +100,7 @@ suite( "errors", function() {
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000066",
+      errorCode: "E000000025",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         "file_url": params.file_url,
@@ -129,12 +129,13 @@ suite( "errors", function() {
       } );
     } );
 
-    params.event = "warning";
+    params.event = "error";
     params.event_details = "unauthorized";
 
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params, {
-      severity: "warning",
+      severity: "error",
+      errorCode: "E000000016",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         "file_url": params.file_url,
@@ -176,7 +177,7 @@ suite( "errors", function() {
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, logParams, {
       severity: "error",
-      errorCode: "E000000068",
+      errorCode: "E000000027",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         "file_url": logParams.file_url
@@ -337,7 +338,7 @@ suite( "folder file deleted", function() {
     } ) );
     // no files left to display, should log a warning
     assert( logSpy.calledWith( table, {
-      event: "warning",
+      event: "error",
       event_details: "No files to display",
       file_url: params.file_url,
       file_format: "unknown",
@@ -346,7 +347,8 @@ suite( "folder file deleted", function() {
       display_id: params.display_id,
       version: params.version
     }, {
-      severity: "warning",
+      severity: "error",
+      errorCode: "E000000021",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         file_url: params.file_url,
@@ -372,12 +374,13 @@ suite( "folder is empty", function() {
       } );
     } );
 
-    params.event = "warning";
+    params.event = "error";
     params.event_details = "folder does not exist";
 
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, params, {
-      severity: "warning",
+      severity: "error",
+      errorCode: "E000000022",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         file_url: params.file_url,
@@ -387,7 +390,7 @@ suite( "folder is empty", function() {
 
   } );
 
-  test( "should log a warning when a folder is empty", function() {
+  test( "should log a error when a folder is empty", function() {
     var logParams = JSON.parse( JSON.stringify( params ) );
 
     logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
@@ -400,14 +403,15 @@ suite( "folder is empty", function() {
       } );
     } );
 
-    logParams.event = "warning";
+    logParams.event = "error";
     logParams.event_details = "folder empty";
     logParams.file_url = params.file_url;
     logParams.file_format = "unknown";
 
     assert( logSpy.calledOnce );
     assert( logSpy.calledWith( table, logParams, {
-      severity: "warning",
+      severity: "error",
+      errorCode: "E000000021",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
         file_url: params.file_url,

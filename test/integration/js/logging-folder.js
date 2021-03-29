@@ -90,7 +90,7 @@ suite( "storage folder empty", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000078",
+      errorCode: "E000000021",
       eventApp: "widget-video"
     } ) );
   } );
@@ -117,7 +117,7 @@ suite( "rise storage error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000075",
+      errorCode: "E000000011",
       eventApp: "widget-video"
     } ) );
   } );
@@ -140,7 +140,7 @@ suite( "rise storage error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000076",
+      errorCode: "E000000019",
       eventApp: "widget-video"
     } ) );
   } );
@@ -166,7 +166,7 @@ suite( "rise storage error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000077",
+      errorCode: "E000000019",
       eventApp: "widget-video"
     } ) );
   } );
@@ -203,7 +203,7 @@ suite( "rise storage error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000077",
+      errorCode: "E000000019",
       eventApp: "widget-video"
     } ) );
   } );
@@ -227,7 +227,7 @@ suite( "storage folder doesn't exist", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000079",
+      errorCode: "E000000022",
       eventApp: "widget-video"
     } ) );
   } );
@@ -250,7 +250,7 @@ suite( "storage folder format(s) invalid", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000080",
+      errorCode: "E000000021",
       eventApp: "widget-video"
     } ) );
   } );
@@ -275,7 +275,7 @@ suite( "storage subscription expired", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000073",
+      errorCode: "E000000016",
       eventApp: "widget-video"
     } ) );
   } );
@@ -300,7 +300,7 @@ suite( "storage subscription expired", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000074",
+      errorCode: "E000000016",
       eventApp: "widget-video"
     } ) );
   } );
@@ -334,7 +334,7 @@ suite( "storage api error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000070",
+      errorCode: "E000000013",
       eventApp: "widget-video"
     } ) );
   } );

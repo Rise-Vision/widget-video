@@ -80,7 +80,7 @@ suite( "storage file not found", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000071",
+      errorCode: "E000000014",
       eventApp: "widget-video"
     } ) );
   } );
@@ -107,7 +107,7 @@ suite( "rise storage error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000075",
+      errorCode: "E000000011",
       eventApp: "widget-video"
     } ) );
   } );
@@ -133,7 +133,7 @@ suite( "rise storage error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000077",
+      errorCode: "E000000019",
       eventApp: "widget-video"
     } ) );
   } );
@@ -170,7 +170,7 @@ suite( "rise storage error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000077",
+      errorCode: "E000000019",
       eventApp: "widget-video"
     } ) );
   } );
@@ -193,7 +193,7 @@ suite( "storage file throttled or no storage subscription", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000072",
+      errorCode: "E000000015",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( { file_url: params.file_url } )
     } ) );
@@ -213,7 +213,7 @@ suite( "storage subscription expired", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000073",
+      errorCode: "E000000016",
       eventApp: "widget-video"
     } ) );
   } );
@@ -238,7 +238,7 @@ suite( "storage subscription expired", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000074",
+      errorCode: "E000000016",
       eventApp: "widget-video"
     } ) );
   } );
@@ -263,7 +263,7 @@ suite( "storage api error", function() {
     assert( spy.calledOnce );
     assert( spy.calledWith( table, params, {
       severity: "error",
-      errorCode: "E000000070",
+      errorCode: "E000000013",
       eventApp: "widget-video"
     } ) );
   } );

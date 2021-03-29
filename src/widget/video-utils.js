@@ -18,6 +18,43 @@ RiseVision.VideoUtils = ( function() {
    *  Public  Methods
    */
 
+  function getMediaErrorName( mediaErrorCode ) {
+    switch ( mediaErrorCode ) {
+    case 0:
+      return "MEDIA_ERR_CUSTOM";
+    case 1:
+      return "MEDIA_ERR_ABORTED";
+    case 2:
+      return "MEDIA_ERR_NETWORK";
+    case 3:
+      return "MEDIA_ERR_DECODE";
+    case 4:
+      return "MEDIA_ERR_SRC_NOT_SUPPORTED";
+    case 5:
+      return "MEDIA_ERR_ENCRYPTED";
+    default:
+      return "MEDIA_ERR_UNKNOWN";
+    }
+  }
+
+  function getRiseErrorCode( mediaErrorCode ) {
+    switch ( mediaErrorCode ) {
+    case 1:
+      return "E000000201";
+    case 2:
+      return "E000000202";
+    case 3:
+      return "E000000203";
+    case 4:
+      return "E000000204";
+    case 5:
+      return "E000000205"
+    case 0:
+    default:
+      return "E000000206"
+    }
+  }
+
   function getStorageFileName( filePath ) {
     if ( !filePath || typeof filePath !== "string" ) {
       return "";
@@ -159,6 +196,8 @@ RiseVision.VideoUtils = ( function() {
     "getCompanyId": getCompanyId,
     "getConfigurationType": getConfigurationType,
     "getDisplayId": getDisplayId,
+    "getMediaErrorName": getMediaErrorName,
+    "getRiseErrorCode": getRiseErrorCode,
     "getMode": getMode,
     "getParams": getParams,
     "getTableName": getTableName,

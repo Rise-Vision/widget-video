@@ -180,7 +180,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
       _videoUtils.logEvent( {
         "event": "error",
         "event_details": "Playlist plugin did not load"
-      }, { severity: "error", errorCode: "E000000069" } );
+      }, { severity: "error", errorCode: "E000000053" } );
     }
 
     _playerInstance.playlist( playlist );

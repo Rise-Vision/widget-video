@@ -102,11 +102,11 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
     if ( files.length < 1 ) {
       // No files to show anymore, log and display a message
       videoUtils.logEvent( {
-        "event": "warning",
+        "event": "error",
         "event_details": "No files to display",
         "file_url": folderPath,
         "file_format": "unknown"
-      }, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: "unknown" } ) } );
+      }, { severity: "error", errorCode: "E000000021", debugInfo: JSON.stringify( { file_url: folderPath, file_format: "unknown" } ) } );
 
       RiseVision.VideoRLS.onFolderFilesRemoved();
     } else {
@@ -154,7 +154,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "event_details": "no connection",
       "file_url": folderPath,
       "file_format": defaultFileFormat
-    }, { severity: "error", errorCode: "E000000065", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
+    }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
@@ -165,18 +165,18 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "event_details": "required modules unavailable",
       "file_url": folderPath,
       "file_format": defaultFileFormat
-    }, { severity: "error", errorCode: "E000000066", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
+    }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
 
   function _handleUnauthorized() {
     videoUtils.logEvent( {
-      "event": "warning",
+      "event": "error",
       "event_details": "unauthorized",
       "file_url": folderPath,
       "file_format": defaultFileFormat
-    }, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
+    }, { severity: "error", errorCode: "E000000016", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.handleError();
   }
@@ -197,7 +197,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "event_details": "authorization error - " + ( ( typeof detail === "string" ) ? detail : JSON.stringify( detail ) ),
       "file_url": folderPath,
       "file_format": defaultFileFormat
-    }, { severity: "error", errorCode: "E000000067", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
+    }, { severity: "error", errorCode: "E000000016", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
   }
 
   function _handleFileProcessing() {
@@ -237,26 +237,26 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
 
   function _handleFolderNoExist() {
     var params = {
-      "event": "warning",
+      "event": "error",
       "event_details": "folder does not exist",
       "file_url": folderPath,
       "file_format": defaultFileFormat
     };
 
-    videoUtils.logEvent( params, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
+    videoUtils.logEvent( params, { severity: "error", errorCode: "E000000022", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.onFolderUnavailable();
   }
 
   function _handleFolderEmpty() {
     var params = {
-      "event": "warning",
+      "event": "error",
       "event_details": "folder empty",
       "file_url": folderPath,
       "file_format": defaultFileFormat
     };
 
-    videoUtils.logEvent( params, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
+    videoUtils.logEvent( params, { severity: "error", errorCode: "E000000021", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
     RiseVision.VideoRLS.onFolderUnavailable();
   }
@@ -313,7 +313,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "Invalid response with status code [CODE]"
      */
 
-    videoUtils.logEvent( params, { severity: "error", errorCode: "E000000068", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
+    videoUtils.logEvent( params, { severity: "error", errorCode: "E000000027", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
 
     if ( !initialLoad && !initialProcessingTimer ) {
       if ( _getFile( data.filePath ) ) {

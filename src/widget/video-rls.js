@@ -216,21 +216,10 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
   function playerError( error, localUrl, filePath ) {
     var mode = _videoUtils.getMode(),
       logParams = {},
-      type = "MEDIA_ERR_UNKNOWN",
-      errorMessage = "Sorry, there was a problem playing the video.",
-      errorTypes = [
-        "MEDIA_ERR_CUSTOM",
-        "MEDIA_ERR_ABORTED",
-        "MEDIA_ERR_NETWORK",
-        "MEDIA_ERR_DECODE",
-        "MEDIA_ERR_SRC_NOT_SUPPORTED",
-        "MEDIA_ERR_ENCRYPTED"
-      ];
-
-    if ( error ) {
-      type = errorTypes[ error.code ] || type;
-      errorMessage = error.message || errorMessage;
-    }
+      mediaErrorCode = error && error.code ? error.code : null,
+      type = _videoUtils.getMediaErrorName( mediaErrorCode ),
+      errorCode = _videoUtils.getRiseErrorCode( mediaErrorCode ),
+      errorMessage = error && error.message ? error.message : "Sorry, there was a problem playing the video.";
 
     logParams.event = "player error";
     logParams.event_details = type + " - " + errorMessage;
@@ -249,7 +238,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       logParams.local_url = localUrl || "";
     }
 
-    _videoUtils.logEvent( logParams, { severity: "error", errorCode: "E000000063", debugInfo: JSON.stringify( {
+    _videoUtils.logEvent( logParams, { severity: "error", errorCode: errorCode, debugInfo: JSON.stringify( {
       file_url: logParams.file_url,
       local_url: logParams.local_url,
       file_format: logParams.file_format
