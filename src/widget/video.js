@@ -53,6 +53,9 @@ RiseVision.Video = ( function( window, gadgets ) {
       }
 
       _videoUtils.logEvent( configParams, { severity: "info", debugInfo: JSON.stringify( configParams ) } );
+      if ( configParams.file_url.startsWith( "http://" ) ) {
+        _videoUtils.logEvent( configParams, { severity: "error", errorCode: "E000000003", eventDetails: "Unable to show HTTP-based content", debugInfo: JSON.stringify( configParams ) } );
+      }
       _configurationLogged = true;
     }
   }
