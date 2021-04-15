@@ -30,7 +30,8 @@
     es6Modules = [
       "./node_modules/common-component/local-messaging.js",
       "./node_modules/common-component/player-local-storage.js",
-      "./node_modules/common-component/player-local-storage-licensing.js"
+      "./node_modules/common-component/player-local-storage-licensing.js",
+      "./node_modules/common-component/rise-content-sentinel.js"
     ];
 
   gulp.task("clean-bower", function(cb){
