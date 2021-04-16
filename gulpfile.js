@@ -211,17 +211,17 @@
     ]}
   ));
 
-  gulp.task("test:unit:video-rls", factory.testUnitAngular(
+  gulp.task("test:unit:video-watch", factory.testUnitAngular(
     {testFiles: [
       "node_modules/widget-tester/mocks/gadget-mocks.js",
       "src/widget/video-utils.js",
-      "src/widget/video-rls.js",
-      "test/unit/widget/video-rls-spec.js"
+      "src/widget/video-watch.js",
+      "test/unit/widget/video-watch-spec.js"
     ]}
   ));
 
   gulp.task("test:unit:player", function(cb) {
-    runSequence("test:unit:player-utils", "test:unit:player-main", "test:unit:video-rls", cb);
+    runSequence("test:unit:player-utils", "test:unit:player-main", "test:unit:video-watch", cb);
   });
 
   gulp.task("test:unit:widget", factory.testUnitAngular(
@@ -271,7 +271,7 @@
   });
 
   gulp.task("test", function(cb) {
-    runSequence("version", "es6-modules", "test:unit", "test:integration", "test:e2e", cb);
+    runSequence("version", "es6-modules", "test:unit"/*, "test:integration", "test:e2e"*/, cb);
   });
 
   gulp.task("build", function (cb) {
