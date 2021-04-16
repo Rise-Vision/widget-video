@@ -10,7 +10,7 @@ suite( "initialized with 1 file", function() {
     clock;
 
   suiteSetup( function() {
-    onFileInitSpy = sinon.stub( RiseVision.VideoRLS, "onFileInit" );
+    onFileInitSpy = sinon.stub( RiseVision.VideoWatch, "onFileInit" );
 
     // mock receiving client-list message
     messageHandlers.forEach( function( handler ) {
@@ -23,7 +23,7 @@ suite( "initialized with 1 file", function() {
   } );
 
   suiteTeardown( function() {
-    RiseVision.VideoRLS.onFileInit.restore();
+    RiseVision.VideoWatch.onFileInit.restore();
   } );
 
   setup( function() {
@@ -68,12 +68,12 @@ suite( "initialized with 1 file", function() {
       } );
     } );
 
-    clock.tick( 7000 );
+    clock.tick( 1000 );
 
     assert( !onFileInitSpy.called, "onFileInit() is not called, processing timer still running to try and get at least 2 files" );
 
     // 15 seconds is up
-    clock.tick( 1000 );
+    clock.tick( 7000 );
 
     assert( onFileInitSpy.calledOnce, "onFileInit() called once" );
     assert.equal( onFileInitSpy.args[ 0 ][ 0 ].length, 1, "intialized with 1 file" );
@@ -86,7 +86,7 @@ suite( "file updated", function() {
 
   suiteSetup( function() {
 
-    onFileRefreshStub = sinon.stub( RiseVision.VideoRLS, "onFileRefresh" );
+    onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
     // mock receiving file-update to notify a new file is available in this watched folder
     messageHandlers.forEach( function( handler ) {
@@ -110,7 +110,7 @@ suite( "file updated", function() {
   } );
 
   suiteTeardown( function() {
-    RiseVision.VideoRLS.onFileRefresh.restore();
+    RiseVision.VideoWatch.onFileRefresh.restore();
   } );
 
   test( "should be able to configure player with an updated version of the one file in folder", function() {

@@ -19,7 +19,7 @@ var table = "video_v2_events",
   logSpy,
   check = function( done ) {
     if ( ready ) {
-      sinon.stub( RiseVision.VideoRLS, "play" );
+      sinon.stub( RiseVision.VideoWatch, "play" );
       done();
     } else {
       setTimeout( function() {
@@ -223,7 +223,7 @@ suite( "errors", function() {
   } );
 
   test( "file deleted", function() {
-    var onDeleteStub = sinon.stub( RiseVision.VideoRLS, "onFileDeleted" );
+    var onDeleteStub = sinon.stub( RiseVision.VideoWatch, "onFileDeleted" );
 
     logSpy = sinon.spy( RiseVision.Common.LoggerUtils, "logEvent" );
 

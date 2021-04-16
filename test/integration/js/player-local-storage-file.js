@@ -9,7 +9,7 @@ suite( "file added", function() {
   var onFileInitSpy;
 
   suiteSetup( function() {
-    onFileInitSpy = sinon.spy( RiseVision.VideoRLS, "onFileInit" );
+    onFileInitSpy = sinon.spy( RiseVision.VideoWatch, "onFileInit" );
 
     // mock receiving client-list message
     messageHandlers.forEach( function( handler ) {
@@ -50,7 +50,7 @@ suite( "file added", function() {
   } );
 
   suiteTeardown( function() {
-    RiseVision.VideoRLS.onFileInit.restore();
+    RiseVision.VideoWatch.onFileInit.restore();
   } );
 
   test( "should be able to set single video with correct url", function() {
@@ -67,11 +67,11 @@ suite( "file changed", function() {
   var refreshSpy;
 
   setup( function() {
-    refreshSpy = sinon.spy( RiseVision.VideoRLS, "onFileRefresh" );
+    refreshSpy = sinon.spy( RiseVision.VideoWatch, "onFileRefresh" );
   } );
 
   teardown( function() {
-    RiseVision.VideoRLS.onFileRefresh.restore();
+    RiseVision.VideoWatch.onFileRefresh.restore();
   } );
 
   test( "should be able to update single file url", function() {
@@ -109,13 +109,13 @@ suite( "file deleted", function() {
 
   setup( function() {
     clock = sinon.useFakeTimers();
-    sinon.spy( RiseVision.VideoRLS, "onFileDeleted" );
-    sinon.stub( RiseVision.VideoRLS, "play" );
+    sinon.spy( RiseVision.VideoWatch, "onFileDeleted" );
+    sinon.stub( RiseVision.VideoWatch, "play" );
   } );
 
   teardown( function() {
-    RiseVision.VideoRLS.onFileDeleted.restore();
-    RiseVision.VideoRLS.play.restore();
+    RiseVision.VideoWatch.onFileDeleted.restore();
+    RiseVision.VideoWatch.play.restore();
     clock.restore();
   } );
 
