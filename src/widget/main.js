@@ -21,7 +21,7 @@
       if ( playOnceDependenciesAreLoaded ) {
         playOnceDependenciesAreLoaded = false;
 
-        RiseVision.VideoRLS.play();
+        RiseVision.VideoWatch.play();
       }
     }
   }
@@ -87,7 +87,7 @@
       return utils.isServiceWorkerRegistered()
         .then( function() {
           useWatch = true;
-          RiseVision.VideoRLS.setAdditionalParams( additionalParams, mode, displayId, companyId );
+          RiseVision.VideoWatch.setAdditionalParams( additionalParams, mode, displayId, companyId );
         } )
         .catch( function( err ) {
           console.log( err );
@@ -99,7 +99,7 @@
 
     if ( _canUseRLS( mode ) ) {
       useWatch = true;
-      return RiseVision.VideoRLS.setAdditionalParams( additionalParams, mode, displayId, companyId );
+      return RiseVision.VideoWatch.setAdditionalParams( additionalParams, mode, displayId, companyId );
     }
 
     _processStorageNonWatch( additionalParams, mode, displayId )
@@ -189,7 +189,7 @@
       RiseVision.Video.play();
     } else {
       if ( config.STORAGE_ENV === "test" || !isWaitingForScriptDependencies ) {
-        RiseVision.VideoRLS.play();
+        RiseVision.VideoWatch.play();
       } else {
         playOnceDependenciesAreLoaded = true;
       }
@@ -203,7 +203,7 @@
     } else {
       playOnceDependenciesAreLoaded = false;
 
-      RiseVision.VideoRLS.pause();
+      RiseVision.VideoWatch.pause();
     }
 
   }
@@ -214,7 +214,7 @@
     } else {
       playOnceDependenciesAreLoaded = false;
 
-      RiseVision.VideoRLS.stop();
+      RiseVision.VideoWatch.stop();
     }
   }
 

@@ -3,9 +3,9 @@
 
 var RiseVision = RiseVision || {};
 
-RiseVision.VideoRLS = RiseVision.VideoRLS || {};
+RiseVision.VideoWatch = RiseVision.VideoWatch || {};
 
-RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
+RiseVision.VideoWatch.PlayerLocalStorageFolder = function() {
   "use strict";
 
   var INITIAL_PROCESSING_DELAY = 15000,
@@ -108,9 +108,9 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
         "file_format": "unknown"
       }, { severity: "error", errorCode: "E000000021", debugInfo: JSON.stringify( { file_url: folderPath, file_format: "unknown" } ) } );
 
-      RiseVision.VideoRLS.onFolderFilesRemoved();
+      RiseVision.VideoWatch.onFolderFilesRemoved();
     } else {
-      RiseVision.VideoRLS.onFileRefresh( files );
+      RiseVision.VideoWatch.onFileRefresh( files );
     }
   }
 
@@ -134,17 +134,17 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
             "file_format": "unknown"
           }, { severity: "warning", debugInfo: JSON.stringify( { file_url: folderPath, file_format: "unknown" } ) } );
 
-          RiseVision.VideoRLS.handleError();
+          RiseVision.VideoWatch.handleError();
           return;
         }
 
         // files are still processing/downloading
-        RiseVision.VideoRLS.onFileUnavailable( "Files are downloading." );
+        RiseVision.VideoWatch.onFileUnavailable( "Files are downloading." );
         return;
       }
 
       initialLoad = false;
-      RiseVision.VideoRLS.onFileInit( files );
+      RiseVision.VideoWatch.onFileInit( files );
     }, INITIAL_PROCESSING_DELAY );
   }
 
@@ -156,7 +156,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "file_format": defaultFileFormat
     }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
-    RiseVision.VideoRLS.handleError();
+    RiseVision.VideoWatch.handleError();
   }
 
   function _handleRequiredModulesUnavailable() {
@@ -167,7 +167,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "file_format": defaultFileFormat
     }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
-    RiseVision.VideoRLS.handleError();
+    RiseVision.VideoWatch.handleError();
   }
 
   function _handleUnauthorized() {
@@ -178,7 +178,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       "file_format": defaultFileFormat
     }, { severity: "error", errorCode: "E000000016", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
-    RiseVision.VideoRLS.handleError();
+    RiseVision.VideoWatch.handleError();
   }
 
   function _handleAuthorized() {
@@ -214,7 +214,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       _clearInitialProcessingTimer();
       initialLoad = false;
 
-      RiseVision.VideoRLS.onFileInit( files );
+      RiseVision.VideoWatch.onFileInit( files );
     }
 
     if ( initialLoad ) {
@@ -232,7 +232,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
       return;
     }
 
-    RiseVision.VideoRLS.onFileRefresh( files );
+    RiseVision.VideoWatch.onFileRefresh( files );
   }
 
   function _handleFolderNoExist() {
@@ -245,7 +245,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
 
     videoUtils.logEvent( params, { severity: "error", errorCode: "E000000022", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
-    RiseVision.VideoRLS.onFolderUnavailable();
+    RiseVision.VideoWatch.onFolderUnavailable();
   }
 
   function _handleFolderEmpty() {
@@ -258,7 +258,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFolder = function() {
 
     videoUtils.logEvent( params, { severity: "error", errorCode: "E000000021", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
 
-    RiseVision.VideoRLS.onFolderUnavailable();
+    RiseVision.VideoWatch.onFolderUnavailable();
   }
 
   function _handleFileDeleted( data ) {

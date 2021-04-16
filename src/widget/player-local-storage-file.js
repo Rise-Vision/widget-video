@@ -3,9 +3,9 @@
 
 var RiseVision = RiseVision || {};
 
-RiseVision.VideoRLS = RiseVision.VideoRLS || {};
+RiseVision.VideoWatch = RiseVision.VideoWatch || {};
 
-RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
+RiseVision.VideoWatch.PlayerLocalStorageFile = function() {
   "use strict";
 
   var INITIAL_PROCESSING_DELAY = 10000,
@@ -27,7 +27,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
   function _startInitialProcessingTimer() {
     initialProcessingTimer = setTimeout( function() {
       // file is still processing/downloading
-      RiseVision.VideoRLS.onFileUnavailable( "File is downloading." );
+      RiseVision.VideoWatch.onFileUnavailable( "File is downloading." );
     }, INITIAL_PROCESSING_DELAY );
   }
 
@@ -42,7 +42,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "file_url": filePath
     }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: filePath } ) } );
 
-    RiseVision.VideoRLS.handleError();
+    RiseVision.VideoWatch.handleError();
   }
 
   function _handleRequiredModulesUnavailable() {
@@ -52,7 +52,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "file_url": filePath
     }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: filePath } ) } );
 
-    RiseVision.VideoRLS.handleError();
+    RiseVision.VideoWatch.handleError();
   }
 
   function _handleUnauthorized() {
@@ -62,7 +62,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "file_url": filePath
     }, { severity: "error", errorCode: "E000000016", debugInfo: JSON.stringify( { file_url: filePath } ) } );
 
-    RiseVision.VideoRLS.handleError();
+    RiseVision.VideoWatch.handleError();
   }
 
   function _handleAuthorized() {
@@ -98,7 +98,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
     if ( initialLoad ) {
       initialLoad = false;
 
-      RiseVision.VideoRLS.onFileInit( {
+      RiseVision.VideoWatch.onFileInit( {
         filePath: filePath,
         url: data.fileUrl,
         name: videoUtils.getStorageFileName( filePath )
@@ -107,7 +107,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       return;
     }
 
-    RiseVision.VideoRLS.onFileRefresh( {
+    RiseVision.VideoWatch.onFileRefresh( {
       filePath: filePath,
       url: data.fileUrl,
       name: videoUtils.getStorageFileName( filePath )
@@ -123,7 +123,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
 
     videoUtils.logEvent( params, { severity: "error", errorCode: "E000000014", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
 
-    RiseVision.VideoRLS.handleError();
+    RiseVision.VideoWatch.handleError();
   }
 
   function _handleFileDeleted( data ) {
@@ -133,7 +133,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
       "file_url": data.filePath
     }, { severity: "info", debugInfo: JSON.stringify( { file_url: data.filePath } ) } );
 
-    RiseVision.VideoRLS.onFileDeleted( data.filePath );
+    RiseVision.VideoWatch.onFileDeleted( data.filePath );
   }
 
   function _handleFileError( data ) {
@@ -167,7 +167,7 @@ RiseVision.VideoRLS.PlayerLocalStorageFile = function() {
      */
 
     // Widget will display generic message
-    RiseVision.VideoRLS.handleError();
+    RiseVision.VideoWatch.handleError();
   }
 
   function _handleEvents( data ) {

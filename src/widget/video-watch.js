@@ -3,9 +3,9 @@
 
 var RiseVision = RiseVision || {};
 
-RiseVision.VideoRLS = {};
+RiseVision.VideoWatch = {};
 
-RiseVision.VideoRLS = ( function( window, gadgets ) {
+RiseVision.VideoWatch = ( function( window, gadgets ) {
   "use strict";
 
   var _prefs = new gadgets.Prefs(),
@@ -68,12 +68,12 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
         _videoUtils.setConfigurationType( "storage file (rls)" );
 
         // create and initialize the Storage file instance
-        _storage = new RiseVision.VideoRLS.PlayerLocalStorageFile();
+        _storage = new RiseVision.VideoWatch.PlayerLocalStorageFile();
       } else if ( _videoUtils.getMode() === "folder" ) {
         _videoUtils.setConfigurationType( "storage folder (rls)" );
 
         // create and initialize the Storage folder instance
-        _storage = new RiseVision.VideoRLS.PlayerLocalStorageFolder();
+        _storage = new RiseVision.VideoWatch.PlayerLocalStorageFolder();
       }
       _storage.init();
     }
@@ -195,7 +195,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
       currentFiles = _videoUtils.getCurrentFiles();
 
       if ( currentFiles && currentFiles.length > 0 ) {
-        _player = new RiseVision.PlayerVJS( _videoUtils.getParams(), _videoUtils.getMode(), RiseVision.VideoRLS );
+        _player = new RiseVision.PlayerVJS( _videoUtils.getParams(), _videoUtils.getMode(), RiseVision.VideoWatch );
         _player.init( currentFiles );
       }
     }
@@ -263,7 +263,7 @@ RiseVision.VideoRLS = ( function( window, gadgets ) {
     var data = _.clone( params );
 
     _videoUtils.setMode( mode );
-    _videoUtils.setUsingRLS();
+    _videoUtils.setUsingWatch();
     _videoUtils.setCompanyId( companyId );
     _videoUtils.setDisplayId( displayId );
 
