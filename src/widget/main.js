@@ -4,9 +4,10 @@
   "use strict";
 
   var id = new gadgets.Prefs().getString( "id" ),
+    utils = RiseVision.Common.Utilities,
     isWaitingForScriptDependencies = false,
     playOnceDependenciesAreLoaded = false,
-    useRLS = false;
+    useWatch = false;
 
   // Disable context menu (right click menu)
   window.oncontextmenu = function() {
@@ -49,7 +50,6 @@
     return false;
   }
 
-
   function _loadPlaylistPluginScript() {
     var src = config.COMPONENTS_PATH + "videojs-playlist/dist/videojs-playlist.min.js",
       script = document.createElement( "script" );
@@ -63,9 +63,94 @@
     document.body.appendChild( script );
   }
 
+  function _isFolder(additionalParams) {
+    return !additionalParams.storage.fileName;
+  }
+
+  function _canUseRLS( mode ) {
+    // integration tests will set TEST_USE_RLS to true
+    if ( mode === "folder" ) {
+      return config.TEST_USE_RLS || canUseRLSFolder();
+    }
+
+    return config.TEST_USE_RLS || canUseRLSSingleFile();
+  }
+
+  function _configureStorageUsage( additionalParams, displayId, companyId ) {
+    var mode = _isFolder( additionalParams ) ? "folder": "file";
+
+    if ( mode === "folder" ) {
+      _loadPlaylistPluginScript();
+    }
+
+    if ( utils.useContentSentinel() ) {
+      return utils.isServiceWorkerRegistered()
+        .then( function() {
+          useWatch = true;
+          RiseVision.VideoRLS.setAdditionalParams( additionalParams, mode, displayId, companyId );
+        } )
+        .catch( function( err ) {
+          console.log( err );
+
+          /* TODO: Do we send "ready" event to Viewer and on receiving "play" immediately send "done"? Or do we not send "ready" and do nothing?
+           */
+        } );
+    }
+
+    if ( _canUseRLS( mode ) ) {
+      useWatch = true;
+      return RiseVision.VideoRLS.setAdditionalParams( additionalParams, mode, displayId, companyId );
+    }
+
+    _processStorageNonWatch( additionalParams, mode, displayId )
+  }
+
+  function _processStorageNonWatch(additionalParams, mode, displayId) {
+    // check which version of Rise Cache is running and dynamically add rise-storage dependencies
+    RiseVision.Common.RiseCache.isRCV2Player( function( isV2 ) {
+      var fragment = document.createDocumentFragment(),
+        link = document.createElement( "link" ),
+        webcomponents = document.createElement( "script" ),
+        href = config.COMPONENTS_PATH + ( ( isV2 ) ? "rise-storage-v2" : "rise-storage" ) + "/rise-storage.html",
+        storage = document.createElement( "rise-storage" );
+
+      function init() {
+        RiseVision.Video.setAdditionalParams( additionalParams, mode, displayId );
+      }
+
+      function onStorageReady() {
+        storage.removeEventListener( "rise-storage-ready", onStorageReady );
+        init();
+      }
+
+      webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents.js";
+
+      // add the webcomponents polyfill source to the document head
+      document.getElementsByTagName( "head" )[ 0 ].appendChild( webcomponents );
+
+      link.setAttribute( "rel", "import" );
+      link.setAttribute( "href", href );
+
+      // add the rise-storage <link> element to document head
+      document.getElementsByTagName( "head" )[ 0 ].appendChild( link );
+
+      storage.setAttribute( "id", "videoStorage" );
+      storage.setAttribute( "refresh", 5 );
+
+      if ( isV2 ) {
+        storage.setAttribute( "usage", "widget" );
+      }
+
+      storage.addEventListener( "rise-storage-ready", onStorageReady );
+      fragment.appendChild( storage );
+
+      // add the <rise-storage> element to the body
+      document.body.appendChild( fragment );
+    } );
+  }
+
   function configure( names, values ) {
     var additionalParams = null,
-      mode = "",
       companyId = "",
       displayId = "";
 
@@ -90,79 +175,17 @@
         additionalParams = JSON.parse( values[ 2 ] );
 
         if ( Object.keys( additionalParams.storage ).length !== 0 ) {
-          // storage file or folder selected
-          if ( !additionalParams.storage.fileName ) {
-            // folder was selected
-            mode = "folder";
-            _loadPlaylistPluginScript();
-
-            // TODO: trigger test coverage for RLS with folder
-            useRLS = config.TEST_USE_RLS || canUseRLSFolder();
-          } else {
-            // file was selected
-            mode = "file";
-
-            // integration tests will set TEST_USE_RLS to true
-            useRLS = config.TEST_USE_RLS || canUseRLSSingleFile();
-          }
+          _configureStorageUsage( additionalParams, displayId, companyId );
         } else {
           // non-storage file was selected
-          mode = "file";
+          RiseVision.Video.setAdditionalParams( additionalParams, "file", displayId );
         }
-
-        if ( useRLS ) {
-          // proceed with using RLS for single file
-          RiseVision.VideoRLS.setAdditionalParams( additionalParams, mode, displayId, companyId );
-          return;
-        }
-
-        // check which version of Rise Cache is running and dynamically add rise-storage dependencies
-        RiseVision.Common.RiseCache.isRCV2Player( function( isV2 ) {
-          var fragment = document.createDocumentFragment(),
-            link = document.createElement( "link" ),
-            webcomponents = document.createElement( "script" ),
-            href = config.COMPONENTS_PATH + ( ( isV2 ) ? "rise-storage-v2" : "rise-storage" ) + "/rise-storage.html",
-            storage = document.createElement( "rise-storage" );
-
-          function init() {
-            RiseVision.Video.setAdditionalParams( additionalParams, mode, displayId );
-          }
-
-          function onStorageReady() {
-            storage.removeEventListener( "rise-storage-ready", onStorageReady );
-            init();
-          }
-
-          webcomponents.src = config.COMPONENTS_PATH + "webcomponentsjs/webcomponents.js";
-
-          // add the webcomponents polyfill source to the document head
-          document.getElementsByTagName( "head" )[ 0 ].appendChild( webcomponents );
-
-          link.setAttribute( "rel", "import" );
-          link.setAttribute( "href", href );
-
-          // add the rise-storage <link> element to document head
-          document.getElementsByTagName( "head" )[ 0 ].appendChild( link );
-
-          storage.setAttribute( "id", "videoStorage" );
-          storage.setAttribute( "refresh", 5 );
-
-          if ( isV2 ) {
-            storage.setAttribute( "usage", "widget" );
-          }
-
-          storage.addEventListener( "rise-storage-ready", onStorageReady );
-          fragment.appendChild( storage );
-
-          // add the <rise-storage> element to the body
-          document.body.appendChild( fragment );
-        } );
       }
     }
   }
 
   function play() {
-    if ( !useRLS ) {
+    if ( !useWatch ) {
       RiseVision.Video.play();
     } else {
       if ( config.STORAGE_ENV === "test" || !isWaitingForScriptDependencies ) {
@@ -175,7 +198,7 @@
   }
 
   function pause() {
-    if ( !useRLS ) {
+    if ( !useWatch ) {
       RiseVision.Video.pause();
     } else {
       playOnceDependenciesAreLoaded = false;
@@ -186,7 +209,7 @@
   }
 
   function stop() {
-    if ( !useRLS ) {
+    if ( !useWatch ) {
       RiseVision.Video.stop();
     } else {
       playOnceDependenciesAreLoaded = false;
