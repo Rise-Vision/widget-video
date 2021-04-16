@@ -87,7 +87,7 @@
       return utils.isServiceWorkerRegistered()
         .then( function() {
           useWatch = true;
-          RiseVision.VideoWatch.setAdditionalParams( additionalParams, mode, displayId, companyId );
+          RiseVision.VideoWatch.setAdditionalParams( additionalParams, mode, displayId, companyId, "sentinel" );
         } )
         .catch( function( err ) {
           console.log( err );
@@ -99,7 +99,7 @@
 
     if ( _canUseRLS( mode ) ) {
       useWatch = true;
-      return RiseVision.VideoWatch.setAdditionalParams( additionalParams, mode, displayId, companyId );
+      return RiseVision.VideoWatch.setAdditionalParams( additionalParams, mode, displayId, companyId, "rls" );
     }
 
     _processStorageNonWatch( additionalParams, mode, displayId )

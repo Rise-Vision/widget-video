@@ -11,6 +11,7 @@ RiseVision.VideoUtils = ( function() {
     _displayId = null,
     _configurationType = null,
     _usingWatch = false,
+    _watchType = null,
     _params = null,
     _mode = null;
 
@@ -111,6 +112,10 @@ RiseVision.VideoUtils = ( function() {
     return _usingWatch;
   }
 
+  function getWatchType() {
+    return _watchType;
+  }
+
   function isValidDisplayId() {
     return _displayId && _displayId !== "preview" && _displayId !== "display_id" && _displayId.indexOf( "displayId" ) === -1;
   }
@@ -187,8 +192,9 @@ RiseVision.VideoUtils = ( function() {
     _params = params;
   }
 
-  function setUsingWatch() {
+  function setUsingWatch( watchType ) {
     _usingWatch = true;
+    _watchType = watchType;
   }
 
   return {
@@ -205,6 +211,7 @@ RiseVision.VideoUtils = ( function() {
     "getStorageSingleFilePath": getStorageSingleFilePath,
     "getStorageFolderPath": getStorageFolderPath,
     "getUsingWatch": getUsingWatch,
+    "getWatchType": getWatchType,
     "isValidDisplayId": isValidDisplayId,
     "logEvent": logEvent,
     "playerEnded": playerEnded,

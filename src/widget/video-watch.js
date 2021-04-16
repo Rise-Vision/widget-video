@@ -14,7 +14,7 @@ RiseVision.VideoWatch = ( function( window, gadgets ) {
     _player = null,
     _configurationLogged = false,
     _viewerPaused = true,
-    _storage = null,
+    _watch = null,
     _resume = true,
     _errorFlag = false,
     _unavailableFlag = false,
@@ -44,7 +44,8 @@ RiseVision.VideoWatch = ( function( window, gadgets ) {
   }
 
   function _init() {
-    var params = _videoUtils.getParams();
+    var params = _videoUtils.getParams(),
+      watchType = _videoUtils.getWatchType();
 
     if ( params.video.hasOwnProperty( "resume" ) ) {
       _resume = params.video.resume;
@@ -65,17 +66,24 @@ RiseVision.VideoWatch = ( function( window, gadgets ) {
       _message.show( "Please wait while your video is downloaded." );
 
       if ( _videoUtils.getMode() === "file" ) {
-        _videoUtils.setConfigurationType( "storage file (rls)" );
+        _videoUtils.setConfigurationType( "storage file (" + watchType + ")" );
 
-        // create and initialize the Storage file instance
-        _storage = new RiseVision.VideoWatch.PlayerLocalStorageFile();
+        if ( watchType.toUpperCase() === "RLS" ) {
+          _watch = new RiseVision.VideoWatch.PlayerLocalStorageFile();
+        } else if ( watchType.toUpperCase() === "SENTINEL" ) {
+          _watch = new RiseVision.VideoWatch.RiseContentSentinelFile();
+        }
+
       } else if ( _videoUtils.getMode() === "folder" ) {
-        _videoUtils.setConfigurationType( "storage folder (rls)" );
+        _videoUtils.setConfigurationType( "storage folder (" + watchType + ")" );
 
-        // create and initialize the Storage folder instance
-        _storage = new RiseVision.VideoWatch.PlayerLocalStorageFolder();
+        if ( watchType.toUpperCase() === "RLS" ) {
+          _watch = new RiseVision.VideoWatch.PlayerLocalStorageFolder();
+        } else if ( watchType.toUpperCase() === "SENTINEL" ) {
+          _watch = new RiseVision.VideoWatch.RiseContentSentinelFolder();
+        }
       }
-      _storage.init();
+      _watch.init();
     }
 
     _logConfiguration( _videoUtils.getConfigurationType() );
@@ -174,8 +182,8 @@ RiseVision.VideoWatch = ( function( window, gadgets ) {
       return;
     }
 
-    if ( _unavailableFlag && _storage ) {
-      _storage.retry();
+    if ( _unavailableFlag && _watch ) {
+      _watch.retry();
 
       return;
     }
@@ -259,11 +267,11 @@ RiseVision.VideoWatch = ( function( window, gadgets ) {
     pause();
   }
 
-  function setAdditionalParams( params, mode, displayId, companyId ) {
+  function setAdditionalParams( params, mode, displayId, companyId, watchType ) {
     var data = _.clone( params );
 
     _videoUtils.setMode( mode );
-    _videoUtils.setUsingWatch();
+    _videoUtils.setUsingWatch( watchType );
     _videoUtils.setCompanyId( companyId );
     _videoUtils.setDisplayId( displayId );
 
