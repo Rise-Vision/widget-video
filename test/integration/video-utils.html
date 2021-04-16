@@ -102,14 +102,14 @@
 
     suite( "setCurrentFiles", function() {
 
-      test( "should handle string type (non RLS single file)", function() {
+      test( "should handle string type (non Watch single file)", function() {
         videoUtils.setCurrentFiles( "test-bucket/video.webm" );
 
         expect( videoUtils.getCurrentFiles().length ).to.equal( 1 );
         expect( videoUtils.getCurrentFiles()[ 0 ] ).to.equal( "test-bucket/video.webm" );
       } );
 
-      test( "should handle array type (folder or RLS single file)", function() {
+      test( "should handle array type (watch folder or single file)", function() {
         videoUtils.setCurrentFiles( [ "test-bucket/video.webm", "test-bucket/video2.webm" ] );
 
         expect( videoUtils.getCurrentFiles().length ).to.equal( 2 );
