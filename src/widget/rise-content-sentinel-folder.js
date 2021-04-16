@@ -1,4 +1,4 @@
-/* global riseContentSentinel, config _ */
+/* global riseContentSentinel, _ */
 /* eslint-disable no-console */
 
 var RiseVision = RiseVision || {};
@@ -275,39 +275,24 @@ RiseVision.VideoWatch.RiseContentSentinelFolder = function() {
     }
 
     switch ( data.event.toUpperCase() ) {
-      case "NO-CONNECTION":
-        _handleNoConnection();
-        break;
-      case "REQUIRED-MODULES-UNAVAILABLE":
-        _handleRequiredModulesUnavailable();
-        break;
-      case "AUTHORIZED":
-        _handleAuthorized();
-        break;
-      case "UNAUTHORIZED":
-        _handleUnauthorized();
-        break;
-      case "AUTHORIZATION-ERROR":
-        _handleAuthorizationError;
-        break;
-      case "FILE-AVAILABLE":
-        _handleFileAvailable( data );
-        break;
-      case "FILE-PROCESSING":
-        _handleFileProcessing();
-        break;
-      case "FOLDER-NO-EXIST":
-        _handleFolderNoExist();
-        break;
-      case "FOLDER-EMPTY":
-        _handleFolderEmpty();
-        break;
-      case "FILE-DELETED":
-        _handleFileDeleted( data );
-        break;
-      case "FILE-ERROR":
-        _handleFileError( data );
-        break;
+    case "FILE-AVAILABLE":
+      _handleFileAvailable( data );
+      break;
+    case "FILE-PROCESSING":
+      _handleFileProcessing();
+      break;
+    case "FOLDER-NO-EXIST":
+      _handleFolderNoExist();
+      break;
+    case "FOLDER-EMPTY":
+      _handleFolderEmpty();
+      break;
+    case "FILE-DELETED":
+      _handleFileDeleted( data );
+      break;
+    case "FILE-ERROR":
+      _handleFileError( data );
+      break;
     }
   }
 

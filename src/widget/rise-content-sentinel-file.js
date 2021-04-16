@@ -1,4 +1,4 @@
-/* global riseContentSentinel, config, _ */
+/* global riseContentSentinel, _ */
 /* eslint-disable no-console */
 
 var RiseVision = RiseVision || {};
@@ -111,21 +111,21 @@ RiseVision.VideoWatch.RiseContentSentinelFile = function() {
     }
 
     switch ( data.event.toUpperCase() ) {
-      case "FILE-AVAILABLE":
-        _handleFileAvailable( data );
-        break;
-      case "FILE-PROCESSING":
-        _handleFileProcessing();
-        break;
-      case "FILE-NO-EXIST":
-        _handleFileNoExist( data );
-        break;
-      case "FILE-DELETED":
-        _handleFileDeleted( data );
-        break;
-      case "FILE-ERROR":
-        _handleFileError( data );
-        break;
+    case "FILE-AVAILABLE":
+      _handleFileAvailable( data );
+      break;
+    case "FILE-PROCESSING":
+      _handleFileProcessing();
+      break;
+    case "FILE-NO-EXIST":
+      _handleFileNoExist( data );
+      break;
+    case "FILE-DELETED":
+      _handleFileDeleted( data );
+      break;
+    case "FILE-ERROR":
+      _handleFileError( data );
+      break;
     }
   }
 

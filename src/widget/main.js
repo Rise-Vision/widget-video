@@ -63,7 +63,7 @@
     document.body.appendChild( script );
   }
 
-  function _isFolder(additionalParams) {
+  function _isFolder( additionalParams ) {
     return !additionalParams.storage.fileName;
   }
 
@@ -77,7 +77,7 @@
   }
 
   function _configureStorageUsage( additionalParams, displayId, companyId ) {
-    var mode = _isFolder( additionalParams ) ? "folder": "file";
+    var mode = _isFolder( additionalParams ) ? "folder" : "file";
 
     if ( mode === "folder" ) {
       _loadPlaylistPluginScript();
@@ -90,7 +90,7 @@
           RiseVision.VideoWatch.setAdditionalParams( additionalParams, mode, displayId, companyId, "sentinel" );
         } )
         .catch( function( err ) {
-          console.log( err );
+          console.log( err ); // eslint-disable-line no-console
 
           /* TODO: Do we send "ready" event to Viewer and on receiving "play" immediately send "done"? Or do we not send "ready" and do nothing?
            */
@@ -105,7 +105,7 @@
     _processStorageNonWatch( additionalParams, mode, displayId )
   }
 
-  function _processStorageNonWatch(additionalParams, mode, displayId) {
+  function _processStorageNonWatch( additionalParams, mode, displayId ) {
     // check which version of Rise Cache is running and dynamically add rise-storage dependencies
     RiseVision.Common.RiseCache.isRCV2Player( function( isV2 ) {
       var fragment = document.createDocumentFragment(),
