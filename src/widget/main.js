@@ -83,7 +83,8 @@
       _loadPlaylistPluginScript();
     }
 
-    if ( utils.useContentSentinel() ) {
+    // integration tests will set TEST_USE_SENTINEL to true
+    if ( utils.useContentSentinel() || config.TEST_USE_SENTINEL ) {
       return utils.isServiceWorkerRegistered()
         .then( function() {
           useWatch = true;
