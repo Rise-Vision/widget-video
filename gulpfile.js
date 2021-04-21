@@ -271,7 +271,7 @@
   });
 
   gulp.task("test", function(cb) {
-    runSequence("version", "es6-modules", "test:unit"/*, "test:integration", "test:e2e"*/, cb);
+    runSequence("version", "es6-modules", "test:unit", "test:integration", "test:e2e", cb);
   });
 
   gulp.task("build", function (cb) {
