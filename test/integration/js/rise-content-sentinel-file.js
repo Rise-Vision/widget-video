@@ -1,47 +1,46 @@
-/* global suiteSetup, suite, setup, teardown, test, assert, suiteTeardown,
+/* global suiteSetup, suite, test, assert, suiteTeardown,
  RiseVision, sinon */
 
 /* eslint-disable func-names */
 
-var receivedCounter = 0;
-var receivedExpected = 0;
-var callback = null;
+var receivedCounter = 0,
+  receivedExpected = 0,
+  callback = null,
+  receivedHandler = function() {
+    if ( event.data.topic.indexOf( "FILE-" ) !== -1 ) {
+      receivedCounter += 1;
 
-var receivedHandler = function() {
-  if (event.data.topic.indexOf("FILE-") !== -1) {
-    receivedCounter += 1;
-
-    if (receivedCounter === receivedExpected) {
-      callback && callback();
+      if ( receivedCounter === receivedExpected ) {
+        callback && callback();
+      }
     }
-  }
-};
+  };
 
-window.addEventListener("message", function(event) {
+window.addEventListener( "message", function() {
   receivedHandler();
-});
+} );
 
 suite( "file added", function() {
   var onFileInitSpy;
 
-  suiteSetup( function(done) {
+  suiteSetup( function( done ) {
     onFileInitSpy = sinon.spy( RiseVision.VideoWatch, "onFileInit" );
 
     receivedExpected = 2;
     callback = done;
 
     // mock receiving file-update to notify file is downloading
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
       status: "STALE"
-    }, "*");
+    }, "*" );
 
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
       status: "CURRENT"
-    }, "*");
+    }, "*" );
   } );
 
   suiteTeardown( function() {
@@ -64,25 +63,25 @@ suite( "file added", function() {
 suite( "file changed", function() {
   var refreshSpy;
 
-  suiteSetup( function(done) {
+  suiteSetup( function( done ) {
     refreshSpy = sinon.spy( RiseVision.VideoWatch, "onFileRefresh" );
 
     receivedExpected = 2;
     callback = done;
 
     // mock receiving file-update to notify file is downloading
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
       status: "STALE"
-    }, "*");
+    }, "*" );
 
     // mock receiving file-update to notify file is available
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
       status: "CURRENT"
-    }, "*");
+    }, "*" );
   } );
 
   suiteTeardown( function() {
@@ -105,7 +104,7 @@ suite( "file changed", function() {
 suite( "file deleted", function() {
   var clock;
 
-  suiteSetup( function(done) {
+  suiteSetup( function( done ) {
     clock = sinon.useFakeTimers();
     sinon.spy( RiseVision.VideoWatch, "onFileDeleted" );
     sinon.stub( RiseVision.VideoWatch, "play" );
@@ -114,11 +113,11 @@ suite( "file deleted", function() {
     callback = done;
 
     // mock receiving file-update to notify file is downloading
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/a_food_show.webm",
       status: "DELETED"
-    }, "*");
+    }, "*" );
   } );
 
   suiteTeardown( function() {

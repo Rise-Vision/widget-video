@@ -3,29 +3,28 @@
 
 /* eslint-disable func-names */
 
-var receivedCounter = 0;
-var receivedExpected = 0;
-var callback = null;
+var receivedCounter = 0,
+  receivedExpected = 0,
+  callback = null,
+  receivedHandler = function() {
+    if ( event.data.topic.indexOf( "FILE-" ) !== -1 ) {
+      receivedCounter += 1;
 
-var receivedHandler = function() {
-  if (event.data.topic.indexOf("FILE-") !== -1) {
-    receivedCounter += 1;
-
-    if (receivedCounter === receivedExpected) {
-      callback && callback();
+      if ( receivedCounter === receivedExpected ) {
+        callback && callback();
+      }
     }
-  }
-};
+  };
 
-window.addEventListener("message", function(event) {
+window.addEventListener( "message", function() {
   receivedHandler();
-});
+} );
 
 
 suite( "files initialized", function() {
   var onFileInitSpy;
 
-  suiteSetup( function(done) {
+  suiteSetup( function( done ) {
     onFileInitSpy = sinon.stub( RiseVision.VideoWatch, "onFileInit" );
 
     receivedExpected = 4;
@@ -33,29 +32,29 @@ suite( "files initialized", function() {
     callback = done;
 
     // mock receiving file-update to notify file is downloading
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-c.webm",
       status: "STALE"
-    }, "*");
+    }, "*" );
 
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-a.webm",
       status: "STALE"
-    }, "*");
+    }, "*" );
 
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-c.webm",
       status: "CURRENT"
-    }, "*");
+    }, "*" );
 
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-a.webm",
       status: "CURRENT"
-    }, "*");
+    }, "*" );
 
   } );
 
@@ -78,7 +77,7 @@ suite( "files initialized", function() {
 suite( "file added", function() {
   var onFileRefreshStub;
 
-  suiteSetup( function(done) {
+  suiteSetup( function( done ) {
 
     onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
@@ -87,17 +86,17 @@ suite( "file added", function() {
     callback = done;
 
     // mock receiving file-update to notify a new file is available in this watched folder
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-b.webm",
       status: "STALE"
-    }, "*");
+    }, "*" );
 
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-b.webm",
       status: "CURRENT"
-    }, "*");
+    }, "*" );
 
   } );
 
@@ -119,7 +118,7 @@ suite( "file added", function() {
 suite( "file updated", function() {
   var onFileRefreshStub;
 
-  suiteSetup( function(done) {
+  suiteSetup( function( done ) {
 
     onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
@@ -127,17 +126,17 @@ suite( "file updated", function() {
     callback = done;
 
     // mock receiving file-update to notify a new file is available in this watched folder
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-a.webm",
       status: "STALE"
-    }, "*");
+    }, "*" );
 
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-a.webm",
       status: "CURRENT"
-    }, "*");
+    }, "*" );
 
   } );
 
@@ -159,7 +158,7 @@ suite( "file updated", function() {
 suite( "file deleted", function() {
   var onFileRefreshStub;
 
-  suiteSetup( function(done) {
+  suiteSetup( function( done ) {
 
     onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
@@ -167,11 +166,11 @@ suite( "file deleted", function() {
     callback = done;
 
     // mock receiving file-update to notify a new file is available in this watched folder
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-b.webm",
       status: "DELETED"
-    }, "*");
+    }, "*" );
 
   } );
 
@@ -192,7 +191,7 @@ suite( "file deleted", function() {
 suite( "file error from update", function() {
   var onFileRefreshStub;
 
-  suiteSetup( function(done) {
+  suiteSetup( function( done ) {
 
     onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
@@ -200,17 +199,17 @@ suite( "file error from update", function() {
     callback = done;
 
     // mock adding this file
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-b.webm",
       status: "STALE"
-    }, "*");
+    }, "*" );
 
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-UPDATE",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-b.webm",
       status: "CURRENT"
-    }, "*");
+    }, "*" );
 
   } );
 
@@ -218,27 +217,27 @@ suite( "file error from update", function() {
     RiseVision.VideoWatch.onFileRefresh.restore();
   } );
 
-  test( "should be able to configure player after file error received for one of the videos in list", function(done) {
+  test( "should be able to configure player after file error received for one of the videos in list", function( done ) {
     assert.equal( onFileRefreshStub.args[ 0 ][ 0 ].length, 3, "refreshed with 3 files" );
     assert.equal( onFileRefreshStub.args[ 0 ][ 0 ][ 1 ].url, "https://widgets.risevision.com/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-b.webm", "file 3 url is correct" );
 
     receivedCounter = 0;
     receivedExpected = 1;
-    callback = function () {
+    callback = function() {
       // file should be removed from list provided to onFileRefresh()
-      setTimeout(function() {
+      setTimeout( function() {
         assert( onFileRefreshStub.calledTwice, "onFileRefresh() called twice" );
         assert.equal( onFileRefreshStub.args[ 1 ][ 0 ].length, 2, "refreshed with 2 files" );
         assert.equal( onFileRefreshStub.args[ 1 ][ 0 ][ 1 ].url, "https://widgets.risevision.com/risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-c.webm", "file 2 url is correct" );
         done();
-      },200);
+      }, 200 );
     };
 
     // mock FILE-ERROR for this image
-    window.postMessage({
+    window.postMessage( {
       topic: "FILE-ERROR",
       filePath: "risemedialibrary-b428b4e8-c8b9-41d5-8a10-b4193c789443/Widgets/videos/test-file-b.webm",
       msg: "Insufficient disk space"
-    }, "*");
+    }, "*" );
   } );
 } );
