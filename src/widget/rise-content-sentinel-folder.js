@@ -245,19 +245,6 @@ RiseVision.VideoWatch.RiseContentSentinelFolder = function() {
       params: _.clone( params )
     } );
 
-    /*** Possible error messages from Local Storage ***/
-    /*
-      "File's host server could not be reached"
-
-      "File I/O Error"
-
-      "Could not retrieve signed URL"
-
-      "Insufficient disk space"
-
-      "Invalid response with status code [CODE]"
-     */
-
     videoUtils.logEvent( params, { severity: "error", errorCode: "E000000027", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
 
     if ( !initialLoad && !initialProcessingTimer ) {
