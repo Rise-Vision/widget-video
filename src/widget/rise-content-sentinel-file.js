@@ -1,21 +1,18 @@
-/* global localMessaging, playerLocalStorage, playerLocalStorageLicensing, config, _ */
+/* global riseContentSentinel, _ */
 /* eslint-disable no-console */
 
 var RiseVision = RiseVision || {};
 
 RiseVision.VideoWatch = RiseVision.VideoWatch || {};
 
-RiseVision.VideoWatch.PlayerLocalStorageFile = function() {
+RiseVision.VideoWatch.RiseContentSentinelFile = function() {
   "use strict";
 
   var INITIAL_PROCESSING_DELAY = 10000,
     videoUtils = RiseVision.VideoUtils,
-    messaging = new localMessaging.default(),
     filePath = "",
-    licensing = null,
-    storage = null,
+    contentSentinel = null,
     initialProcessingTimer = null,
-    watchInitiated = false,
     initialLoad = true,
     fileErrorLogParams = null;
 
@@ -33,54 +30,6 @@ RiseVision.VideoWatch.PlayerLocalStorageFile = function() {
 
   function _resetFileErrorLogParams() {
     fileErrorLogParams = null;
-  }
-
-  function _handleNoConnection() {
-    videoUtils.logEvent( {
-      "event": "error",
-      "event_details": "no connection",
-      "file_url": filePath
-    }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: filePath } ) } );
-
-    RiseVision.VideoWatch.handleError();
-  }
-
-  function _handleRequiredModulesUnavailable() {
-    videoUtils.logEvent( {
-      "event": "error",
-      "event_details": "required modules unavailable",
-      "file_url": filePath
-    }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: filePath } ) } );
-
-    RiseVision.VideoWatch.handleError();
-  }
-
-  function _handleUnauthorized() {
-    videoUtils.logEvent( {
-      "event": "error",
-      "event_details": "unauthorized",
-      "file_url": filePath
-    }, { severity: "error", errorCode: "E000000016", debugInfo: JSON.stringify( { file_url: filePath } ) } );
-
-    RiseVision.VideoWatch.handleError();
-  }
-
-  function _handleAuthorized() {
-    if ( !watchInitiated ) {
-      // start watching the file
-      storage.watchFiles( filePath );
-      watchInitiated = true;
-    }
-  }
-
-  function _handleAuthorizationError( data ) {
-    var detail = data.detail || "";
-
-    videoUtils.logEvent( {
-      "event": "error",
-      "event_details": "authorization error - " + ( ( typeof detail === "string" ) ? detail : JSON.stringify( detail ) ),
-      "file_url": filePath
-    }, { severity: "error", errorCode: "E000000016", debugInfo: JSON.stringify( { file_url: filePath } ) } );
   }
 
   function _handleFileProcessing() {
@@ -153,20 +102,6 @@ RiseVision.VideoWatch.PlayerLocalStorageFile = function() {
     fileErrorLogParams = _.clone( params );
     videoUtils.logEvent( params, { severity: "error", errorCode: "E000000027", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
 
-    /*** Possible error messages from Local Storage ***/
-    /*
-      "File's host server could not be reached"
-
-      "File I/O Error"
-
-      "Could not retrieve signed URL"
-
-      "Insufficient disk space"
-
-      "Invalid response with status code [CODE]"
-     */
-
-    // Widget will display generic message
     RiseVision.VideoWatch.handleError();
   }
 
@@ -176,21 +111,6 @@ RiseVision.VideoWatch.PlayerLocalStorageFile = function() {
     }
 
     switch ( data.event.toUpperCase() ) {
-    case "NO-CONNECTION":
-      _handleNoConnection();
-      break;
-    case "REQUIRED-MODULES-UNAVAILABLE":
-      _handleRequiredModulesUnavailable();
-      break;
-    case "AUTHORIZED":
-      _handleAuthorized();
-      break;
-    case "UNAUTHORIZED":
-      _handleUnauthorized();
-      break;
-    case "AUTHORIZATION-ERROR":
-      _handleAuthorizationError;
-      break;
     case "FILE-AVAILABLE":
       _handleFileAvailable( data );
       break;
@@ -210,12 +130,11 @@ RiseVision.VideoWatch.PlayerLocalStorageFile = function() {
   }
 
   function init() {
-    var params = videoUtils.getParams(),
-      companyId = ( params.storage.companyId !== videoUtils.getCompanyId() ) ? params.storage.companyId : "";
-
     filePath = videoUtils.getStorageSingleFilePath();
-    licensing = new playerLocalStorageLicensing.default( messaging, _handleEvents, companyId, config.STORAGE_ENV );
-    storage = new playerLocalStorage.default( messaging, licensing, _handleEvents );
+    contentSentinel = new riseContentSentinel.default( _handleEvents );
+
+    // start watching the file
+    contentSentinel.watchFiles( filePath );
   }
 
   function retry() {

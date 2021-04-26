@@ -79,6 +79,25 @@
     });
 
     suite( "VideoJS options", function() {
+      function checkPlayerLoaded(done) {
+        var elemToObserve = document.getElementById("player");
+        var callback = function(mutations) {
+          for (var mutation of mutations) {
+            if(mutation.attributeName === "class"){
+              observer.disconnect();
+              done();
+              break;
+            }
+          }
+        };
+        var observer = new MutationObserver(callback);
+        observer.observe(elemToObserve, {attributes: true});
+      }
+
+      suiteSetup(function(done) {
+        checkPlayerLoaded(done);
+      });
+
       test( "should add controls to video", function() {
         assert.isNotNull( document.querySelector("#player.vjs-controls-enabled") );
       } );

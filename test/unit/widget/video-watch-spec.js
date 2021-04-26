@@ -24,7 +24,7 @@ describe( "onFileRefresh", function() {
   } );
 
   it( "should not play if viewer is paused", function() {
-    RiseVision.VideoRLS.onFileRefresh( [ "url1" ] );
+    RiseVision.VideoWatch.onFileRefresh( [ "url1" ] );
 
     expect( player.init ).to.not.have.been.called;
   } );
@@ -32,34 +32,34 @@ describe( "onFileRefresh", function() {
   it( "should play if a file is added after player disposal if viewer is not paused", function() {
     RiseVision.VideoUtils.setCurrentFiles( [ "url1" ] );
 
-    RiseVision.VideoRLS.play();
+    RiseVision.VideoWatch.play();
     expect( player.init ).to.have.been.calledWith( [ "url1" ] );
     expect( player.init ).to.have.been.called.once;
 
     // this is called after folder is emptied
-    RiseVision.VideoRLS.playerDisposed();
+    RiseVision.VideoWatch.playerDisposed();
 
     // notify the folder has files again
-    RiseVision.VideoRLS.onFileRefresh( [ "url2" ] );
+    RiseVision.VideoWatch.onFileRefresh( [ "url2" ] );
     expect( player.init ).to.have.been.calledWith( [ "url2" ] );
     expect( player.init ).to.have.been.called.twice;
 
     // Cleanup
-    RiseVision.VideoRLS.playerDisposed();
+    RiseVision.VideoWatch.playerDisposed();
   } );
 
   it( "should not play no files are added after player disposal even if viewer is not paused", function() {
     RiseVision.VideoUtils.setCurrentFiles( [ "url1" ] );
 
-    RiseVision.VideoRLS.play();
+    RiseVision.VideoWatch.play();
     expect( player.init ).to.have.been.calledWith( [ "url1" ] );
     expect( player.init ).to.have.been.called.once;
 
     // this is called after folder is emptied
-    RiseVision.VideoRLS.playerDisposed();
+    RiseVision.VideoWatch.playerDisposed();
 
     // notify the folder still has no files
-    RiseVision.VideoRLS.onFileRefresh( [] );
+    RiseVision.VideoWatch.onFileRefresh( [] );
     expect( player.init ).to.have.been.called.once;
   } );
 

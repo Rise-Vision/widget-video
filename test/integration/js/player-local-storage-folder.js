@@ -9,7 +9,7 @@ suite( "files initialized", function() {
   var onFileInitSpy;
 
   suiteSetup( function() {
-    onFileInitSpy = sinon.stub( RiseVision.VideoRLS, "onFileInit" );
+    onFileInitSpy = sinon.stub( RiseVision.VideoWatch, "onFileInit" );
 
     // mock receiving client-list message
     messageHandlers.forEach( function( handler ) {
@@ -66,7 +66,7 @@ suite( "files initialized", function() {
   } );
 
   suiteTeardown( function() {
-    RiseVision.VideoRLS.onFileInit.restore();
+    RiseVision.VideoWatch.onFileInit.restore();
   } );
 
   test( "should be able to configure player with correct urls", function() {
@@ -83,7 +83,7 @@ suite( "file added", function() {
 
   suiteSetup( function() {
 
-    onFileRefreshStub = sinon.stub( RiseVision.VideoRLS, "onFileRefresh" );
+    onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
     // mock receiving file-update to notify a new file is available in this watched folder
     messageHandlers.forEach( function( handler ) {
@@ -107,7 +107,7 @@ suite( "file added", function() {
   } );
 
   suiteTeardown( function() {
-    RiseVision.VideoRLS.onFileRefresh.restore();
+    RiseVision.VideoWatch.onFileRefresh.restore();
   } );
 
   test( "should be able to configure player with an additional video", function() {
@@ -123,7 +123,7 @@ suite( "file updated", function() {
 
   suiteSetup( function() {
 
-    onFileRefreshStub = sinon.stub( RiseVision.VideoRLS, "onFileRefresh" );
+    onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
     // mock receiving file-update to notify a new file is available in this watched folder
     messageHandlers.forEach( function( handler ) {
@@ -147,7 +147,7 @@ suite( "file updated", function() {
   } );
 
   suiteTeardown( function() {
-    RiseVision.VideoRLS.onFileRefresh.restore();
+    RiseVision.VideoWatch.onFileRefresh.restore();
   } );
 
   test( "should be able to configure player with an updated video", function() {
@@ -163,7 +163,7 @@ suite( "file deleted", function() {
 
   suiteSetup( function() {
 
-    onFileRefreshStub = sinon.stub( RiseVision.VideoRLS, "onFileRefresh" );
+    onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
     // mock receiving file-update to notify a new file is available in this watched folder
     messageHandlers.forEach( function( handler ) {
@@ -177,7 +177,7 @@ suite( "file deleted", function() {
   } );
 
   suiteTeardown( function() {
-    RiseVision.VideoRLS.onFileRefresh.restore();
+    RiseVision.VideoWatch.onFileRefresh.restore();
   } );
 
   test( "should be able to configure player after a video was deleted", function() {
@@ -192,7 +192,7 @@ suite( "file error from update", function() {
 
   suiteSetup( function() {
 
-    onFileRefreshStub = sinon.stub( RiseVision.VideoRLS, "onFileRefresh" );
+    onFileRefreshStub = sinon.stub( RiseVision.VideoWatch, "onFileRefresh" );
 
     // mock adding this file
     messageHandlers.forEach( function( handler ) {
@@ -216,7 +216,7 @@ suite( "file error from update", function() {
   } );
 
   suiteTeardown( function() {
-    RiseVision.VideoRLS.onFileRefresh.restore();
+    RiseVision.VideoWatch.onFileRefresh.restore();
   } );
 
   test( "should be able to configure player after file error received for one of the videos in list", function() {

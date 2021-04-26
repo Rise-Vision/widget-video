@@ -41,7 +41,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     var filePath = "",
       i;
 
-    if ( _videoUtils.getUsingRLS() && _files && _files.length && _files.length > 0 ) {
+    if ( _videoUtils.getUsingWatch() && _files && _files.length && _files.length > 0 ) {
       for ( i = 0; i < _files.length; i++ ) {
         if ( _files[ i ].url === url ) {
           filePath = _files[ i ].filePath;
@@ -158,7 +158,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   }
 
   function _initPlaylist() {
-    var usingRLS = _videoUtils.getUsingRLS(),
+    var usingWatch = _videoUtils.getUsingWatch(),
       playlist = [],
       playlistItem,
       sources,
@@ -167,8 +167,8 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
     _files.forEach( function addPlaylistItem( file ) {
       sources = [];
       source = {
-        src: usingRLS ? file.url : file,
-        type: _utils.getVideoFileType( ( usingRLS ? file.name : file ) )
+        src: usingWatch ? file.url : file,
+        type: _utils.getVideoFileType( ( usingWatch ? file.name : file ) )
       };
 
       sources.push( source );
@@ -219,14 +219,14 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   }
 
   function _ready() {
-    var usingRLS = _videoUtils.getUsingRLS(),
+    var usingWatch = _videoUtils.getUsingWatch(),
       fileType,
       fileURl;
 
     if ( _files && _files.length && _files.length > 0 ) {
       if ( mode === "file" ) {
-        fileType = _utils.getVideoFileType( ( usingRLS ? _files[ 0 ].name : _files[ 0 ] ) );
-        fileURl = usingRLS ? _files[ 0 ].url : _files[ 0 ];
+        fileType = _utils.getVideoFileType( ( usingWatch ? _files[ 0 ].name : _files[ 0 ] ) );
+        fileURl = usingWatch ? _files[ 0 ].url : _files[ 0 ];
 
         _playerInstance.src( { type: fileType, src: fileURl } );
       } else if ( mode === "folder" ) {
@@ -294,7 +294,7 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
   }
 
   function play() {
-    var usingRLS = _videoUtils.getUsingRLS(),
+    var usingWatch = _videoUtils.getUsingWatch(),
       fileType,
       fileURl;
 
@@ -306,8 +306,8 @@ RiseVision.PlayerVJS = function PlayerVJS( params, mode, videoRef ) {
       // set a new source
       if ( _files && _files.length && _files.length > 0 ) {
         if ( mode === "file" ) {
-          fileType = _utils.getVideoFileType( ( usingRLS ? _files[ 0 ].name : _files[ 0 ] ) );
-          fileURl = usingRLS ? _files[ 0 ].url : _files[ 0 ];
+          fileType = _utils.getVideoFileType( ( usingWatch ? _files[ 0 ].name : _files[ 0 ] ) );
+          fileURl = usingWatch ? _files[ 0 ].url : _files[ 0 ];
 
           _playerInstance.src( { type: fileType, src: fileURl } );
         } else if ( mode === "folder" ) {

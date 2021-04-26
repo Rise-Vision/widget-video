@@ -1,21 +1,18 @@
-/* global localMessaging, playerLocalStorage, playerLocalStorageLicensing, config _ */
+/* global riseContentSentinel, _ */
 /* eslint-disable no-console */
 
 var RiseVision = RiseVision || {};
 
 RiseVision.VideoWatch = RiseVision.VideoWatch || {};
 
-RiseVision.VideoWatch.PlayerLocalStorageFolder = function() {
+RiseVision.VideoWatch.RiseContentSentinelFolder = function() {
   "use strict";
 
   var INITIAL_PROCESSING_DELAY = 15000,
     videoUtils = RiseVision.VideoUtils,
-    messaging = new localMessaging.default(),
     defaultFileFormat = "unknown",
     folderPath = "",
-    licensing = null,
-    storage = null,
-    watchInitiated = false,
+    contentSentinel = null,
     files = [],
     filesInError = [],
     initialProcessingTimer = null,
@@ -148,58 +145,6 @@ RiseVision.VideoWatch.PlayerLocalStorageFolder = function() {
     }, INITIAL_PROCESSING_DELAY );
   }
 
-  function _handleNoConnection() {
-    videoUtils.logEvent( {
-      "event": "error",
-      "event_details": "no connection",
-      "file_url": folderPath,
-      "file_format": defaultFileFormat
-    }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
-
-    RiseVision.VideoWatch.handleError();
-  }
-
-  function _handleRequiredModulesUnavailable() {
-    videoUtils.logEvent( {
-      "event": "error",
-      "event_details": "required modules unavailable",
-      "file_url": folderPath,
-      "file_format": defaultFileFormat
-    }, { severity: "error", errorCode: "E000000025", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
-
-    RiseVision.VideoWatch.handleError();
-  }
-
-  function _handleUnauthorized() {
-    videoUtils.logEvent( {
-      "event": "error",
-      "event_details": "unauthorized",
-      "file_url": folderPath,
-      "file_format": defaultFileFormat
-    }, { severity: "error", errorCode: "E000000016", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
-
-    RiseVision.VideoWatch.handleError();
-  }
-
-  function _handleAuthorized() {
-    if ( !watchInitiated ) {
-      // start watching the folder
-      storage.watchFiles( folderPath, "video" );
-      watchInitiated = true;
-    }
-  }
-
-  function _handleAuthorizationError( data ) {
-    var detail = data.detail || "";
-
-    videoUtils.logEvent( {
-      "event": "error",
-      "event_details": "authorization error - " + ( ( typeof detail === "string" ) ? detail : JSON.stringify( detail ) ),
-      "file_url": folderPath,
-      "file_format": defaultFileFormat
-    }, { severity: "error", errorCode: "E000000016", debugInfo: JSON.stringify( { file_url: folderPath, file_format: defaultFileFormat } ) } );
-  }
-
   function _handleFileProcessing() {
     if ( initialLoad && !initialProcessingTimer ) {
       _startInitialProcessingTimer();
@@ -300,19 +245,6 @@ RiseVision.VideoWatch.PlayerLocalStorageFolder = function() {
       params: _.clone( params )
     } );
 
-    /*** Possible error messages from Local Storage ***/
-    /*
-      "File's host server could not be reached"
-
-      "File I/O Error"
-
-      "Could not retrieve signed URL"
-
-      "Insufficient disk space"
-
-      "Invalid response with status code [CODE]"
-     */
-
     videoUtils.logEvent( params, { severity: "error", errorCode: "E000000027", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
 
     if ( !initialLoad && !initialProcessingTimer ) {
@@ -330,21 +262,6 @@ RiseVision.VideoWatch.PlayerLocalStorageFolder = function() {
     }
 
     switch ( data.event.toUpperCase() ) {
-    case "NO-CONNECTION":
-      _handleNoConnection();
-      break;
-    case "REQUIRED-MODULES-UNAVAILABLE":
-      _handleRequiredModulesUnavailable();
-      break;
-    case "AUTHORIZED":
-      _handleAuthorized();
-      break;
-    case "UNAUTHORIZED":
-      _handleUnauthorized();
-      break;
-    case "AUTHORIZATION-ERROR":
-      _handleAuthorizationError;
-      break;
     case "FILE-AVAILABLE":
       _handleFileAvailable( data );
       break;
@@ -367,12 +284,11 @@ RiseVision.VideoWatch.PlayerLocalStorageFolder = function() {
   }
 
   function init() {
-    var params = videoUtils.getParams(),
-      companyId = ( params.storage.companyId !== videoUtils.getCompanyId() ) ? params.storage.companyId : "";
-
     folderPath = videoUtils.getStorageFolderPath();
-    licensing = new playerLocalStorageLicensing.default( messaging, _handleEvents, companyId, config.STORAGE_ENV );
-    storage = new playerLocalStorage.default( messaging, licensing, _handleEvents );
+    contentSentinel = new riseContentSentinel.default( _handleEvents );
+
+    // start watching the folder
+    contentSentinel.watchFiles( folderPath, "video" );
   }
 
   function retry() {

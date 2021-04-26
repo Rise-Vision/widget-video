@@ -24,7 +24,7 @@
     "bower": "^1.5.3",
     "chai": "^2.1.2",
     "chai-as-promised": "^4.3.0",
-    "common-component": "git://github.com/Rise-Vision/common-component.git#v1.14.1",
+    "common-component": "git://github.com/Rise-Vision/common-component.git#b260db0",
     "del": "~1.1.1",
     "eslint": "^3.8.1",
     "eslint-config-idiomatic": "^2.1.0",
