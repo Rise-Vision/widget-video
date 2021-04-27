@@ -1,4 +1,4 @@
-/* global suiteSetup, suite, setup, teardown, test, assert,
+/* global suiteSetup, suite, test, assert, logSpy,
  RiseVision, sinon */
 
 /* eslint-disable func-names */
@@ -17,7 +17,7 @@ var table = "video_v2_events",
   receivedCounter = 0,
   receivedExpected = 0,
   callback = null,
-  receivedHandler = function(event) {
+  receivedHandler = function( event ) {
     if ( event.data.topic.indexOf( "FILE-" ) !== -1 ) {
       receivedCounter += 1;
 
@@ -27,23 +27,17 @@ var table = "video_v2_events",
     }
   };
 
-window.addEventListener( "message", function(evt) {
-  receivedHandler(evt);
-} );
-
-teardown( function() {
-  logSpy.restore();
+window.addEventListener( "message", function( evt ) {
+  receivedHandler( evt );
 } );
 
 suite( "errors", function() {
 
-  suiteSetup(function(done) {
+  suiteSetup( function( done ) {
     sinon.stub( RiseVision.VideoWatch, "play" );
 
     receivedExpected = 1;
     callback = done;
-
-    console.log("posting message")
 
     window.postMessage( {
       topic: "FILE-ERROR",
@@ -51,7 +45,7 @@ suite( "errors", function() {
       msg: "Could not retrieve signed URL",
       detail: "error details"
     }, "*" );
-  })
+  } )
 
   test( "file error", function() {
     var logParams;
@@ -62,7 +56,8 @@ suite( "errors", function() {
     logParams.event = "error";
     logParams.event_details = "Could not retrieve signed URL | error details";
 
-    assert( logSpy.calledTwice ); // once for configuration event and once for error
+    // once for configuration event and once for error
+    assert( logSpy.calledTwice );
     assert( logSpy.calledWith( table, logParams, {
       severity: "error",
       errorCode: "E000000215",

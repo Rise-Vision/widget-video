@@ -1,4 +1,4 @@
-/* global suiteSetup, suite, setup, teardown, test, assert,
+/* global suiteSetup, suite, test, assert, logSpy,
  RiseVision, sinon */
 
 /* eslint-disable func-names */
@@ -17,7 +17,7 @@ var table = "video_v2_events",
   receivedCounter = 0,
   receivedExpected = 0,
   callback = null,
-  receivedHandler = function(event) {
+  receivedHandler = function( event ) {
     if ( event.data.topic.indexOf( "FILE-" ) !== -1 ) {
       receivedCounter += 1;
 
@@ -27,17 +27,13 @@ var table = "video_v2_events",
     }
   };
 
-window.addEventListener( "message", function(evt) {
-  receivedHandler(evt);
-} );
-
-teardown( function() {
-  logSpy.restore();
+window.addEventListener( "message", function( evt ) {
+  receivedHandler( evt );
 } );
 
 suite( "errors", function() {
 
-  suiteSetup(function(done) {
+  suiteSetup( function( done ) {
     sinon.stub( RiseVision.VideoWatch, "play" );
 
     receivedExpected = 2;
@@ -56,13 +52,14 @@ suite( "errors", function() {
       msg: "File's host server could not be reached",
       detail: "error details"
     }, "*" );
-  })
+  } )
 
   test( "file error", function() {
     params.event = "error";
     params.event_details = "File's host server could not be reached | error details";
 
-    assert.equal(logSpy.callCount, 2); // configuration event and one error event
+    // configuration event and one error event
+    assert.equal( logSpy.callCount, 2 );
     assert( logSpy.calledWith( table, params, {
       severity: "error",
       errorCode: "E000000215",
