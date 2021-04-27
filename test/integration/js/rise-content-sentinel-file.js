@@ -6,7 +6,7 @@
 var receivedCounter = 0,
   receivedExpected = 0,
   callback = null,
-  receivedHandler = function() {
+  receivedHandler = function(event) {
     if ( event.data.topic.indexOf( "FILE-" ) !== -1 ) {
       receivedCounter += 1;
 
@@ -16,8 +16,8 @@ var receivedCounter = 0,
     }
   };
 
-window.addEventListener( "message", function() {
-  receivedHandler();
+window.addEventListener( "message", function(evt) {
+  receivedHandler(evt);
 } );
 
 suite( "file added", function() {

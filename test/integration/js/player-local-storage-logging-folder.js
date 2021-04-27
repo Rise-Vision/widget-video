@@ -180,6 +180,7 @@ suite( "errors", function() {
       errorCode: "E000000027",
       eventApp: "widget-video",
       debugInfo: JSON.stringify( {
+        "watchType": "rise-local-storage",
         "file_url": logParams.file_url
       } )
     } ) );
