@@ -233,7 +233,8 @@ RiseVision.VideoWatch.RiseContentSentinelFolder = function() {
         "event_details": msg + ( detail ? " | " + detail : "" ),
         "file_url": data.filePath
       },
-      fileInError = _getFileInError( data.filePath );
+      fileInError = _getFileInError( data.filePath ),
+      errorCode = msg && msg.toLowerCase().includes( "insufficient disk space" ) ? "E000000040" : "E000000215";
 
     // prevent repetitive logging when widget is receiving messages from other potential widget instances watching same file
     if ( fileInError && _.isEqual( params, fileInError.params ) ) {
@@ -245,7 +246,7 @@ RiseVision.VideoWatch.RiseContentSentinelFolder = function() {
       params: _.clone( params )
     } );
 
-    videoUtils.logEvent( params, { severity: "error", errorCode: "E000000027", debugInfo: JSON.stringify( { file_url: params.file_url } ) } );
+    videoUtils.logEvent( params, { severity: "error", errorCode: errorCode, debugInfo: JSON.stringify( { watchType: "rise-content-sentinel", file_url: params.file_url } ) } );
 
     if ( !initialLoad && !initialProcessingTimer ) {
       if ( _getFile( data.filePath ) ) {
