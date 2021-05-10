@@ -234,7 +234,9 @@ RiseVision.VideoWatch.RiseContentSentinelFolder = function() {
         "file_url": data.filePath
       },
       fileInError = _getFileInError( data.filePath ),
-      errorCode = msg && msg.toLowerCase().includes( "insufficient disk space" ) ? "E000000040" : "E000000215";
+      isInsufficientDiskSpace = msg && msg.toLowerCase().includes( "insufficient disk space" ),
+      isInsufficientQuota = msg && msg.toLowerCase().includes( "insufficient quota" ),
+      errorCode = isInsufficientDiskSpace || isInsufficientQuota ? "E000000040" : "E000000215";
 
     // prevent repetitive logging when widget is receiving messages from other potential widget instances watching same file
     if ( fileInError && _.isEqual( params, fileInError.params ) ) {
